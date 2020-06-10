@@ -1,0 +1,24 @@
+{
+    "type": "ehtech:ore_grower",
+    "input": {
+        "items": [
+            {
+                "item": "ehtech:machine_recipes/ore_grower/lapis_ore_seed"
+            }
+        ],
+        "blocks": [
+            {
+                "block": "ehtech:machine_recipes/ore_grower/default_overworld_base"
+            }
+        ]
+    },
+    "output": {
+        "blocks": [
+            {
+                "block": "minecraft:lapis_ore"
+            }
+        ]
+    },
+    "consumes": 1.0,
+    "timeModifier": 0.015625
+}

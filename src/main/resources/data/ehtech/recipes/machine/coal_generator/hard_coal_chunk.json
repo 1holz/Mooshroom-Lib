@@ -1,0 +1,12 @@
+{
+    "type": "ehtech:coal_generator",
+    "input": {
+        "items": [
+            {
+                "item": "ehtech:machine_recipes/coal_generator/hard_coal_chunk"
+            }
+        ]
+    },
+    "generates": 0.125,
+    "timeModifier": 0.125
+}

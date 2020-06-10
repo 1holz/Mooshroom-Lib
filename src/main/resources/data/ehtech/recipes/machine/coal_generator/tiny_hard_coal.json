@@ -1,0 +1,12 @@
+{
+    "type": "ehtech:coal_generator",
+    "input": {
+        "items": [
+            {
+                "item": "ehtech:machine_recipes/coal_generator/tiny_hard_coal"
+            }
+        ]
+    },
+    "generates": 0.125,
+    "timeModifier": 1.25
+}

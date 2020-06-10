@@ -1,0 +1,10 @@
+{
+  "variants": {
+      "facing=up": { "model": "ehtech:block/directional/machine/coalgenerator/coal_generator_up"},
+      "facing=down": { "model": "ehtech:block/directional/machine/coalgenerator/coal_generator_down"},
+      "facing=north": { "model": "ehtech:block/directional/machine/coalgenerator/coal_generator" },
+      "facing=south": { "model": "ehtech:block/directional/machine/coalgenerator/coal_generator", "y": 180 },
+      "facing=west": { "model": "ehtech:block/directional/machine/coalgenerator/coal_generator", "y": 270 },
+      "facing=east": { "model": "ehtech:block/directional/machine/coalgenerator/coal_generator", "y": 90 }
+  }
+}

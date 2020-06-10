@@ -1,0 +1,24 @@
+{
+    "type": "ehtech:ore_grower",
+    "input": {
+        "items": [
+            {
+                "item": "ehtech:machine_recipes/ore_grower/coal_ore_seed"
+            }
+        ],
+        "blocks": [
+            {
+                "block": "ehtech:machine_recipes/ore_grower/default_overworld_base"
+            }
+        ]
+    },
+    "output": {
+        "blocks": [
+            {
+                "block": "minecraft:coal_ore"
+            }
+        ]
+    },
+    "consumes": 1.0,
+    "timeModifier": 0.03125
+}
