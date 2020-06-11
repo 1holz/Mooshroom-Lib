@@ -7,8 +7,7 @@ import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.CoalGeneratorBlockEntity;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.OreGrowerBlockEntity;
 import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.CoalGeneratorBlock;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.OreGrowerBlock;
+import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
 import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.CoalGeneratorController;
 import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.OreGrowerController;
@@ -43,8 +42,8 @@ public enum BlockRegistry {
     //static
 
     private static void setupAll() {
-        COAL_GENERATOR.setup(new CoalGeneratorBlock(), getDefaultItemSettings(), CoalGeneratorBlockEntity::new, getDefaultContainerFactory(CoalGeneratorController.class), getDefaultScreenFactory(CoalGeneratorController.class), getDefaultRecipeType(getId(COAL_GENERATOR)), getDefaultSerializer());
-        ORE_GROWER.setup(new OreGrowerBlock(), getDefaultItemSettings(), OreGrowerBlockEntity::new, getDefaultContainerFactory(OreGrowerController.class), getDefaultScreenFactory(OreGrowerController.class), getDefaultRecipeType(getId(ORE_GROWER)), getDefaultSerializer());
+        COAL_GENERATOR.setup(new MachineBlock(getId(COAL_GENERATOR)), getDefaultItemSettings(), CoalGeneratorBlockEntity::new, getDefaultContainerFactory(CoalGeneratorController.class), getDefaultScreenFactory(CoalGeneratorController.class), getDefaultRecipeType(getId(COAL_GENERATOR)), getDefaultSerializer());
+        ORE_GROWER.setup(new MachineBlock(getId(ORE_GROWER)), getDefaultItemSettings(), OreGrowerBlockEntity::new, getDefaultContainerFactory(OreGrowerController.class), getDefaultScreenFactory(OreGrowerController.class), getDefaultRecipeType(getId(ORE_GROWER)), getDefaultSerializer());
     }
 
     public static BlockRegistry getEntry(Identifier id) {
