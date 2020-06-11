@@ -3,16 +3,19 @@ package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.mach
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.ContainerBlockEntity;
 import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerInventoryComponent;
+import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
+import de.alberteinholz.ehtech.registry.BlockRegistry;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tickable;
 
 public abstract class MachineBlockEntity extends ContainerBlockEntity implements Tickable {
+    //TODO put this in a data component?
     protected MachineRecipe recipe;
     public MachineCapacitorComponent capacitor = initializeCapacitorComponent();
 
@@ -26,12 +29,64 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
 
     @Override
     public void tick() {
+        //new
+        MachineDataProviderComponent data = (MachineDataProviderComponent) this.data;
+        boolean isRunning = data.progress.getBarCurrent() > data.progress.getBarMinimum() && isActivated() ? true : false;
+        if (!isRunning && isActivated()) {
+            isRunning = checkForRecipe();
+        }
+        if (isRunning) {
+            if (data.progress.getBarCurrent() == data.progress.getBarMinimum()) {
+                start();
+            }
+            process();
+            task();
+            if (data.progress.getBarCurrent() == data.progress.getBarMaximum()) {
+                finish();
+            }
+        } else {
+            idle();
+        }
+        correct();
+        markDirty();
+    }
+
+    public boolean checkForRecipe() {
+        world.getRecipeManager().getFirstMatch(BlockRegistry.getEntry(BlockEntityType.getId(getType())).recipeType, new InventoryWrapper(pos), world).ifPresent(r -> this.recipe = r);
+        return recipe != null ? true : false;
+    }
+
+    public void start() {
+        
+    }
+
+    public void process() {
         //only for testing TODO: remove
         if (inventory.getItemStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
             capacitor.generateEnergy(world, pos, 4);
         }
-        //end
-        markDirty();
+    }
+
+    public void task() {
+
+    }
+
+    public void finish() {
+        cancle();
+    }
+
+    public void cancle() {
+        MachineDataProviderComponent data = (MachineDataProviderComponent) this.data;
+        data.setProgress(data.progress.getBarMinimum());
+        recipe = null;
+    }
+
+    public void idle() {
+
+    }
+
+    public void correct() {
+
     }
 
     public boolean containsItemIngredients(Input.ItemIngredient... ingredients) {
