@@ -4,7 +4,7 @@ import org.apache.logging.log4j.Logger;
 
 public class LoggerHelper {
     public Logger logger;
-    public String bugTracker = "TODO";
+    public String bugTracker = "https://github.com/Albert-Einholz/Einholzscher-Tech-Mod/issues";
 
     public LoggerHelper(Logger logger) {
         this.logger = logger;

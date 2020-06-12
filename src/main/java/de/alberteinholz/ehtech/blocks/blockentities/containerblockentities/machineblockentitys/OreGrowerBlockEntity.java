@@ -7,9 +7,10 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataPr
 import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
+import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
-import net.minecraft.block.entity.BlockEntity;
+import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
@@ -36,13 +37,10 @@ public class OreGrowerBlockEntity extends MachineBlockEntity {
         super.process();
         //only for testing TODO: change
         for (Direction neighbor : DirectionalBlock.FACING.getValues()) {
-            BlockEntity be = world.getBlockEntity(pos.offset(neighbor));
-            if (be instanceof MachineBlockEntity && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
-                MachineCapacitorComponent cap = ((MachineBlockEntity) be).capacitor;
-                if (cap.canExtractEnergy()) {
-                    int transfered = capacitor.getPreferredType().getMaximumTransferSize() - capacitor.insertEnergy(capacitor.getPreferredType(), capacitor.getPreferredType().getMaximumTransferSize(), ActionType.TEST);
-                    capacitor.insertEnergy(capacitor.getPreferredType(), cap.extractEnergy(capacitor.getPreferredType(), transfered, ActionType.PERFORM), ActionType.PERFORM);
-                }
+            BlockPos target = pos.offset(neighbor);
+            BlockComponentProvider block = world.getBlockState(target).getBlock() instanceof BlockComponentProvider ? (BlockComponentProvider) world.getBlockState(target).getBlock() : null;
+            if (block != null && block.hasComponent(world, target, UniversalComponents.CAPACITOR_COMPONENT, null)) {
+                capacitor.pull(block.getComponent(world, target, UniversalComponents.CAPACITOR_COMPONENT, null), ActionType.PERFORM);
             }
         }
     }
