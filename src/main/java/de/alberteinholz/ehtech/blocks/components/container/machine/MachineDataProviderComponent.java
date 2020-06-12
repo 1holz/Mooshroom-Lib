@@ -1,6 +1,7 @@
 package de.alberteinholz.ehtech.blocks.components.container.machine;
 
 import java.util.List;
+import java.util.Optional;
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import io.github.cottonmc.component.data.api.DataElement;
@@ -8,12 +9,17 @@ import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.api.UnitManager;
 import io.github.cottonmc.component.data.impl.SimpleDataElement;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 public class MachineDataProviderComponent extends ContainerDataProviderComponent {
     public SimpleDataElement activationState = new SimpleDataElement(ActivationState.ALWAYS_ON.name());
     public SimpleDataElement efficiency = new SimpleDataElement(String.valueOf(1.0));
     public SimpleDataElement powerPerTick = new SimpleDataElement(String.valueOf(0));
     public SimpleDataElement progress = new SimpleDataElement().withBar(0.0, 0.0, 100.0, UnitManager.PERCENT);
+    public SimpleDataElement recipe = new SimpleDataElement().withLabel((Text) null);
     //in percent per tick * fuelSpeed
     public SimpleDataElement speed = new SimpleDataElement(String.valueOf(1.0));
 
@@ -27,6 +33,7 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         data.add(efficiency);
         data.add(powerPerTick);
         data.add(progress);
+        data.add(recipe);
         data.add(speed);
     }
 
@@ -47,7 +54,10 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         setActivationState((tag.getString("ActivationState")));
         setEfficiency(tag.getDouble("Efficiency"));
         setPowerPerTick(tag.getInt("PowerPerTick"));
-        setProgress(tag.getCompound("Progress").getDouble("Current"));
+        setProgress(tag.getDouble("Process"));
+        if (tag.contains("Recipe", 8)) {
+            setRecipeById(new Identifier(tag.getString("Recipe")));
+        }
         setSpeed(tag.getDouble("Speed"));
     }
 
@@ -57,9 +67,10 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         tag.putString("ActivationState", String.valueOf(getActivationState()));
         tag.putDouble("Efficiency", getEfficiency());
         tag.putInt("PowerPerTick", getPowerPerTick());
-        CompoundTag progressTag = new CompoundTag();
-        progressTag.putDouble("Current", progress.getBarCurrent());
-        tag.put("Progress", progressTag);
+        tag.putDouble("Progress", progress.getBarCurrent());
+        if (recipe.hasLabel()) {
+            tag.putString("Recipe", recipe.getLabel().asString());
+        }
         tag.putDouble("Speed", getSpeed());
         return tag;
     }
@@ -68,7 +79,7 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         return ActivationState.valueOf(activationState.getLabel().getString());
     }
 
-    public void setActivationState(String string) {
+    private void setActivationState(String string) {
         assert ActivationState.isValid(string);
         activationState.withLabel(string);
     }
@@ -93,8 +104,39 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         powerPerTick.withLabel(String.valueOf(value));
     }
 
-    public void setProgress(double current) {
-        progress.withBar(progress.getBarMinimum(), current, progress.getBarMaximum(), progress.getBarUnit());
+    public void addProgress(double value) {
+        setProgress(progress.getBarCurrent() + value);
+    }
+
+    public void resetProgress() {
+        setProgress(progress.getBarMinimum());
+    }
+
+    private void setProgress(double value) {
+        value = value > progress.getBarMaximum() ? progress.getBarMaximum() : value < progress.getBarMinimum() ? progress.getBarMinimum() : value;
+        progress.withBar(progress.getBarMinimum(), value, progress.getBarMaximum(), progress.getBarUnit());
+    }
+
+    public void setRecipe(Recipe<?> recipe) {
+        if (recipe != null) {
+            setRecipeById(recipe.getId());
+        } else {
+            resetRecipe();
+        }
+    }
+
+    private void setRecipeById(Identifier id) {
+        recipe.withLabel(id.toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    public Recipe<?> getRecipe(World world) {
+        Optional<Recipe<?>> optional = (Optional<Recipe<?>>) world.getRecipeManager().get(new Identifier(recipe.getLabel().asString()));
+        return optional.isPresent() ? optional.get() : null;
+    }
+
+    public void resetRecipe() {
+        recipe.withLabel((Text) null);
     }
 
     public double getSpeed() {

@@ -6,6 +6,7 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapaci
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
+import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
@@ -49,6 +50,7 @@ public class OreGrowerBlockEntity extends MachineBlockEntity {
     public void task() {
         super.task();
         MachineDataProviderComponent data = (MachineDataProviderComponent) this.data;
+        MachineRecipe recipe = (MachineRecipe) data.getRecipe(world);
         int consum = (int) (data.getEfficiency() * data.getSpeed() * recipe.consumes);
         if (!containsBlockIngredients(recipe.input.blocks)) {
             cancle();
@@ -56,7 +58,7 @@ public class OreGrowerBlockEntity extends MachineBlockEntity {
             if (data.progress.getBarCurrent() == data.progress.getBarMinimum()) {
                 inventory.getItemStack("seed_input").decrement(recipe.input.items[0].amount);
             }
-            data.setProgress(data.progress.getBarCurrent() + recipe.timeModifier * data.getSpeed());
+            data.addProgress(recipe.timeModifier * data.getSpeed());
             data.setPowerPerTick(consum * -1);
             capacitor.extractEnergy(capacitor.getPreferredType(), consum, ActionType.PERFORM);
             BlockPos target = pos.offset(world.getBlockState(pos).get(DirectionalBlock.FACING));
@@ -74,7 +76,7 @@ public class OreGrowerBlockEntity extends MachineBlockEntity {
     @Override
     public void finish() {
         super.finish();
-        world.setBlockState(pos.offset(world.getBlockState(pos).get(DirectionalBlock.FACING)), recipe.output.blocks[0]);
+        world.setBlockState(pos.offset(world.getBlockState(pos).get(DirectionalBlock.FACING)), ((MachineRecipe) ((MachineDataProviderComponent) data).getRecipe(world)).output.blocks[0]);
     }
 
     @Override

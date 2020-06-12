@@ -1,5 +1,7 @@
 package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys;
 
+import java.util.Optional;
+
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.ContainerBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
@@ -15,8 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tickable;
 
 public abstract class MachineBlockEntity extends ContainerBlockEntity implements Tickable {
-    //TODO put this in a data component?
-    protected MachineRecipe recipe;
     public MachineCapacitorComponent capacitor = initializeCapacitorComponent();
 
     public MachineBlockEntity(BlockEntityType<?> type) {
@@ -51,8 +51,9 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     }
 
     public boolean checkForRecipe() {
-        world.getRecipeManager().getFirstMatch(BlockRegistry.getEntry(BlockEntityType.getId(getType())).recipeType, new InventoryWrapper(pos), world).ifPresent(r -> this.recipe = r);
-        return recipe != null ? true : false;
+        Optional<MachineRecipe> optional = world.getRecipeManager().getFirstMatch(BlockRegistry.getEntry(BlockEntityType.getId(getType())).recipeType, new InventoryWrapper(pos), world);
+        ((MachineDataProviderComponent) this.data).setRecipe(optional.orElse(null));
+        return optional.isPresent();
     }
 
     public void start() {
@@ -76,8 +77,8 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
 
     public void cancle() {
         MachineDataProviderComponent data = (MachineDataProviderComponent) this.data;
-        data.setProgress(data.progress.getBarMinimum());
-        recipe = null;
+        data.resetProgress();
+        data.resetRecipe();
     }
 
     public void idle() {
