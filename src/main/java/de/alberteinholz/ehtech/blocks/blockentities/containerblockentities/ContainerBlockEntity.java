@@ -1,7 +1,7 @@
 package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerInventoryComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;

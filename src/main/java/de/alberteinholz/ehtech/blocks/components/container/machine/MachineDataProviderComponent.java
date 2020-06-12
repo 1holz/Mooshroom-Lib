@@ -1,8 +1,8 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components;
+package de.alberteinholz.ehtech.blocks.components.container.machine;
 
 import java.util.List;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.api.UnitManager;

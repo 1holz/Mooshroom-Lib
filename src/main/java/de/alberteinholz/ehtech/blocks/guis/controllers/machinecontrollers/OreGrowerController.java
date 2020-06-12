@@ -1,6 +1,6 @@
 package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
+import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;

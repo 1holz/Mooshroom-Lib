@@ -1,7 +1,7 @@
 package de.alberteinholz.ehtech.blocks.guis.controllers;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerInventoryComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.guis.screens.EHContainerScreen;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.cotton.gui.CottonCraftingController;

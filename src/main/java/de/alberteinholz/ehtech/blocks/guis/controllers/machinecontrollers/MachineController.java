@@ -2,9 +2,9 @@ package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
 
 import java.util.function.Supplier;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineCapacitorComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
 import de.alberteinholz.ehtech.blocks.guis.widgets.ActivationButton;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Bar;

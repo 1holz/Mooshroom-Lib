@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components;
+package de.alberteinholz.ehtech.blocks.components.container;
 
 import java.util.ArrayList;
 import java.util.HashMap;

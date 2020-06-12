@@ -2,8 +2,8 @@ package de.alberteinholz.ehtech.blocks.guis.widgets;
 
 import java.util.List;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineDataProviderComponent.ActivationState;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ActivationState;
 import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WButton;

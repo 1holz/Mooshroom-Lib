@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components;
+package de.alberteinholz.ehtech.blocks.components.container.machine;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 public class CoalGeneratorDataProviderComponent extends MachineDataProviderComponent {
     @Deprecated
     public SimpleDataElement fuelHeating = new SimpleDataElement(String.valueOf(0.0));
-    //in percent per tick * speed
+    // in percent per tick * speed
     @Deprecated
     public SimpleDataElement fuelSpeed = new SimpleDataElement(String.valueOf(1.0));
     public SimpleDataElement heat = new SimpleDataElement().withBar(273.15, 273.15, 1773.15, UnitManager.KELVIN);

@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components;
+package de.alberteinholz.ehtech.blocks.components.container.machine;
 
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.energy.impl.SimpleCapacitorComponent;

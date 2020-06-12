@@ -2,10 +2,10 @@ package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.mach
 
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.ContainerBlockEntity;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerInventoryComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineCapacitorComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
+import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
@@ -29,7 +29,6 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
 
     @Override
     public void tick() {
-        //new
         MachineDataProviderComponent data = (MachineDataProviderComponent) this.data;
         boolean isRunning = data.progress.getBarCurrent() > data.progress.getBarMinimum() && isActivated() ? true : false;
         if (!isRunning && isActivated()) {

@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.CoalGeneratorBlockEntity;
 import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.OreGrowerBlockEntity;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
+import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
 import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.CoalGeneratorController;

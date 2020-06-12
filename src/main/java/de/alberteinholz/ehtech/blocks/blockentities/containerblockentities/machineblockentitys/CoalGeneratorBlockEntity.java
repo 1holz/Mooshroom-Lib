@@ -1,8 +1,8 @@
 package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.ContainerInventoryComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.CoalGeneratorDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.MachineCapacitorComponent;
+import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
 import net.minecraft.block.entity.BlockEntityType;

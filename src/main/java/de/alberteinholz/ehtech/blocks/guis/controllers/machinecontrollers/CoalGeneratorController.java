@@ -1,7 +1,7 @@
 package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
 
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.components.InventoryWrapper;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.components.CoalGeneratorDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
+import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Bar;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import de.alberteinholz.ehtech.util.Ref;
