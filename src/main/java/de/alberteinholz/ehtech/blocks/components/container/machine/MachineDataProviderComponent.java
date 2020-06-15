@@ -3,6 +3,7 @@ package de.alberteinholz.ehtech.blocks.components.container.machine;
 import java.util.List;
 import java.util.Optional;
 
+import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
@@ -12,10 +13,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class MachineDataProviderComponent extends ContainerDataProviderComponent {
     public SimpleDataElement activationState = new SimpleDataElement(ActivationState.ALWAYS_ON.name());
+    public SimpleDataElement configItem = new SimpleDataElement().withLabel("000000000000000000000000");
+    public SimpleDataElement configFluid = new SimpleDataElement().withLabel("000000000000000000000000");
+    public SimpleDataElement configPower = new SimpleDataElement().withLabel("000000000000000000000000");
     public SimpleDataElement efficiency = new SimpleDataElement(String.valueOf(1.0));
     public SimpleDataElement powerPerTick = new SimpleDataElement(String.valueOf(0));
     public SimpleDataElement progress = new SimpleDataElement().withBar(0.0, 0.0, 100.0, UnitManager.PERCENT);
@@ -30,6 +35,9 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     @Override
     public void provideData(List<DataElement> data) {
         data.add(activationState);
+        data.add(configItem);
+        data.add(configFluid);
+        data.add(configPower);
         data.add(efficiency);
         data.add(powerPerTick);
         data.add(progress);
@@ -86,6 +94,39 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
 
     public void nextActivationState() {
         setActivationState(String.valueOf(getActivationState().next(1)));
+    }
+
+    public boolean getConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
+        String string = getConfigElement(type).getLabel().asString();
+        int i = getIndex(behavior, dir);
+        if (i % 2 != 0) {
+            return string.charAt(i) == '1' ? true : false;
+        } else {
+            return string.charAt(i) == '1' ? false : true;
+        }
+    }
+
+    public void setConfig(ConfigType type, ConfigBehavior behavior, Direction dir, boolean bl) {
+        char[] chars = getConfigElement(type).getLabel().asString().toCharArray();
+        chars[getIndex(behavior, dir)] = bl ? '1' : '0';
+        ((SimpleDataElement) getConfigElement(type)).withLabel(new String(chars));
+    }
+
+    protected int getIndex(ConfigBehavior behavior, Direction dir) {
+        return dir.getId() * ConfigBehavior.values().length + behavior.ordinal();
+    }
+
+    protected DataElement getConfigElement(ConfigType type) {
+        if (type == ConfigType.ITEM) {
+            return configItem;
+        } else if (type == ConfigType.FLUID) {
+            return configFluid;
+        } else if (type == ConfigType.POWER) {
+            return configPower;
+        } else {
+            TechMod.LOGGER.smallBug();
+            return null;
+        }
     }
     
     public double getEfficiency() {
@@ -147,20 +188,14 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         speed.withLabel(String.valueOf(value));
     }
     
-    public enum ActivationState {
+    public static enum ActivationState {
         ALWAYS_ON,
         REDSTONE_ON,
         REDSTONE_OFF,
         ALWAYS_OFF;
 
-        private static ActivationState[] values = values();
-
-        public static ActivationState value(int value) {
-            return values[value];
-        }
-
         public ActivationState next(int amount) {
-            return value((ordinal() + amount) % values.length);
+            return values()[(ordinal() + amount) % values().length];
         }
 
         public static boolean isValid(String string) {
@@ -178,6 +213,23 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
 
         public static ActivationState toActivationState(String string) {
             return valueOf(string);
+        }
+    }
+
+    public static enum ConfigType {
+        ITEM,
+        FLUID,
+        POWER;
+    }
+
+    public static enum ConfigBehavior {
+        SELF_INPUT,
+        FOREIGEN_INPUT,
+        SELF_OUTPUT,
+        FOREIGN_OUTPUT;
+
+        public ConfigBehavior next(int amount) {
+            return values()[(ordinal() + amount) % values().length];
         }
     }
 }

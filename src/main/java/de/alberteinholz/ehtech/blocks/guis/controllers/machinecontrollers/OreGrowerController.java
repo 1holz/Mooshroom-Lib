@@ -17,8 +17,8 @@ public class OreGrowerController extends MachineController {
     }
 
     @Override
-    protected void initWidgetDependencies() {
-        super.initWidgetDependencies();
+    protected void initWidgetsDependencies() {
+        super.initWidgetsDependencies();
         progressBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/oregrower/elements/progress_bar_bg.png");
         progressBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/oregrower/elements/progress_bar_fg.png");
     }

@@ -1,10 +1,14 @@
 package de.alberteinholz.ehtech.blocks.guis.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.guis.screens.EHContainerScreen;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.cotton.gui.CottonCraftingController;
+import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WPanel;
@@ -18,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 public abstract class ContainerCraftingController extends CottonCraftingController {
     protected BlockPos pos;
     protected WPanel root;
+    protected List<WButton> buttonIds = new ArrayList<WButton>();
     protected WLabel containerTitle;
     protected WLabel playerInventoryTitle;
     public EHContainerScreen screen;
@@ -32,22 +37,19 @@ public abstract class ContainerCraftingController extends CottonCraftingControll
             ContainerCraftingController.this.pos = pos;
         });
         blockInventory = getInventoryComponent().asInventory();
-        draw();
+        initWidgetsDependencies();
+        setRootPanel(root);
+        initWidgets();
+        drawDefault();
         finish();
     }
 
-    public void draw() {
+    protected void initWidgetsDependencies() {
         root = new WGridPanel();
-        setRootPanel(root);
-        initWidgetDependencies();
-        initWidgets();
-        drawDefault();
     }
 
-    protected void initWidgetDependencies() {}
-
     protected void initWidgets() {
-        containerTitle = new WLabel(new TranslatableText(getDataProviderComponent().containerName.getLabel().getString()));
+        containerTitle = new WLabel(new TranslatableText(getDataProviderComponent().getContainerName()));
         playerInventoryTitle = new WLabel(playerInventory.getDisplayName().asFormattedString());
     }
 

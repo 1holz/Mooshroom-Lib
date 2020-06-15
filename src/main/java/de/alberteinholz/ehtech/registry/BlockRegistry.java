@@ -10,6 +10,7 @@ import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
 import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.CoalGeneratorController;
+import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.MachineConfigController;
 import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.OreGrowerController;
 import de.alberteinholz.ehtech.blocks.guis.screens.EHContainerScreen;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
@@ -37,12 +38,14 @@ import net.minecraft.world.World;
 
 public enum BlockRegistry {
     COAL_GENERATOR,
+    MACHINE_CONFIG,
     ORE_GROWER;
 
     //static
 
     private static void setupAll() {
         COAL_GENERATOR.setup(new MachineBlock(getId(COAL_GENERATOR)), getDefaultItemSettings(), CoalGeneratorBlockEntity::new, getDefaultContainerFactory(CoalGeneratorController.class), getDefaultScreenFactory(CoalGeneratorController.class), getDefaultRecipeType(getId(COAL_GENERATOR)), getDefaultSerializer());
+        MACHINE_CONFIG.setup(null, null, null, getDefaultContainerFactory(MachineConfigController.class), getDefaultScreenFactory(MachineConfigController.class), null, null);
         ORE_GROWER.setup(new MachineBlock(getId(ORE_GROWER)), getDefaultItemSettings(), OreGrowerBlockEntity::new, getDefaultContainerFactory(OreGrowerController.class), getDefaultScreenFactory(OreGrowerController.class), getDefaultRecipeType(getId(ORE_GROWER)), getDefaultSerializer());
     }
 
@@ -131,11 +134,13 @@ public enum BlockRegistry {
     public static void registerBlocks() {
         setupAll();
         for (BlockRegistry entry : BlockRegistry.values()) {
-            Registry.register(Registry.BLOCK, getId(entry), entry.block);
-            if (entry.itemSettings != null) {
+            if (entry.block != null) {
+                Registry.register(Registry.BLOCK, getId(entry), entry.block);
+            }
+            if (entry.itemSettings != null && entry.block != null) {
                 Registry.register(Registry.ITEM, getId(entry), new BlockItem(entry.block, entry.itemSettings));
             }
-            if (entry.blockEntitySupplier != null) {
+            if (entry.blockEntitySupplier != null && entry.block != null) {
                 entry.blockEntityType = Registry.register(Registry.BLOCK_ENTITY_TYPE, getId(entry), BlockEntityType.Builder.create(entry.blockEntitySupplier, entry.block).build(null));
             }
             if (entry.containerFactory != null) {

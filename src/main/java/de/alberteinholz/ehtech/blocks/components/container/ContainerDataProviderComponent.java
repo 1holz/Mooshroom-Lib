@@ -9,7 +9,7 @@ import io.github.cottonmc.component.data.impl.SimpleDataElement;
 import net.minecraft.nbt.CompoundTag;
 
 public class ContainerDataProviderComponent implements DataProviderComponent {
-    public SimpleDataElement containerName = new SimpleDataElement();
+    protected SimpleDataElement containerName = new SimpleDataElement();
     
     public ContainerDataProviderComponent(String name) {
         setContainerName(name);
@@ -34,6 +34,10 @@ public class ContainerDataProviderComponent implements DataProviderComponent {
     public CompoundTag toTag(CompoundTag tag) {
         tag.putString("ContainerName", containerName.getLabel().getString());
         return tag;
+    }
+
+    public String getContainerName() {
+        return containerName.getLabel().asString();
     }
 
     public void setContainerName(String name) {

@@ -10,14 +10,12 @@ import io.github.cottonmc.cotton.gui.widget.WButton;
 import net.minecraft.util.Identifier;
 
 public class ActivationButton extends WButton {
-    public int id;
     public MachineDataProviderComponent component;
     public ActivationState state;
     public Identifier texture;
 
-    public ActivationButton(MachineDataProviderComponent component, int id) {
+    public ActivationButton(MachineDataProviderComponent component) {
         super();
-        this.id = id;
         this.component = component;
     }
 
@@ -29,25 +27,25 @@ public class ActivationButton extends WButton {
 
     public void setTexture(int mouseX, int mouseY) {
         state = component.getActivationState();
-        if(mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height) {
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height) {
             if (state == ActivationState.ALWAYS_ON) {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_always_on_hovered.png");
-            } else if(state == ActivationState.REDSTONE_ON) {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_redstone_on_hovered.png");
-            } else if(state == ActivationState.REDSTONE_OFF) {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_redstone_off_hovered.png");
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_always_on_hovered.png");
+            } else if (state == ActivationState.REDSTONE_ON) {
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_redstone_on_hovered.png");
+            } else if (state == ActivationState.REDSTONE_OFF) {
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_redstone_off_hovered.png");
             } else {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_always_off_hovered.png");
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_always_off_hovered.png");
             }
         } else {
             if (state == ActivationState.ALWAYS_ON) {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_always_on_regular.png");
-            } else if(state == ActivationState.REDSTONE_ON) {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_redstone_on_regular.png");
-            } else if(state == ActivationState.REDSTONE_OFF) {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_redstone_off_regular.png");
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_always_on_regular.png");
+            } else if (state == ActivationState.REDSTONE_ON) {
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_redstone_on_regular.png");
+            } else if (state == ActivationState.REDSTONE_OFF) {
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_redstone_off_regular.png");
             } else {
-                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button_always_off_regular.png");
+                texture = new Identifier(Ref.MOD_ID, "textures/gui/widget/activation_button/activation_button_always_off_regular.png");
             }
         }
     }
