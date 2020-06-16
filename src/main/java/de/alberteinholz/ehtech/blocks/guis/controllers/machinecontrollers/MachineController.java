@@ -6,7 +6,6 @@ import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
-import de.alberteinholz.ehtech.blocks.guis.widgets.ActivationButton;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Bar;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Button;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
@@ -18,7 +17,6 @@ import io.github.cottonmc.cotton.gui.widget.WItemSlot;
 import io.github.cottonmc.cotton.gui.widget.WBar.Direction;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.container.BlockContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -34,7 +32,7 @@ public abstract class MachineController extends ContainerCraftingController {
     protected WItemSlot powerInputSlot;
     protected WItemSlot upgradeSlot;
     protected Bar powerBar;
-    protected ActivationButton activationButton;
+    protected Button activationButton;
     protected Bar progressBar;
     protected WItemSlot networkSlot;
     protected WItemSlot powerOutputSlot;
@@ -52,10 +50,10 @@ public abstract class MachineController extends ContainerCraftingController {
     @Override
     protected void initWidgetsDependencies() {
         super.initWidgetsDependencies();
-        powerBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/power_bar_bg.png");
-        powerBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/power_bar_fg.png");
-        progressBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/progress_bar_bg.png");
-        progressBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/progress_bar_fg.png");
+        powerBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/power_bar/background.png");
+        powerBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/power_bar/foreground.png");
+        progressBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/progress_bar/background.png");
+        progressBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/progress_bar/foreground.png");
     }
 
     @Override
@@ -64,7 +62,7 @@ public abstract class MachineController extends ContainerCraftingController {
         powerInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("power_input"));
         upgradeSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("upgrade"));
         powerBar = new Bar(powerBarBG, powerBarFG, getCapacitorComponent(), Direction.UP);
-        activationButton = new ActivationButton((MachineDataProviderComponent) getDataProviderComponent());
+        activationButton = new ActivationButton();
         buttonIds.add(activationButton);
         progressBar = new Bar(progressBarBG, progressBarFG, ((MachineDataProviderComponent) getDataProviderComponent()).progress, Direction.RIGHT);
         networkSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("network"));
@@ -88,20 +86,12 @@ public abstract class MachineController extends ContainerCraftingController {
         powerBar.specialTooltips.put("tooltip.ehtech.machine.power_bar_trend", (Supplier<Object>[]) powerBarTrendSuppliers);
         ((WGridPanel) root).add(powerBar, 8, 2, 1, 3);
         ((WGridPanel) root).add(activationButton, 9, 2);
-        activationButton.setOnClick(() -> {
-            MinecraftClient minecraft = screen.getMinecraftClient();
-            minecraft.interactionManager.clickButton(syncId, buttonIds.indexOf(activationButton));
-            onButtonClick(playerInventory.player, buttonIds.indexOf(activationButton));
-        });
+        activationButton.setOnClick(getDefaultOnButtonClick(activationButton));
         progressBar.tooltips.add("tooltip.ehtech.maschine.progress_bar");
         ((WGridPanel) root).add(networkSlot, 9, 3);
         ((WGridPanel) root).add(powerOutputSlot, 8, 5);
         ((WGridPanel) root).add(configurationButton, 9, 5);
-        configurationButton.setOnClick(() -> {
-            MinecraftClient minecraft = screen.getMinecraftClient();
-            minecraft.interactionManager.clickButton(syncId, buttonIds.indexOf(configurationButton));
-            onButtonClick(playerInventory.player, buttonIds.indexOf(configurationButton));
-        });
+        configurationButton.setOnClick(getDefaultOnButtonClick(configurationButton));
     }
 
     @Override
@@ -122,5 +112,13 @@ public abstract class MachineController extends ContainerCraftingController {
 
     protected MachineCapacitorComponent getCapacitorComponent() {
         return (MachineCapacitorComponent) BlockComponentProvider.get(world.getBlockState(pos)).getComponent(world, pos, UniversalComponents.CAPACITOR_COMPONENT, null);
+    }
+
+    protected class ActivationButton extends Button {
+        @Override
+        public Identifier setTexture(int mouseX, int mouseY) {
+            withTexture(new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/activation_button/" + ((MachineDataProviderComponent) getDataProviderComponent()).getActivationState().toString().toLowerCase() + ".png"));
+            return super.setTexture(mouseX, mouseY);
+        }
     }
 }

@@ -25,8 +25,8 @@ public class CoalGeneratorController extends MachineController {
     @Override
     protected void initWidgetsDependencies() {
         super.initWidgetsDependencies();
-        heatBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/coalgenerator/elements/heat_bar_bg.png");
-        heatBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/coalgenerator/elements/heat_bar_fg.png");
+        heatBarBG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/coalgenerator/elements/heat_bar/background.png");
+        heatBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/coalgenerator/elements/heat_bar/foreground.png");
     }
 
     @Override

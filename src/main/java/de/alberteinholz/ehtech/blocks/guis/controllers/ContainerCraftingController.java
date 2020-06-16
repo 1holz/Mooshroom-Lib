@@ -13,6 +13,7 @@ import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WPanel;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.container.BlockContext;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.recipe.RecipeType;
@@ -61,6 +62,14 @@ public abstract class ContainerCraftingController extends CottonCraftingControll
 
     public void finish() {
         rootPanel.validate(this);
+    }
+
+    protected Runnable getDefaultOnButtonClick(WButton button) {
+        return () -> {
+            MinecraftClient minecraft = screen.getMinecraftClient();
+            minecraft.interactionManager.clickButton(syncId, buttonIds.indexOf(button));
+            onButtonClick(playerInventory.player, buttonIds.indexOf(button));
+        };
     }
 
     protected ContainerInventoryComponent getInventoryComponent() {

@@ -60,6 +60,9 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public void fromTag(CompoundTag tag) {
         super.fromTag(tag);
         setActivationState((tag.getString("ActivationState")));
+        configItem.withLabel(tag.getString("ItemConfig"));
+        configFluid.withLabel(tag.getString("FluidConfig"));
+        configPower.withLabel(tag.getString("PowerConfig"));
         setEfficiency(tag.getDouble("Efficiency"));
         setPowerPerTick(tag.getInt("PowerPerTick"));
         setProgress(tag.getDouble("Process"));
@@ -73,6 +76,9 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
         tag.putString("ActivationState", String.valueOf(getActivationState()));
+        tag.putString("ItemConfig", configItem.getLabel().asString());
+        tag.putString("FluidConfig", configFluid.getLabel().asString());
+        tag.putString("PowerConfig", configPower.getLabel().asString());
         tag.putDouble("Efficiency", getEfficiency());
         tag.putInt("PowerPerTick", getPowerPerTick());
         tag.putDouble("Progress", progress.getBarCurrent());
@@ -99,14 +105,18 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public boolean getConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
         String string = getConfigElement(type).getLabel().asString();
         int i = getIndex(behavior, dir);
-        if (i % 2 != 0) {
-            return string.charAt(i) == '1' ? true : false;
-        } else {
+        if (i % 2 == 0) {
             return string.charAt(i) == '1' ? false : true;
+        } else {
+            return string.charAt(i) == '1' ? true : false;
         }
     }
 
-    public void setConfig(ConfigType type, ConfigBehavior behavior, Direction dir, boolean bl) {
+    public void changeConfig (ConfigType type, ConfigBehavior behavior, Direction dir) {
+        setConfig(type, behavior, dir, !getConfig(type, behavior, dir));
+    }
+
+    protected void setConfig(ConfigType type, ConfigBehavior behavior, Direction dir, boolean bl) {
         char[] chars = getConfigElement(type).getLabel().asString().toCharArray();
         chars[getIndex(behavior, dir)] = bl ? '1' : '0';
         ((SimpleDataElement) getConfigElement(type)).withLabel(new String(chars));
