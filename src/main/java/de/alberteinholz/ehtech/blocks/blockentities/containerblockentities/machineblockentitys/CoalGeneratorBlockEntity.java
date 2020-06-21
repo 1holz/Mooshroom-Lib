@@ -2,10 +2,8 @@ package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.mach
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
-import io.github.cottonmc.component.energy.type.EnergyTypes;
 import net.minecraft.block.entity.BlockEntityType;
 
 public class CoalGeneratorBlockEntity extends MachineBlockEntity {
@@ -66,16 +64,6 @@ public class CoalGeneratorBlockEntity extends MachineBlockEntity {
     @Override
     public void correct() {
         super.correct();
-    }
-
-    @Override
-    protected MachineCapacitorComponent initializeCapacitorComponent() {
-        return new MachineCapacitorComponent(EnergyTypes.ULTRA_LOW_VOLTAGE);
-    }
-
-    @Override
-    protected ContainerInventoryComponent initializeInventoryComponent() {
-        return new ContainerInventoryComponent();
     }
 
     @Override

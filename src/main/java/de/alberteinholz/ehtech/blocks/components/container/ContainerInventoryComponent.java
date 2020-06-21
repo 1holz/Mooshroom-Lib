@@ -7,7 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent.Slot.Type;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
@@ -24,9 +29,11 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.IWorld;
 
 public class ContainerInventoryComponent implements InventoryComponent {
-    private final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
+    protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     public HashMap<String, Slot> stacks = new LinkedHashMap<String, Slot>();
-    private final List<Runnable> listeners = new ArrayList<>();
+    protected final List<Runnable> listeners = new ArrayList<>();
+    protected ContainerDataProviderComponent dataProvider;
+    public int maxTransfer = 1;
 
     @Override
     public List<Runnable> getListeners() {
@@ -47,13 +54,15 @@ public class ContainerInventoryComponent implements InventoryComponent {
 	public int getSize() {
 		return stacks.size();
     }
-    
-    public boolean checkSlot(String slot) {
-        if (stacks.containsKey(slot)) {
-            return true;
-        } else {
-            return false;
-        }
+
+    public Map<String, Slot> getSlots(Type type) {
+        Map<String, Slot> map = new HashMap<String, Slot>();
+        stacks.forEach((id, slot) -> {
+            if (slot.type == type) {
+                map.put(id, slot);
+            }
+        });
+        return map;
     }
 
     public Slot getSlot(String id) {
@@ -72,17 +81,79 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public boolean isSlotAvailable(String slot, Direction side) {
         return checkSlot(slot);
     }
-
-    public boolean canInsert(String id) {
-		if (getType(id) == Slot.Type.OUTPUT) {
+    
+    public boolean checkSlot(String slot) {
+        if (stacks.containsKey(slot)) {
+            return true;
+        } else {
             return false;
+        }
+    }
+
+    public void setDataProvider(ContainerDataProviderComponent dataProvider) {
+        this.dataProvider = dataProvider;
+    }
+
+    public int pull(ContainerInventoryComponent target, ActionType action, Direction dir) {
+        int transfer = 0;
+        for (Entry<String, Slot> entry : target.getSlots(Type.OUTPUT).entrySet()) {
+            if (target.canExtractStack(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
+                ItemStack extracted = target.takeStack(entry.getKey(), maxTransfer, ActionType.TEST);
+                for (Entry<String, Slot> inEntry : getSlots(Type.INPUT).entrySet()) {
+                    int insertedCount = insertStack(inEntry.getKey(), extracted, action).getCount();
+                    target.takeStack(entry.getKey(), insertedCount, action);
+                    transfer += insertedCount;
+                    if (transfer >= maxTransfer) {
+                        break;
+                    }
+                };
+                if (transfer >= maxTransfer) {
+                    break;
+                }
+            }
+        };
+        return transfer;
+    }
+
+    public int push(ContainerInventoryComponent target, ActionType action, Direction dir) {
+        int transfer = 0;
+        for (Entry<String, Slot> entry : getSlots(Type.OUTPUT).entrySet()) {
+            if (target.canInsertStack(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
+                ItemStack inserted = takeStack(entry.getKey(), maxTransfer, ActionType.TEST);
+                for (Entry<String, Slot> inEntry : target.getSlots(Type.INPUT).entrySet()) {
+                    int insertedCount = target.insertStack(inEntry.getKey(), inserted, action).getCount();
+                    target.takeStack(entry.getKey(), insertedCount, action);
+                    transfer += insertedCount;
+                    if (transfer >= maxTransfer) {
+                        break;
+                    }
+                };
+                if (transfer >= maxTransfer) {
+                    break;
+                }
+            }
+        };
+        return transfer;
+    }
+
+    public boolean canInsertStack(String slot, Direction dir) {
+        if (!getType(slot).insert) {
+            return false;
+        } else if (dataProvider instanceof MachineDataProviderComponent) {
+            return ((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir);
         } else {
             return true;
         }
     }
 
-    public boolean canExtract(String id) {
-        return true;
+    public boolean canExtractStack(String slot, Direction dir) {
+        if (!getType(slot).extract) {
+            return false;
+        } else if (dataProvider instanceof MachineDataProviderComponent) {
+            return ((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir);
+        } else {
+            return true;
+        }
     }
 
 	public void setStack(String id, ItemStack stack) {
@@ -280,13 +351,13 @@ public class ContainerInventoryComponent implements InventoryComponent {
     @Deprecated
 	@Override
 	public boolean canInsert(int slot) {
-        return canInsert(getId(slot));
+        return getType(getId(slot)).insert;
 	}
 
     @Deprecated
 	@Override
 	public boolean canExtract(int slot) {
-		return canExtract(getId(slot));
+		return getType(getId(slot)).extract;
 	}
 
     @Deprecated
@@ -334,10 +405,18 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
 
         public enum Type {
-            INPUT,
-            OUTPUT,
-            STORAGE,
-            OTHER;
+            INPUT (true, false),
+            OUTPUT (false, true),
+            STORAGE (true, true),
+            OTHER (false, false);
+
+            public boolean insert;
+            public boolean extract;
+
+            private Type(boolean insert, boolean extract) {
+                this.insert = insert;
+                this.extract = extract;
+            }
         }
     }
 }

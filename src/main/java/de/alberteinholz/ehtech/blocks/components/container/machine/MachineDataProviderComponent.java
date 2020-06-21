@@ -18,9 +18,9 @@ import net.minecraft.world.World;
 
 public class MachineDataProviderComponent extends ContainerDataProviderComponent {
     public SimpleDataElement activationState = new SimpleDataElement(ActivationState.ALWAYS_ON.name());
-    public SimpleDataElement configItem = new SimpleDataElement().withLabel("000000000000000000000000");
-    public SimpleDataElement configFluid = new SimpleDataElement().withLabel("000000000000000000000000");
-    public SimpleDataElement configPower = new SimpleDataElement().withLabel("000000000000000000000000");
+    public SimpleDataElement configItem = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
+    public SimpleDataElement configFluid = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
+    public SimpleDataElement configPower = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
     public SimpleDataElement efficiency = new SimpleDataElement(String.valueOf(1.0));
     public SimpleDataElement powerPerTick = new SimpleDataElement(String.valueOf(0));
     public SimpleDataElement progress = new SimpleDataElement().withBar(0.0, 0.0, 100.0, UnitManager.PERCENT);
@@ -105,8 +105,8 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public boolean getConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
         String string = getConfigElement(type).getLabel().asString();
         int i = getIndex(behavior, dir);
-        if (i % 2 == 0) {
-            return string.charAt(i) == '1' ? false : true;
+        if (behavior.def == true) {
+            return string.charAt(i) == '0' ? false : true;
         } else {
             return string.charAt(i) == '1' ? true : false;
         }
@@ -233,10 +233,16 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     }
 
     public static enum ConfigBehavior {
-        SELF_INPUT,
-        FOREIGEN_INPUT,
-        SELF_OUTPUT,
-        FOREIGN_OUTPUT;
+        SELF_INPUT (false),
+        FOREIGN_INPUT (true),
+        SELF_OUTPUT (false),
+        FOREIGN_OUTPUT (true);
+
+        public boolean def;
+
+        private ConfigBehavior(boolean def) {
+            this.def = def;
+        }
 
         public ConfigBehavior next(int amount) {
             return values()[(ordinal() + amount) % values().length];

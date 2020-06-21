@@ -16,12 +16,15 @@ public class InventoryWrapper implements SidedInventory {
     public final BlockPos pos;
 
     public InventoryWrapper(ContainerInventoryComponent component) {
-        this.component = component;
-        pos = null;
+        this(component, null);
     }
 
     public InventoryWrapper(BlockPos pos) {
-        component = null;
+        this(null, pos);
+    }
+
+    public InventoryWrapper(ContainerInventoryComponent component, BlockPos pos) {
+        this.component = component;
         this.pos = pos;
     }
 
@@ -94,11 +97,11 @@ public class InventoryWrapper implements SidedInventory {
 
     @Override
     public boolean canInsertInvStack(int slot, ItemStack stack, Direction dir) {
-        return component.canInsert(getId(slot));
+        return component.canInsertStack(getId(slot), dir);
     }
 
     @Override
     public boolean canExtractInvStack(int slot, ItemStack stack, Direction dir) {
-        return component.canExtract(getId(slot));
+        return component.canExtractStack(getId(slot),dir);
     }
 }

@@ -13,6 +13,7 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
 
     public ContainerBlockEntity(BlockEntityType<?> blockEntityType) {
         super(blockEntityType);
+        inventory.setDataProvider(data);
     }
 
     @Override
@@ -44,7 +45,11 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
         return toTag(tag);
     }
 
-    protected abstract ContainerInventoryComponent initializeInventoryComponent();
+    protected ContainerInventoryComponent initializeInventoryComponent() {
+        return new ContainerInventoryComponent();
+    }
 
-    protected abstract ContainerDataProviderComponent initializeDataProviderComponent();
+    protected ContainerDataProviderComponent initializeDataProviderComponent() {
+        return new ContainerDataProviderComponent("block.ehtech.container");
+    }
 }

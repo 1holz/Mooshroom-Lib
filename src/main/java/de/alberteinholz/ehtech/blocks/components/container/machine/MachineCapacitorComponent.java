@@ -1,5 +1,7 @@
 package de.alberteinholz.ehtech.blocks.components.container.machine;
 
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.CapacitorComponent;
@@ -8,8 +10,11 @@ import io.github.cottonmc.component.energy.type.EnergyType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 public class MachineCapacitorComponent extends SimpleCapacitorComponent {
+    protected MachineDataProviderComponent dataProvider;
+
     public MachineCapacitorComponent(int max) {
         super(max);
     }
@@ -26,16 +31,40 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
         energyType = type;
     }
 
-    public void pull(CapacitorComponent target, ActionType action) {
-        if (target.canExtractEnergy()) {
-            target.insertEnergy(getPreferredType(), insertEnergy(getPreferredType(), target.extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action), action), action);
-        }
+    public void setDataProvider(MachineDataProviderComponent dataProvider) {
+        this.dataProvider = dataProvider;
     }
 
-    public void push(CapacitorComponent target, ActionType action) {
-        if (target.canInsertEnergy()) {
-            insertEnergy(getPreferredType(), target.insertEnergy(getPreferredType(), extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action), action), action);
+    @SuppressWarnings("unused")
+    public int pull(CapacitorComponent target, ActionType action, Direction dir) {
+        int transfer = 0;
+        if (target.canExtractEnergy() && dataProvider != null && dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canExtract(dir))) {
+            int extractTarget = target.extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action);
+            int insert = insertEnergy(getPreferredType(), extractTarget, action);
+            int insertTarget = target.insertEnergy(getPreferredType(), insert, action);
+            transfer += extractTarget - insert;
         }
+        return transfer;
+    }
+
+    @SuppressWarnings("unused")
+    public int push(CapacitorComponent target, ActionType action, Direction dir) {
+        int transfer = 0;
+        if (target.canInsertEnergy() && dataProvider != null && dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canInsert(dir))) {
+            int extract = extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action);
+            int insertTarget = target.insertEnergy(getPreferredType(), extract, action);
+            int insert = insertEnergy(getPreferredType(), insertTarget, action);
+            transfer += extract - insertTarget;
+        }
+        return transfer;
+    }
+
+    public boolean canInsert(Direction dir) {
+        return dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.FOREIGN_INPUT, dir);
+    }
+
+    public boolean canExtract(Direction dir) {
+        return dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.FOREIGN_OUTPUT, dir);
     }
 
     @Override
