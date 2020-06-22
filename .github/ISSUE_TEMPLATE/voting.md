@@ -1,3 +1,11 @@
+---
+name: Voting
+about: A future feature that can be voted on
+title: ''
+labels: 'voting'
+assignees: ''
+---
+
 # (headline)
 ### Feature
 (the feature that should be voted on)
