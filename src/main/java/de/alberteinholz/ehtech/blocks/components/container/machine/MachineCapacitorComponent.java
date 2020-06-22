@@ -1,5 +1,6 @@
 package de.alberteinholz.ehtech.blocks.components.container.machine;
 
+import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
 import io.github.cottonmc.component.UniversalComponents;
@@ -35,7 +36,6 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
         this.dataProvider = dataProvider;
     }
 
-    @SuppressWarnings("unused")
     public int pull(CapacitorComponent target, ActionType action, Direction dir) {
         int transfer = 0;
         if (target.canExtractEnergy() && dataProvider != null && dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canExtract(dir))) {
@@ -43,11 +43,13 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
             int insert = insertEnergy(getPreferredType(), extractTarget, action);
             int insertTarget = target.insertEnergy(getPreferredType(), insert, action);
             transfer += extractTarget - insert;
+            if (insertTarget != 0) {
+                TechMod.LOGGER.smallBug(new Exception("Unable to insert power back to the origin. Power will be deleted!"));
+            }
         }
         return transfer;
     }
 
-    @SuppressWarnings("unused")
     public int push(CapacitorComponent target, ActionType action, Direction dir) {
         int transfer = 0;
         if (target.canInsertEnergy() && dataProvider != null && dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canInsert(dir))) {
@@ -55,6 +57,9 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
             int insertTarget = target.insertEnergy(getPreferredType(), extract, action);
             int insert = insertEnergy(getPreferredType(), insertTarget, action);
             transfer += extract - insertTarget;
+            if (insert != 0) {
+                TechMod.LOGGER.smallBug(new Exception("Unable to insert power back to the origin. Power will be deleted!"));
+            }
         }
         return transfer;
     }

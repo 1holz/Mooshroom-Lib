@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys;
+package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.generator;
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
@@ -6,7 +6,7 @@ import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import net.minecraft.block.entity.BlockEntityType;
 
-public class CoalGeneratorBlockEntity extends MachineBlockEntity {
+public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
     public CoalGeneratorBlockEntity() {
         this(BlockRegistry.COAL_GENERATOR.blockEntityType);
     }
@@ -17,38 +17,30 @@ public class CoalGeneratorBlockEntity extends MachineBlockEntity {
     }
 
     @Override
-    public void start() {
-        super.start();
-        inventory.getItemStack("coal_input").decrement(((MachineRecipe) ((CoalGeneratorDataProviderComponent) data).getRecipe(world)).input.items[0].amount);
-    }
-
-    @Override
-    public void process() {
-        super.process();
+    public boolean process() {
         CoalGeneratorDataProviderComponent data = (CoalGeneratorDataProviderComponent) this.data;
-        if (capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
-            MachineRecipe recipe = (MachineRecipe) data.getRecipe(world);
-            data.addProgress(recipe.timeModifier * data.getSpeed());
-            data.addHeat(recipe.generates * data.getSpeed() * data.getEfficiency());
-            data.setPowerPerTick((int) (data.getEfficiency() * data.getSpeed() * (data.heat.getBarCurrent() - data.heat.getBarMinimum()) / (data.heat.getBarMaximum() - data.heat.getBarMinimum()) * 3 + 1));
-            capacitor.generateEnergy(world, pos, data.getPowerPerTick());
+        MachineRecipe recipe = (MachineRecipe) data.getRecipe(world);
+        int generation = 0;
+        if (recipe.generates != Double.NaN && recipe.generates > 0.0) {
+            generation = (int) (data.getEfficiency() * data.getSpeed() * (data.getEfficiency() * data.getSpeed() * (data.heat.getBarCurrent() - data.heat.getBarMinimum()) / (data.heat.getBarMaximum() - data.heat.getBarMinimum()) * 3 + 1));
+            if (capacitor.getCurrentEnergy() + generation <= capacitor.getMaxEnergy()) {
+                capacitor.generateEnergy(world, pos, generation);
+            } else {
+                return false;
+            }
         }
+        data.addProgress(recipe.timeModifier * data.getSpeed());
+        return true;
     }
 
     @Override
     public void task() {
         super.task();
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-
-    }
-
-    @Override
-    public void cancle() {
-        super.cancle();
+        CoalGeneratorDataProviderComponent data = (CoalGeneratorDataProviderComponent) this.data;
+        MachineRecipe recipe = (MachineRecipe) data.getRecipe(world);
+        if (recipe.generates != Double.NaN && recipe.generates > 0.0) {
+            data.addHeat(recipe.generates * data.getSpeed() * data.getEfficiency());
+        }
     }
 
     @Override
@@ -58,12 +50,6 @@ public class CoalGeneratorBlockEntity extends MachineBlockEntity {
         if (data.heat.getBarCurrent() > data.heat.getBarMinimum()) {
             data.decreaseHeat();
         }
-        data.setPowerPerTick(0);
-    }
-
-    @Override
-    public void correct() {
-        super.correct();
     }
 
     @Override

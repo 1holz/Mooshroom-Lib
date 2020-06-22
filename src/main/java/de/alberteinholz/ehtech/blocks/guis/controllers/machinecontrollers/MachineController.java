@@ -2,6 +2,7 @@ package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
 
 import java.util.function.Supplier;
 
+import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
@@ -80,7 +81,7 @@ public abstract class MachineController extends ContainerCraftingController {
         powerBar.tooltips.add("tooltip.ehtech.maschine.power_bar_amount");
         Supplier<?>[] powerBarTrendSuppliers = {
             () -> {
-                return UnitManager.WU_PER_TICK.format(((MachineDataProviderComponent) getDataProviderComponent()).getPowerPerTick());
+                return UnitManager.WU_PER_TICK.format(((MachineBlockEntity) world.getBlockEntity(pos)).powerBilanz);
             }
         };
         powerBar.specialTooltips.put("tooltip.ehtech.machine.power_bar_trend", (Supplier<Object>[]) powerBarTrendSuppliers);

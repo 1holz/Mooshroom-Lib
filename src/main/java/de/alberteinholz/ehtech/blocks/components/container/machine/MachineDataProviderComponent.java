@@ -22,7 +22,6 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public SimpleDataElement configFluid = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
     public SimpleDataElement configPower = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
     public SimpleDataElement efficiency = new SimpleDataElement(String.valueOf(1.0));
-    public SimpleDataElement powerPerTick = new SimpleDataElement(String.valueOf(0));
     public SimpleDataElement progress = new SimpleDataElement().withBar(0.0, 0.0, 100.0, UnitManager.PERCENT);
     public SimpleDataElement recipe = new SimpleDataElement().withLabel((Text) null);
     //in percent per tick * fuelSpeed
@@ -39,7 +38,6 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         data.add(configFluid);
         data.add(configPower);
         data.add(efficiency);
-        data.add(powerPerTick);
         data.add(progress);
         data.add(recipe);
         data.add(speed);
@@ -49,8 +47,6 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public DataElement getElementFor(Unit unit) {
         if (unit == progress.getBarUnit()) {
             return progress;
-        } else if (unit == UnitManager.WU_PER_TICK) {
-            return powerPerTick;
         } else {
             return super.getElementFor(unit);
         }
@@ -64,7 +60,6 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         configFluid.withLabel(tag.getString("FluidConfig"));
         configPower.withLabel(tag.getString("PowerConfig"));
         setEfficiency(tag.getDouble("Efficiency"));
-        setPowerPerTick(tag.getInt("PowerPerTick"));
         setProgress(tag.getDouble("Process"));
         if (tag.contains("Recipe", 8)) {
             setRecipeById(new Identifier(tag.getString("Recipe")));
@@ -80,7 +75,6 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         tag.putString("FluidConfig", configFluid.getLabel().asString());
         tag.putString("PowerConfig", configPower.getLabel().asString());
         tag.putDouble("Efficiency", getEfficiency());
-        tag.putInt("PowerPerTick", getPowerPerTick());
         tag.putDouble("Progress", progress.getBarCurrent());
         if (recipe.hasLabel()) {
             tag.putString("Recipe", recipe.getLabel().asString());
@@ -145,14 +139,6 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
 
     public void setEfficiency(double value) {
         efficiency.withLabel(String.valueOf(value));
-    }
-        
-    public int getPowerPerTick() {
-        return Integer.valueOf(powerPerTick.getLabel().getString());
-    }
-
-    public void setPowerPerTick(int value) {
-        powerPerTick.withLabel(String.valueOf(value));
     }
 
     public void addProgress(double value) {
