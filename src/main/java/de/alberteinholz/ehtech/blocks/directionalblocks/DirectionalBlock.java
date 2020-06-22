@@ -1,6 +1,6 @@
 package de.alberteinholz.ehtech.blocks.directionalblocks;
 
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemPlacementContext;
@@ -13,7 +13,7 @@ public abstract class DirectionalBlock extends Block {
     public static final DirectionProperty FACING = Properties.FACING;
 
     public DirectionalBlock(FabricBlockSettings settings) {
-        super(settings.build());
+        super(settings);
         setDefaultState(getStateManager().getDefaultState().with(FACING, Direction.SOUTH));
     }
 
