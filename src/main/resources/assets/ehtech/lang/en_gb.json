@@ -1,0 +1,32 @@
+{
+    "block.ehtech.coal_generator": "Coal Generator",
+    "block.ehtech.machine_config.down": "D",
+    "block.ehtech.machine_config.up": "U",
+    "block.ehtech.machine_config.north": "N",
+    "block.ehtech.machine_config.south": "S",
+    "block.ehtech.machine_config.west": "W",
+    "block.ehtech.machine_config.east": "E",
+    "block.ehtech.machine_config.item": "Items",
+    "block.ehtech.machine_config.fluid": "Fluids",
+    "block.ehtech.machine_config.power": "Power",
+    "block.ehtech.ore_grower": "Ore Grower",
+
+    "chat.ehtech.wip": "This feature is in a work in progress state",
+    
+    "item.ehtech.wrench": "Wrench",
+
+    "itemGroup.ehtech.eh_tech": "Einholzscher Tech Mod",
+
+    "title.ehtech.wrench": "Set mode to %s",
+
+    "tooltip.ehtech.activation_button": "%s",
+    "tooltip.ehtech.cancel_button": "Return to main screen",
+    "tooltip.ehtech.coal_generator.heat_bar": "Heat: %s / %s / %s",
+    "tooltip.ehtech.config_button": "%s on side %s is %s for %s",
+    "tooltip.ehtech.configuration_button": "Sideconfig",
+    "tooltip.ehtech.maschine.power_bar_amount": "Power: %2$s / %3$s",
+    "tooltip.ehtech.machine.power_bar_trend": "%d%s",
+    "tooltip.ehtech.maschine.progress_bar": "%2$s",
+    "tooltip.ehtech.wrench.withmode": "Mode: %s",
+    "tooltip.ehtech.wrench.withoutmode": "Sneak right click to set mode"
+}

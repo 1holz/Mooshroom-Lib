@@ -6,8 +6,8 @@
     "block.ehtech.machine_config.south": "S",
     "block.ehtech.machine_config.west": "W",
     "block.ehtech.machine_config.east": "E",
-    "block.ehtech.machine_config.item": "Item",
-    "block.ehtech.machine_config.fluid": "Fluid",
+    "block.ehtech.machine_config.item": "Items",
+    "block.ehtech.machine_config.fluid": "Fluids",
     "block.ehtech.machine_config.power": "Power",
     "block.ehtech.ore_grower": "Ore Grower",
 
