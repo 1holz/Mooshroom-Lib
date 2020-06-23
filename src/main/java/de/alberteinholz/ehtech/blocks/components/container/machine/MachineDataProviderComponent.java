@@ -9,6 +9,7 @@ import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.api.UnitManager;
 import io.github.cottonmc.component.data.impl.SimpleDataElement;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.text.Text;
@@ -17,13 +18,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class MachineDataProviderComponent extends ContainerDataProviderComponent {
-    public SimpleDataElement activationState = new SimpleDataElement(ActivationState.ALWAYS_ON.name());
-    public SimpleDataElement configItem = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
-    public SimpleDataElement configFluid = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
-    public SimpleDataElement configPower = new SimpleDataElement().withLabel("xxxxxxxxxxxxxxxxxxxxxxxx");
+    public SimpleDataElement activationState = new SimpleDataElement(ActivationState.values()[0].name());
+    public SimpleDataElement configItem = new SimpleDataElement("xxxxxxxxxxxxxxxxxxxxxxxx");
+    public SimpleDataElement configFluid = new SimpleDataElement("xxxxxxxxxxxxxxxxxxxxxxxx");
+    public SimpleDataElement configPower = new SimpleDataElement("xxxxxxxxxxxxxxxxxxxxxxxx");
     public SimpleDataElement efficiency = new SimpleDataElement(String.valueOf(1.0));
     public SimpleDataElement progress = new SimpleDataElement().withBar(0.0, 0.0, 100.0, UnitManager.PERCENT);
-    public SimpleDataElement recipe = new SimpleDataElement().withLabel((Text) null);
+    public SimpleDataElement recipe = new SimpleDataElement((Text) null);
     //in percent per tick * fuelSpeed
     public SimpleDataElement speed = new SimpleDataElement(String.valueOf(1.0));
 
@@ -55,31 +56,59 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     @Override
     public void fromTag(CompoundTag tag) {
         super.fromTag(tag);
-        setActivationState((tag.getString("ActivationState")));
-        configItem.withLabel(tag.getString("ItemConfig"));
-        configFluid.withLabel(tag.getString("FluidConfig"));
-        configPower.withLabel(tag.getString("PowerConfig"));
-        setEfficiency(tag.getDouble("Efficiency"));
-        setProgress(tag.getDouble("Process"));
-        if (tag.contains("Recipe", 8)) {
+        if (tag.contains("ActivationState", NbtType.STRING)) {
+            setActivationState(tag.getString("ActivationState"));
+        }
+        if (tag.contains("ItemConfig", NbtType.STRING)) {
+            configItem.withLabel(tag.getString("ItemConfig"));
+        }
+        if (tag.contains("FluidConfig", NbtType.STRING)) {
+            configFluid.withLabel(tag.getString("FluidConfig"));
+        }
+        if (tag.contains("PowerConfig", NbtType.STRING)) {
+            configPower.withLabel(tag.getString("PowerConfig"));
+        }
+        if (tag.contains("Efficiency", NbtType.NUMBER)) {
+            setEfficiency(tag.getDouble("Efficiency"));
+        }
+        if (tag.contains("ProgressCurrent", NbtType.NUMBER)) {
+            setProgress(tag.getDouble("ProgressCurrent"));
+        }
+        if (tag.contains("Recipe", NbtType.STRING)) {
             setRecipeById(new Identifier(tag.getString("Recipe")));
         }
-        setSpeed(tag.getDouble("Speed"));
+        if (tag.contains("Speed", NbtType.NUMBER)) {
+            setSpeed(tag.getDouble("Speed"));
+        }
     }
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
-        tag.putString("ActivationState", String.valueOf(getActivationState()));
-        tag.putString("ItemConfig", configItem.getLabel().asString());
-        tag.putString("FluidConfig", configFluid.getLabel().asString());
-        tag.putString("PowerConfig", configPower.getLabel().asString());
-        tag.putDouble("Efficiency", getEfficiency());
-        tag.putDouble("Progress", progress.getBarCurrent());
+        if (getActivationState() != ActivationState.values()[0]) {
+            tag.putString("ActivationState", String.valueOf(getActivationState()));
+        }
+        if (configItem.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") {
+            tag.putString("ItemConfig", configItem.getLabel().asString());
+        }
+        if (configFluid.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") {
+            tag.putString("FluidConfig", configFluid.getLabel().asString());
+        }
+        if (configPower.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") {
+            tag.putString("PowerConfig", configPower.getLabel().asString());
+        }
+        if (getEfficiency() != 1.0) {
+            tag.putDouble("Efficiency", getEfficiency());
+        }
+        if (progress.getBarCurrent() > 0.0) {
+            tag.putDouble("ProgressCurrent", progress.getBarCurrent());
+        }
         if (recipe.hasLabel()) {
             tag.putString("Recipe", recipe.getLabel().asString());
         }
-        tag.putDouble("Speed", getSpeed());
+        if (getSpeed() != 1.0) {
+            tag.putDouble("Speed", getSpeed());
+        }
         return tag;
     }
 

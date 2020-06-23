@@ -9,6 +9,7 @@ import io.github.cottonmc.component.energy.CapacitorComponent;
 import io.github.cottonmc.component.energy.impl.SimpleCapacitorComponent;
 import io.github.cottonmc.component.energy.type.EnergyType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -21,11 +22,27 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
     }
 
     public MachineCapacitorComponent(EnergyType type) throws IllegalStateException {
-        this(type == EnergyTypes.ULTRA_LOW_VOLTAGE ? 10000 * 16 ^ 1 : type == EnergyTypes.LOW_VOLTAGE ? 10000 * 16 ^ 2 : type == EnergyTypes.MEDIUM_VOLTAGE ? 10000 * 16 ^ 3 : type == EnergyTypes.HIGH_VOLTAGE ? 10000 * 16 ^ 4 : type == EnergyTypes.ULTRA_HIGH_VOLTAGE ? 10000 * 16 ^ 5 : null, type);
+        this(getMaxFromType(type), type);
     }
 
     public MachineCapacitorComponent(int max, EnergyType type) {
         super(max, type);
+    }
+
+    protected static int getMaxFromType(EnergyType type) {
+        int i = 0;
+        if (type == EnergyTypes.ULTRA_LOW_VOLTAGE) {
+            i = 1;
+        } else if (type == EnergyTypes.LOW_VOLTAGE) {
+            i = 2;
+        } else if (type == EnergyTypes.MEDIUM_VOLTAGE) {
+            i = 3;
+        } else if (type == EnergyTypes.HIGH_VOLTAGE) {
+            i = 4;
+        } else if (type == EnergyTypes.ULTRA_HIGH_VOLTAGE) {
+            i = 5;
+        }
+        return 10000 * 16 ^ i;
     }
     
     public void setEnergyType(EnergyType type) {
@@ -74,13 +91,36 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
 
     @Override
     public void fromTag(CompoundTag tag) {
-        energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(tag.getString("EnergyType")));
-        super.fromTag(tag);
+        if (tag.contains("EnergyType", NbtType.STRING)) {
+            energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(tag.getString("EnergyType")));
+        }
+        if (tag.contains("Energy", NbtType.NUMBER)) {
+            currentEnergy = tag.getInt("Energy");
+        }
+        if (tag.contains("MaxEnergy", NbtType.NUMBER)) {
+            maxEnergy = tag.getInt("MaxEnergy");
+        } else {
+            maxEnergy = getMaxFromType(energyType);
+        }
+        if (tag.contains("Harm", NbtType.NUMBER)) {
+			harm = tag.getInt("Harm");
+		}
     }
     
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        tag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
-        return super.toTag(tag);
+        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) {
+            tag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
+        }
+        if (currentEnergy > 0) {
+            tag.putInt("Energy", currentEnergy);
+        }
+        if (maxEnergy != getMaxFromType(energyType)) {
+            tag.putInt("MaxEnergy", maxEnergy);
+        }
+        if (harm != 0) {
+            tag.putInt("Harm", harm);
+        }
+        return tag;
     }
 }

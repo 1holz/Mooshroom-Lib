@@ -3,6 +3,8 @@ package de.alberteinholz.ehtech.items;
 import java.util.List;
 
 import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
+import de.alberteinholz.ehtech.registry.BlockRegistry;
+import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -77,8 +79,8 @@ public class Wrench extends Tool {
                 }
                 return ActionResult.SUCCESS;
             } else if(mode == WrenchMode.CONFIGURE) {
-                if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity)context.getPlayer()).addChatMessage(new TranslatableText("chat.ehtech.wip"), false);
+                if(!context.getWorld().isClient()) {
+                    ContainerProviderRegistry.INSTANCE.openContainer(BlockRegistry.getId(BlockRegistry.MACHINE_CONFIG), context.getPlayer(), buf -> buf.writeBlockPos(context.getBlockPos()));
                 }
                 return ActionResult.SUCCESS;
             }

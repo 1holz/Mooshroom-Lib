@@ -22,6 +22,7 @@ import de.alberteinholz.ehtech.util.Helper;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.inventory.Inventory;
@@ -96,10 +97,10 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
             //TODO Fluid
             if (targetBlock instanceof Block) {
                 if (((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir)) {
-                    //TODO
+                    //TODO Fluid
                 }
                 if (((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_OUTPUT, dir)) {
-                    //TODO
+                    //TODO Fluid
                 }
             }
             if (targetBlock instanceof MachineBlock) {
@@ -147,7 +148,6 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         }
     }
 
-    //TODO PowerPerTick
     public boolean process() {
         MachineDataProviderComponent data = (MachineDataProviderComponent) this.data;
         MachineRecipe recipe = (MachineRecipe) data.getRecipe(world);
@@ -226,7 +226,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         boolean bl = true;
         for (Input.FluidIngredient ingredient : ingredients) {
             TechMod.LOGGER.wip("Containment Check for " + ingredient);
-            //TODO
+            //TODO Fluid
         }
         return bl;
     }
@@ -262,8 +262,8 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     @Override
     public void fromTag(CompoundTag tag) {
         super.fromTag(tag);
-        if (world != null) {
-            capacitor.fromTag(tag);
+        if (world != null && tag.contains("Capacitor", NbtType.COMPOUND)) {
+            capacitor.fromTag(tag.getCompound("Capacitor"));
         }
     }
 
@@ -271,7 +271,11 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
         if (world != null) {
-            capacitor.toTag(tag);
+            CompoundTag capacitorTag = new CompoundTag();
+            capacitor.toTag(capacitorTag);
+            if (!capacitorTag.isEmpty()) {
+                tag.put("Capacitor", capacitorTag);
+            }
         }
         return tag;
     }

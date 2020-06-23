@@ -6,6 +6,7 @@ import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.api.UnitManager;
 import io.github.cottonmc.component.data.impl.SimpleDataElement;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.CompoundTag;
 
 public class CoalGeneratorDataProviderComponent extends MachineDataProviderComponent {
@@ -34,19 +35,6 @@ public class CoalGeneratorDataProviderComponent extends MachineDataProviderCompo
         }
     }
 
-    @Override
-    public void fromTag(CompoundTag tag) {
-        super.fromTag(tag);
-        setHeat(tag.getDouble("Heat"));
-    }
-
-    @Override
-    public CompoundTag toTag(CompoundTag tag) {
-        super.toTag(tag);
-        tag.putDouble("Heat", heat.getBarCurrent());
-        return tag;
-    }
-
     public void addHeat(double value) {
         setHeat(heat.getBarCurrent() + value);
     }
@@ -58,5 +46,22 @@ public class CoalGeneratorDataProviderComponent extends MachineDataProviderCompo
     private void setHeat(double value) {
         value = value > heat.getBarMaximum() ? heat.getBarMaximum() : value < heat.getBarMinimum() ? heat.getBarMinimum() : value;
         heat.withBar(heat.getBarMinimum(), value, heat.getBarMaximum(), heat.getBarUnit());
+    }
+
+    @Override
+    public void fromTag(CompoundTag tag) {
+        super.fromTag(tag);
+        if (tag.contains("Heat", NbtType.NUMBER)) {
+            setHeat(tag.getDouble("Heat"));
+        }
+    }
+
+    @Override
+    public CompoundTag toTag(CompoundTag tag) {
+        super.toTag(tag);
+        if (heat.getBarCurrent() > 273.15) {
+            tag.putDouble("Heat", heat.getBarCurrent());
+        }
+        return tag;
     }
 }

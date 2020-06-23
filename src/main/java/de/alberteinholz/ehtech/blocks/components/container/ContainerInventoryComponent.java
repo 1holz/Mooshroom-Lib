@@ -17,6 +17,7 @@ import de.alberteinholz.ehtech.blocks.recipes.Input;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
 import io.github.cottonmc.component.serializer.StackSerializer;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
@@ -279,21 +280,18 @@ public class ContainerInventoryComponent implements InventoryComponent {
     @Override
     public void fromTag(CompoundTag tag) {
         clear();
-        CompoundTag inventoryTag = tag.getCompound("Inventory");
-        for (String slotName : inventoryTag.getKeys()) {
-            stacks.get(slotName).stack = StackSerializer.fromTag(inventoryTag.getCompound(slotName));
+        for (String slotName : tag.getKeys()) {
+            stacks.get(slotName).stack = StackSerializer.fromTag(tag.getCompound(slotName));
         }
     }
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        CompoundTag inventoryTag = new CompoundTag();
         for (Map.Entry<String, ContainerInventoryComponent.Slot> slot : stacks.entrySet()) {
             if (!slot.getValue().stack.isEmpty()) {
-                inventoryTag.put(slot.getKey(), StackSerializer.toTag(stacks.get(slot.getKey()).stack, new CompoundTag()));
+                tag.put(slot.getKey(), StackSerializer.toTag(stacks.get(slot.getKey()).stack, new CompoundTag()));
             }
         }
-		tag.put("Inventory", inventoryTag);
 		return tag;
     }
 
