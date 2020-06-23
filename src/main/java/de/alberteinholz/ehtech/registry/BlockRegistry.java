@@ -89,7 +89,7 @@ public enum BlockRegistry {
 		};
     }
 
-    private static <T extends MachineRecipe> RecipeType<T> getDefaultRecipeType(Identifier id) {
+    private static <T extends Recipe<?>> RecipeType<T> getDefaultRecipeType(Identifier id) {
         return new RecipeType<T>() {
             @SuppressWarnings("unchecked")
             @Override
