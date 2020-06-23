@@ -57,42 +57,49 @@ public abstract class MachineController extends ContainerCraftingController {
         progressBarFG = new Identifier(Ref.MOD_ID, "textures/gui/container/machine/elements/progress_bar/foreground.png");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void initWidgets() {
         super.initWidgets();
         powerInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("power_input"));
         upgradeSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("upgrade"));
         powerBar = new Bar(powerBarBG, powerBarFG, getCapacitorComponent(), Direction.UP);
-        activationButton = new ActivationButton();
-        buttonIds.add(activationButton);
-        progressBar = new Bar(progressBarBG, progressBarFG, ((MachineDataProviderComponent) getDataProviderComponent()).progress, Direction.RIGHT);
-        networkSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("network"));
-        powerOutputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("power_output"));
-        configurationButton = (Button) new Button().setLabel(new LiteralText("CON"));
-        buttonIds.add(configurationButton);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void drawDefault() {
-        super.drawDefault();
-        ((WGridPanel) root).add(powerInputSlot, 8, 1);
-        ((WGridPanel) root).add(upgradeSlot, 9, 1);
-        powerBar.tooltips.add("tooltip.ehtech.maschine.power_bar_amount");
+        powerBar.addDefaultTooltip("tooltip.ehtech.maschine.power_bar_amount");
         Supplier<?>[] powerBarTrendSuppliers = {
             () -> {
                 return UnitManager.WU_PER_TICK.format(((MachineBlockEntity) world.getBlockEntity(pos)).powerBilanz);
             }
         };
-        powerBar.specialTooltips.put("tooltip.ehtech.machine.power_bar_trend", (Supplier<Object>[]) powerBarTrendSuppliers);
+        powerBar.advancedTooltips.put("tooltip.ehtech.machine.power_bar_trend", (Supplier<Object>[]) powerBarTrendSuppliers);
+        activationButton = new ActivationButton();
+        Supplier<?>[] activationButtonSuppliers = {
+            () -> {
+                return ((MachineDataProviderComponent) ((BlockComponentProvider) world.getBlockState(pos).getBlock()).getComponent(world, pos, UniversalComponents.DATA_PROVIDER_COMPONENT, null)).getActivationState().name().toLowerCase();
+            }
+        };
+        activationButton.advancedTooltips.put("tooltip.ehtech.activation_button", (Supplier<Object>[]) activationButtonSuppliers);
+        activationButton.setOnClick(getDefaultOnButtonClick(activationButton));
+        buttonIds.add(activationButton);
+        progressBar = new Bar(progressBarBG, progressBarFG, ((MachineDataProviderComponent) getDataProviderComponent()).progress, Direction.RIGHT);
+        progressBar.addDefaultTooltip("tooltip.ehtech.maschine.progress_bar");
+        networkSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("network"));
+        powerOutputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("power_output"));
+        configurationButton = (Button) new Button().setLabel(new LiteralText("CON"));
+        configurationButton.tooltips.add("tooltip.ehtech.configuration_button");
+        configurationButton.setOnClick(getDefaultOnButtonClick(configurationButton));
+        buttonIds.add(configurationButton);
+    }
+
+    @Override
+    public void drawDefault() {
+        super.drawDefault();
+        ((WGridPanel) root).add(powerInputSlot, 8, 1);
+        ((WGridPanel) root).add(upgradeSlot, 9, 1);
         ((WGridPanel) root).add(powerBar, 8, 2, 1, 3);
         ((WGridPanel) root).add(activationButton, 9, 2);
-        activationButton.setOnClick(getDefaultOnButtonClick(activationButton));
-        progressBar.tooltips.add("tooltip.ehtech.maschine.progress_bar");
         ((WGridPanel) root).add(networkSlot, 9, 3);
         ((WGridPanel) root).add(powerOutputSlot, 8, 5);
         ((WGridPanel) root).add(configurationButton, 9, 5);
-        configurationButton.setOnClick(getDefaultOnButtonClick(configurationButton));
     }
 
     @Override

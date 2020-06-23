@@ -17,7 +17,6 @@ import de.alberteinholz.ehtech.blocks.recipes.Input;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
 import io.github.cottonmc.component.serializer.StackSerializer;
-import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;

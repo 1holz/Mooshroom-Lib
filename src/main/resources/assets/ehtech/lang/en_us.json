@@ -19,11 +19,11 @@
 
     "title.ehtech.wrench": "Set mode to %s",
 
-    "tooltip.ehtech.activation_button.always_off": "Always off",
-    "tooltip.ehtech.activation_button.always_on": "Always on",
-    "tooltip.ehtech.activation_button.redstone_off": "Redstone off",
-    "tooltip.ehtech.activation_button.redstone_on": "Redstone on",
+    "tooltip.ehtech.activation_button": "%s",
+    "tooltip.ehtech.cancel_button": "Return to main screen",
     "tooltip.ehtech.coal_generator.heat_bar": "Heat: %s / %s / %s",
+    "tooltip.ehtech.config_button": "%s on side %s is %s for %s",
+    "tooltip.ehtech.configuration_button": "Sideconfig",
     "tooltip.ehtech.maschine.power_bar_amount": "Power: %2$s / %3$s",
     "tooltip.ehtech.machine.power_bar_trend": "%d%s",
     "tooltip.ehtech.maschine.progress_bar": "%2$s",

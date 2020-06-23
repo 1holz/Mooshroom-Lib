@@ -1,10 +1,9 @@
 package de.alberteinholz.ehtech.blocks.guis.widgets;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import io.github.cottonmc.component.data.api.UnitManager;
@@ -15,14 +14,13 @@ import io.github.cottonmc.cotton.gui.widget.WBar;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-public class Bar extends WBar {
+public class Bar extends WBar implements AdvancedTooltip {
 	public SimpleDataElement element;
 	public SimpleCapacitorComponent capacitor;
 	public List<String> tooltips = new ArrayList<String>();
-	public Map<String, Supplier<Object>[]> specialTooltips = new HashMap<String, Supplier<Object>[]>();
+	public Map<String, Supplier<Object>[]> advancedTooltips = new LinkedHashMap<String, Supplier<Object>[]>();
 
     public Bar(Identifier bg, Identifier fg, SimpleDataElement element, Direction dir) {
         super(bg, fg, 0, 0, dir);
@@ -35,12 +33,6 @@ public class Bar extends WBar {
 	}
 
 	@Deprecated
-	@SafeVarargs
-	public final void addSpecialTooltip(String label, Supplier<Object>... suppliers) {
-		specialTooltips.put(label, suppliers);
-	}
-
-	@Deprecated
 	@Override
 	public WBar withTooltip(String label) {
 		tooltips.add(label);
@@ -50,8 +42,23 @@ public class Bar extends WBar {
 	@Deprecated
 	@Override
 	public WBar withTooltip(Text label) {
-		tooltips.add(label.asFormattedString());
-		return this;
+		return withTooltip(label.asFormattedString());
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addDefaultTooltip(String label) {
+		Supplier<?>[] suppliers = {
+			() -> {
+				return getMin();
+			},
+			() -> {
+				return getCur();
+			},
+			() -> {
+				return getMax();
+			}
+		};
+		advancedTooltips.put(label, (Supplier<Object>[]) suppliers);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -99,27 +106,21 @@ public class Bar extends WBar {
 				ScreenDrawing.coloredRect(left, top, barSize, getHeight(), ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
 			}
 		}
-    }
-    
-    @Override
-	public void addInformation(List<String> information) {
-		if (!tooltips.isEmpty()) {
-			for (String tooltip : tooltips) {
-				information.add(new TranslatableText(tooltip, getMin(), getCur(), getMax()).asFormattedString());
-			}
-		}
-		if (!specialTooltips.isEmpty()) {
-			specialTooltips.forEach(new BiConsumer<String, Supplier<Object>[]>() {
-				@Override
-				public void accept(String label, Supplier<Object>[] values) {
-					Object[] args = new Object[values.length];
-					for (int i = 0; i < values.length; i++) {
-						args[i] = values[i].get();
-					}
-					information.add(new TranslatableText(label, args).asFormattedString());
-				}
-			});
-		}
+	}
+	
+	@Override
+	public List<String> getTooltips() {
+		return tooltips;
+	}
+
+	@Override
+	public Map<String, Supplier<Object>[]> getAdvancedTooltips() {
+		return advancedTooltips;
+	}
+
+	@Override
+	public void addInformation(List<String> info) {
+		AdvancedTooltip.super.addInformation(info);
 	}
 
 	protected String getMin() {

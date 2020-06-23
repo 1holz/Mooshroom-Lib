@@ -39,7 +39,7 @@ public class CoalGeneratorController extends MachineController {
     @Override
     public void drawDefault() {
         super.drawDefault();
-        heatBar.tooltips.add("tooltip.ehtech.coal_generator.heat_bar");
+        heatBar.addDefaultTooltip("tooltip.ehtech.coal_generator.heat_bar");
         ((WGridPanel) root).add(heatBar, 5, 2, 3, 3);
         ((WGridPanel) root).add(coalInputSlot, 2, 3);
         ((WGridPanel) root).add(progressBar, 3, 3, 2, 1);

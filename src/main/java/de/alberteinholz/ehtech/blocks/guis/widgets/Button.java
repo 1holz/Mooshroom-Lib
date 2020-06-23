@@ -1,5 +1,11 @@
 package de.alberteinholz.ehtech.blocks.guis.widgets;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
@@ -7,10 +13,12 @@ import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WSprite;
 import net.minecraft.util.Identifier;
 
-public class Button extends WButton {
+public class Button extends WButton implements AdvancedTooltip {
     public Identifier texture;
     public WSprite overlay;
     public int tint = 0xFFFFFFFF;
+	public List<String> tooltips = new ArrayList<String>();
+	public Map<String, Supplier<Object>[]> advancedTooltips = new HashMap<String, Supplier<Object>[]>();
     public boolean resizeability = true;
 
     public Button() {
@@ -66,6 +74,21 @@ public class Button extends WButton {
 		    ScreenDrawing.drawStringWithShadow(getLabel().asFormattedString(), alignment, x, y + ((20 - 8) / 2), width, color);
         }
     }
+	
+	@Override
+	public List<String> getTooltips() {
+		return tooltips;
+	}
+
+	@Override
+	public Map<String, Supplier<Object>[]> getAdvancedTooltips() {
+		return advancedTooltips;
+	}
+
+	@Override
+	public void addInformation(List<String> info) {
+		AdvancedTooltip.super.addInformation(info);
+	}
 
     @Override
     public boolean canResize() {

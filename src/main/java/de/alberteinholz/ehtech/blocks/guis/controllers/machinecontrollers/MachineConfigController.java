@@ -2,11 +2,13 @@ package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
+import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Button;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
@@ -69,6 +71,7 @@ public class MachineConfigController extends ContainerCraftingController {
             }
         }
         cancel = (Button) new Button().setLabel(new LiteralText("X"));
+        cancel.tooltips.add("tooltip.ehtech.cancel_button");
         buttonIds.add(cancel);
         cancel.setOnClick(getDefaultOnButtonClick(cancel));
     }
@@ -135,12 +138,28 @@ public class MachineConfigController extends ContainerCraftingController {
         public Direction dir;
         public ConfigBehavior behavior;
 
+        @SuppressWarnings("unchecked")
         public ConfigButton(ConfigType type, Direction dir, ConfigBehavior behavior) {
             this.type = type;
             this.dir = dir;
             this.behavior = behavior;
             setSize(8, 8);
             resizeability = false;
+            Supplier<?>[] suppliers = {
+                () -> {
+                    return behavior.name().toLowerCase();
+                },
+                () -> {
+                    return dir.getName();
+                },
+                () -> {
+                    return String.valueOf(((MachineDataProviderComponent) ((MachineBlock) world.getBlockState(pos).getBlock()).getComponent(world, pos, UniversalComponents.DATA_PROVIDER_COMPONENT, null)).getConfig(type, behavior, dir));
+                },
+                () -> {
+                    return type.name().toLowerCase();
+                }
+            };
+            advancedTooltips.put("tooltip.ehtech.config_button", (Supplier<Object>[]) suppliers);
         }
 
         @Override
