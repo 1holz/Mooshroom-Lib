@@ -12,12 +12,17 @@ import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machi
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.fablabsmc.fablabs.api.fluidvolume.v1.FluidVolume;
 import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -25,9 +30,9 @@ import net.minecraft.tag.BlockTags;
 import net.minecraft.tag.EntityTypeTags;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.tag.ItemTags;
+import net.minecraft.tag.Tag.Identified;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -109,7 +114,7 @@ public class MachineRecipe implements Recipe<Inventory> {
                     for (int i = 0; i < jsonItemInput.size(); i++) {
                         JsonObject itemInput = (JsonObject) jsonItemInput.get(i);
                         try {
-							itemIngredientsList.add(new Input.ItemIngredient(ItemTags.getContainer().get(new Identifier(JsonHelper.getString(itemInput, "item"))), JsonHelper.getInt(itemInput, "amount", 1), JsonHelper.hasString(itemInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(itemInput, "nbt")) : null));
+							itemIngredientsList.add(new Input.ItemIngredient((Identified<Item>) ItemTags.getContainer().get(new Identifier(JsonHelper.getString(itemInput, "item"))), JsonHelper.getInt(itemInput, "amount", 1), JsonHelper.hasString(itemInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(itemInput, "nbt")) : null));
 						} catch (CommandSyntaxException e) {
 							TechMod.LOGGER.bigBug(e);
 						}
@@ -123,7 +128,7 @@ public class MachineRecipe implements Recipe<Inventory> {
                     for (int i = 0; i < jsonFluidInput.size(); i++) {
                         JsonObject fluidInput = (JsonObject) jsonFluidInput.get(i);
                         try {
-							fluidIngredientsList.add(new Input.FluidIngredient(FluidTags.getContainer().get(new Identifier(JsonHelper.getString(fluidInput, "fluid"))), Fraction.of(JsonHelper.getInt(fluidInput, "numerator", 1), JsonHelper.getInt(fluidInput, "denominator", 1)), JsonHelper.hasString(fluidInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(fluidInput, "nbt")) : null));
+							fluidIngredientsList.add(new Input.FluidIngredient((Identified<Fluid>) FluidTags.getContainer().get(new Identifier(JsonHelper.getString(fluidInput, "fluid"))), Fraction.of(JsonHelper.getInt(fluidInput, "numerator", 1), JsonHelper.getInt(fluidInput, "denominator", 1)), JsonHelper.hasString(fluidInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(fluidInput, "nbt")) : null));
 						} catch (CommandSyntaxException e) {
 							TechMod.LOGGER.bigBug(e);
 						}
@@ -137,7 +142,7 @@ public class MachineRecipe implements Recipe<Inventory> {
                     JsonArray jsonBlockInput = JsonHelper.getArray(jsonInput, "blocks");
                     for (int i = 0; i < jsonBlockInput.size(); i++) {
                         JsonObject blockInput = (JsonObject) jsonBlockInput.get(i);
-                        blockIngredientsList.add(new Input.BlockIngredient(BlockTags.getContainer().get(new Identifier(JsonHelper.getString(blockInput, "block")))));
+                        blockIngredientsList.add(new Input.BlockIngredient((Identified<Block>) BlockTags.getContainer().get(new Identifier(JsonHelper.getString(blockInput, "block")))));
                     }
                 }
                 Input.BlockIngredient[] blockIngredients = !blockIngredientsList.isEmpty() ? blockIngredientsList.toArray(new Input.BlockIngredient[blockIngredientsList.size()]) : null;
@@ -148,7 +153,7 @@ public class MachineRecipe implements Recipe<Inventory> {
                     for (int i = 0; i < jsonEntityInput.size(); i++) {
                         JsonObject entityInput = (JsonObject) jsonEntityInput.get(i);
                         try {
-							entityIngredientsList.add(new Input.EntityIngredient(EntityTypeTags.getContainer().get(new Identifier(JsonHelper.getString(entityInput, "entity"))), JsonHelper.getInt(entityInput, "amount", 1), JsonHelper.hasString(entityInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(entityInput, "nbt")) : null));
+							entityIngredientsList.add(new Input.EntityIngredient((Identified<EntityType<?>>) EntityTypeTags.getContainer().get(new Identifier(JsonHelper.getString(entityInput, "entity"))), JsonHelper.getInt(entityInput, "amount", 1), JsonHelper.hasString(entityInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(entityInput, "nbt")) : null));
 						} catch (CommandSyntaxException e) {
 							TechMod.LOGGER.bigBug(e);
 						}

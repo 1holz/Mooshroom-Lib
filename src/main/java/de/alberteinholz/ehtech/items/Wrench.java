@@ -2,9 +2,8 @@ package de.alberteinholz.ehtech.items;
 
 import java.util.List;
 
+import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
 import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
-import de.alberteinholz.ehtech.registry.BlockRegistry;
-import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;
@@ -40,7 +39,7 @@ public class Wrench extends Tool {
             }
             compoundTag.putString("Mode", mode.toString());
             if(world.isClient) {
-                ((ClientPlayerEntity)playerEntity).addChatMessage((Text)(new TranslatableText("title.ehtech.wrench", playerEntity.getStackInHand(hand).getTag().getString("Mode"))), true);
+                ((ClientPlayerEntity) playerEntity).sendMessage((Text)(new TranslatableText("title.ehtech.wrench", playerEntity.getStackInHand(hand).getTag().getString("Mode"))), true);
             }
             return new TypedActionResult<>(ActionResult.SUCCESS, playerEntity.getStackInHand(hand));
         } else {
@@ -65,22 +64,23 @@ public class Wrench extends Tool {
                 return ActionResult.SUCCESS;
             } else if(mode == WrenchMode.POWER) {
                 if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity)context.getPlayer()).addChatMessage(new TranslatableText("chat.ehtech.wip"), false);
+                    ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
                 }
                 return ActionResult.SUCCESS;
             } else if(mode == WrenchMode.ITEM) {
                 if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity)context.getPlayer()).addChatMessage(new TranslatableText("chat.ehtech.wip"), false);
+                    ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
                 }
                 return ActionResult.SUCCESS;
             } else if(mode == WrenchMode.FLUID) {
                 if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity)context.getPlayer()).addChatMessage(new TranslatableText("chat.ehtech.wip"), false);
+                    ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
                 }
                 return ActionResult.SUCCESS;
             } else if(mode == WrenchMode.CONFIGURE) {
                 if(!context.getWorld().isClient()) {
-                    ContainerProviderRegistry.INSTANCE.openContainer(BlockRegistry.getId(BlockRegistry.MACHINE_CONFIG), context.getPlayer(), buf -> buf.writeBlockPos(context.getBlockPos()));
+                    context.getPlayer().openHandledScreen((MachineBlockEntity) context.getWorld().getBlockEntity(context.getBlockPos()));
+                    //FIXME:ContainerProviderRegistry.INSTANCE.openContainer(BlockRegistry.getId(BlockRegistry.MACHINE_CONFIG), context.getPlayer(), buf -> buf.writeBlockPos(context.getBlockPos()));
                 }
                 return ActionResult.SUCCESS;
             }

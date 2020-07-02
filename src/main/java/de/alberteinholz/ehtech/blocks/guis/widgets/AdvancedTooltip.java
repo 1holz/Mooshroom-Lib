@@ -24,7 +24,7 @@ public interface AdvancedTooltip {
 	default void addInformation(List<String> information) {
 		if (!getTooltips().isEmpty()) {
 			for (String tooltip : getTooltips()) {
-				information.add(new TranslatableText(tooltip).asFormattedString());
+				information.add(new TranslatableText(tooltip).getString());
 			}
 		}
 		if (!getAdvancedTooltips().isEmpty()) {
@@ -35,7 +35,7 @@ public interface AdvancedTooltip {
 					for (int i = 0; i < values.length; i++) {
 						args[i] = values[i].get();
 					}
-					information.add(new TranslatableText(label, args).asFormattedString());
+					information.add(new TranslatableText(label, args).getString());
 				}
 			});
 		}

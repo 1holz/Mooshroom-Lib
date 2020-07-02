@@ -2,9 +2,14 @@ package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.mach
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.CoalGeneratorController;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
 
 public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
     public CoalGeneratorBlockEntity() {
@@ -50,6 +55,11 @@ public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
         if (data.heat.getBarCurrent() > data.heat.getBarMinimum()) {
             data.decreaseHeat();
         }
+    }
+
+    @Override
+    public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
+        return new CoalGeneratorController(syncId, playerInv, ScreenHandlerContext.create(world, pos));
     }
 
     @Override

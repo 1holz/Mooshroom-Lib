@@ -9,19 +9,18 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataPr
 import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Bar;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Button;
-import de.alberteinholz.ehtech.registry.BlockRegistry;
 import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.data.api.UnitManager;
+import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
 import io.github.cottonmc.cotton.gui.widget.WBar.Direction;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
-import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
-import net.minecraft.container.BlockContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.recipe.RecipeType;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
@@ -39,12 +38,11 @@ public abstract class MachineController extends ContainerCraftingController {
     protected WItemSlot powerOutputSlot;
     protected Button configurationButton;
 
-
-    public MachineController(int syncId, PlayerInventory playerInv, BlockContext context) {
+    public MachineController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         this(null, syncId, playerInv, context);
     }
 
-    public MachineController(RecipeType<?> type, int syncId, PlayerInventory playerInv, BlockContext context) {
+    public MachineController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         super(type, syncId, playerInv, context);
     }
 
@@ -110,7 +108,7 @@ public abstract class MachineController extends ContainerCraftingController {
             return true;
         } else if (id == buttonIds.indexOf(configurationButton)) {
             if (!world.isClient) {
-                ContainerProviderRegistry.INSTANCE.openContainer(BlockRegistry.getId(BlockRegistry.MACHINE_CONFIG), player, buf -> buf.writeBlockPos(pos));
+                player.openHandledScreen((MachineBlockEntity) world.getBlockEntity(pos));
             }
             return true;
         } else {

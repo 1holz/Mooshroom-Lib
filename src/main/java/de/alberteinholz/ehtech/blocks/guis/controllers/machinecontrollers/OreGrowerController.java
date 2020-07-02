@@ -3,17 +3,23 @@ package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import de.alberteinholz.ehtech.util.Ref;
+import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
-import net.minecraft.container.BlockContext;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
 public class OreGrowerController extends MachineController {
     protected WItemSlot oreInputSlot;
 
-    public OreGrowerController(int syncId, PlayerInventory playerInv, BlockContext context) {
-        super(BlockRegistry.ORE_GROWER.recipeType, syncId, playerInv, context);
+    public OreGrowerController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+        this(BlockRegistry.ORE_GROWER.screenHandlerType, syncId, playerInv, context);
+    }
+
+    public OreGrowerController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+        super(type, syncId, playerInv, context);
     }
 
     @Override

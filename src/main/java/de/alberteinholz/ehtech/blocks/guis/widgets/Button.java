@@ -11,6 +11,7 @@ import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WSprite;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 public class Button extends WButton implements AdvancedTooltip {
@@ -43,9 +44,9 @@ public class Button extends WButton implements AdvancedTooltip {
     }
 
     @Override
-    public void paintBackground(int x, int y, int mouseX, int mouseY) {
+    public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
         texture = setTexture(mouseX, mouseY);
-        draw(x, y);
+        draw(matrices, x, y, mouseX, mouseY);
     }
 
     public Identifier setTexture(int mouseX, int mouseY) {
@@ -53,7 +54,7 @@ public class Button extends WButton implements AdvancedTooltip {
         return new Identifier(Ref.MOD_ID, "textures/gui/widget/button/" + state + ".png");
     }
 
-    public void draw(int x, int y) {
+    public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
         float max = 256;
         if (width > max || height > max) {
             TechMod.LOGGER.smallBug(new Exception("Maximum size for a widget is 256"));
@@ -67,11 +68,11 @@ public class Button extends WButton implements AdvancedTooltip {
         ScreenDrawing.texturedRect(x, y + heightFloor, widthFloor, heightCeil, texture, 0F, 1F - (float) widthCeil / max,  (float) heightFloor / max, 1F, tint);
         ScreenDrawing.texturedRect(x + widthFloor, y + heightFloor, widthCeil, heightCeil, texture, 1F - (float) heightCeil / max, 1F - (float) widthCeil / max, 1F, 1F, tint);
         if (overlay != null) {
-            overlay.paintBackground(x, y);
+            overlay.paint(matrices, x, y, mouseX, mouseY);
         }
         if (getLabel() != null) {
 		    int color = isEnabled() ? 0xE0E0E0 : 0xA0A0A0;
-		    ScreenDrawing.drawStringWithShadow(getLabel().asFormattedString(), alignment, x, y + ((20 - 8) / 2), width, color);
+		    ScreenDrawing.drawStringWithShadow(matrices, getLabel().getString(), alignment, x, y + ((20 - 8) / 2), width, color);
         }
     }
 	

@@ -23,10 +23,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.util.DefaultedList;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.WorldAccess;
 
 public class ContainerInventoryComponent implements InventoryComponent {
     protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
@@ -46,10 +46,16 @@ public class ContainerInventoryComponent implements InventoryComponent {
     }
 
     @Override
-    public SidedInventory asLocalInventory(IWorld world, BlockPos pos) {
+    public SidedInventory asLocalInventory(WorldAccess world, BlockPos pos) {
         return inventoryWrapper;
     }
 
+	public int size() {
+		return stacks.size();
+    }
+
+    //XXX: Remove on UC update
+    @Deprecated
     @Override
 	public int getSize() {
 		return stacks.size();
@@ -74,8 +80,13 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return getSlot(id).type;
     }
 
-    public ItemStack getItemStack(String id) {
+    public ItemStack getStack(String id) {
         return getSlot(id).stack;
+    }
+
+	public void setStack(String id, ItemStack stack) {
+		getSlot(id).stack = stack;
+		onChanged();
     }
 
     public boolean isSlotAvailable(String slot, Direction side) {
@@ -97,11 +108,11 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public int pull(ContainerInventoryComponent target, ActionType action, Direction dir) {
         int transfer = 0;
         for (Entry<String, Slot> entry : target.getSlots(Type.OUTPUT).entrySet()) {
-            if (target.canExtractStack(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
-                ItemStack extracted = target.takeStack(entry.getKey(), maxTransfer, ActionType.TEST);
+            if (target.canExtract(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
+                ItemStack extracted = target.removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
                 for (Entry<String, Slot> inEntry : getSlots(Type.INPUT).entrySet()) {
                     int insertedCount = insertStack(inEntry.getKey(), extracted, action).getCount();
-                    target.takeStack(entry.getKey(), insertedCount, action);
+                    target.removeStack(entry.getKey(), insertedCount, action);
                     transfer += insertedCount;
                     if (transfer >= maxTransfer) {
                         break;
@@ -118,11 +129,11 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public int push(ContainerInventoryComponent target, ActionType action, Direction dir) {
         int transfer = 0;
         for (Entry<String, Slot> entry : getSlots(Type.OUTPUT).entrySet()) {
-            if (target.canInsertStack(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
-                ItemStack inserted = takeStack(entry.getKey(), maxTransfer, ActionType.TEST);
+            if (target.canInsert(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
+                ItemStack inserted = removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
                 for (Entry<String, Slot> inEntry : target.getSlots(Type.INPUT).entrySet()) {
                     int insertedCount = target.insertStack(inEntry.getKey(), inserted, action).getCount();
-                    target.takeStack(entry.getKey(), insertedCount, action);
+                    target.removeStack(entry.getKey(), insertedCount, action);
                     transfer += insertedCount;
                     if (transfer >= maxTransfer) {
                         break;
@@ -136,7 +147,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return transfer;
     }
 
-    public boolean canInsertStack(String slot, Direction dir) {
+    public boolean canInsert(String slot, Direction dir) {
         if (!getType(slot).insert) {
             return false;
         } else if (dataProvider instanceof MachineDataProviderComponent) {
@@ -146,7 +157,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
     }
 
-    public boolean canExtractStack(String slot, Direction dir) {
+    public boolean canExtract(String slot, Direction dir) {
         if (!getType(slot).extract) {
             return false;
         } else if (dataProvider instanceof MachineDataProviderComponent) {
@@ -156,21 +167,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
     }
 
-	public void setStack(String id, ItemStack stack) {
-		getSlot(id).stack = stack;
-		onChanged();
-    }
-    
-    public ItemStack removeStack(String id, ActionType action) {
-        if (action.shouldPerform()) {
-            setStack(id, ItemStack.EMPTY);
-            onChanged();
-        }
-        return getItemStack(id);
-    }
-
     public ItemStack insertStack(String id, ItemStack stack, ActionType action) {
-		ItemStack target = getItemStack(id);
+		ItemStack target = getStack(id);
 		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack))  {
 			return stack;
 		}
@@ -216,9 +214,17 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
 		return stack;
     }
+    
+    public ItemStack removeStack(String id, ActionType action) {
+        if (action.shouldPerform()) {
+            setStack(id, ItemStack.EMPTY);
+            onChanged();
+        }
+        return getStack(id);
+    }
 
-    public ItemStack takeStack(String id, int amount, ActionType action) {
-		ItemStack stack = getItemStack(id);
+    public ItemStack removeStack(String id, int amount, ActionType action) {
+		ItemStack stack = getStack(id);
 		if (!action.shouldPerform()) {
 			stack = stack.copy();
 		} else {
@@ -342,7 +348,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     @Deprecated
 	@Override
 	public ItemStack getStack(int slot) {
-		return getItemStack(getId(slot));
+		return getStack(getId(slot));
 	}
 
     @Deprecated
@@ -357,10 +363,11 @@ public class ContainerInventoryComponent implements InventoryComponent {
 		return getType(getId(slot)).extract;
 	}
 
+    //XXX: Remove on UC update
     @Deprecated
 	@Override
 	public ItemStack takeStack(int slot, int amount, ActionType action) {
-		return takeStack(getId(slot), amount, action);
+		return removeStack(getId(slot), amount, action);
 	}
 
     @Deprecated

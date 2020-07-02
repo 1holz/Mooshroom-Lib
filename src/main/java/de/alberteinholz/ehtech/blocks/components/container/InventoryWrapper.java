@@ -29,14 +29,14 @@ public class InventoryWrapper implements SidedInventory {
     }
 
     @Override
-    public int getInvSize() {
-        return component.getSize();
+    public int size() {
+        return component.size();
     }
 
     @Override
-    public boolean isInvEmpty() {
-		for (int i = 0; i < getInvSize(); i++) {
-			if (!getInvStack(i).isEmpty()) {
+    public boolean isEmpty() {
+		for (int i = 0; i < size(); i++) {
+			if (!getStack(i).isEmpty()) {
 				return false;
 			}
 		}
@@ -48,22 +48,22 @@ public class InventoryWrapper implements SidedInventory {
     }
 
     @Override
-    public ItemStack getInvStack(int slot) {
-        return component.getItemStack(getId(slot));
+    public ItemStack getStack(int slot) {
+        return component.getStack(getId(slot));
     }
 
     @Override
-    public ItemStack takeInvStack(int slot, int amount) {
-        return component.takeStack(getId(slot), amount, ActionType.PERFORM);
+    public ItemStack removeStack(int slot, int amount) {
+        return component.removeStack(getId(slot), amount, ActionType.PERFORM);
     }
 
     @Override
-    public ItemStack removeInvStack(int slot) {
+    public ItemStack removeStack(int slot) {
         return component.removeStack(getId(slot), ActionType.PERFORM);
     }
 
     @Override
-    public void setInvStack(int slot, ItemStack stack) {
+    public void setStack(int slot, ItemStack stack) {
         component.setStack(getId(slot), stack);
     }
 
@@ -73,19 +73,18 @@ public class InventoryWrapper implements SidedInventory {
     }
 
     @Override
-    public boolean canPlayerUseInv(PlayerEntity player) {
+    public boolean canPlayerUse(PlayerEntity player) {
         return true;
     }
 
     @Override
     public void clear() {
         component.clear();
-
     }
 
     @Deprecated
     @Override
-    public int[] getInvAvailableSlots(Direction side) {
+    public int[] getAvailableSlots(Direction side) {
         List<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < component.getStacks().size(); i++) {
             if (component.isSlotAvailable(getId(i), side)) {
@@ -96,12 +95,12 @@ public class InventoryWrapper implements SidedInventory {
     }
 
     @Override
-    public boolean canInsertInvStack(int slot, ItemStack stack, Direction dir) {
-        return component.canInsertStack(getId(slot), dir);
+    public boolean canInsert(int slot, ItemStack stack, Direction dir) {
+        return component.canInsert(getId(slot), dir);
     }
 
     @Override
-    public boolean canExtractInvStack(int slot, ItemStack stack, Direction dir) {
-        return component.canExtractStack(getId(slot),dir);
+    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+        return component.canExtract(getId(slot),dir);
     }
 }

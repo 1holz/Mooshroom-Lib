@@ -5,11 +5,13 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGenerator
 import de.alberteinholz.ehtech.blocks.guis.widgets.Bar;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import de.alberteinholz.ehtech.util.Ref;
+import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
 import io.github.cottonmc.cotton.gui.widget.WBar.Direction;
-import net.minecraft.container.BlockContext;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
 public class CoalGeneratorController extends MachineController {
@@ -18,8 +20,12 @@ public class CoalGeneratorController extends MachineController {
     protected Bar heatBar;
     protected WItemSlot coalInputSlot;
 
-    public CoalGeneratorController(int syncId, PlayerInventory playerInv, BlockContext context) {
-        super(BlockRegistry.COAL_GENERATOR.recipeType, syncId, playerInv, context);
+    public CoalGeneratorController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+        this(BlockRegistry.COAL_GENERATOR.screenHandlerType, syncId, playerInv, context);
+    }
+
+    public CoalGeneratorController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+        super(type, syncId, playerInv, context);
     }
 
     @Override

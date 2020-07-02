@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
@@ -13,13 +14,15 @@ import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingControll
 import de.alberteinholz.ehtech.blocks.guis.widgets.Button;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.cottonmc.component.UniversalComponents;
+import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
-import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
-import net.minecraft.container.BlockContext;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -38,8 +41,12 @@ public class MachineConfigController extends ContainerCraftingController {
     protected Map<Integer, ConfigButton> configButtons;
     protected Button cancel;
 
-    public MachineConfigController(int syncId, PlayerInventory playerInventory, BlockContext context) {
-        super(syncId, playerInventory, context);
+    public MachineConfigController(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
+        this(BlockRegistry.MACHINE_CONFIG.screenHandlerType, syncId, playerInventory, context);
+    }
+
+    public MachineConfigController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
+        super(type, syncId, playerInventory, context);
     }
 
     @Override
@@ -115,7 +122,9 @@ public class MachineConfigController extends ContainerCraftingController {
                 if (entryId == null) {
                     close(player);
                 } else {
-                    ContainerProviderRegistry.INSTANCE.openContainer(entryId, player, buf -> buf.writeBlockPos(pos));
+                    player.openHandledScreen((MachineBlockEntity) world.getBlockEntity(pos));
+                    //FIXME
+                    //ContainerProviderRegistry.INSTANCE.openContainer(entryId, player, buf -> buf.writeBlockPos(pos));
 
                 }
             }
@@ -163,9 +172,9 @@ public class MachineConfigController extends ContainerCraftingController {
         }
 
         @Override
-        public void draw(int x, int y) {
+        public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
             withTint(getDataProviderComponent().getConfig(type, behavior, dir) ? 0xFFFFFF00 : 0xFFFF0000);
-            super.draw(x, y);
+            super.draw(matrices, x, y, mouseX, mouseY);
         }
     }
 }

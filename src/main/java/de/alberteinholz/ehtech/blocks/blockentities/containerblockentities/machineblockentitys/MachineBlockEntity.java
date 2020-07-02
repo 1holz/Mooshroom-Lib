@@ -24,6 +24,7 @@ import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Items;
@@ -113,7 +114,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                 }
             }
             //only for testing TODO: remove
-            if (inventory.getItemStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
+            if (inventory.getStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
                 capacitor.generateEnergy(world, pos, 4);
             }
         }
@@ -260,8 +261,8 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     }
 
     @Override
-    public void fromTag(CompoundTag tag) {
-        super.fromTag(tag);
+    public void fromTag(BlockState state,CompoundTag tag) {
+        super.fromTag(state, tag);
         if (world != null && tag.contains("Capacitor", NbtType.COMPOUND)) {
             capacitor.fromTag(tag.getCompound("Capacitor"));
         }

@@ -17,10 +17,6 @@ import net.minecraft.util.math.Direction;
 public class MachineCapacitorComponent extends SimpleCapacitorComponent {
     protected MachineDataProviderComponent dataProvider;
 
-    public MachineCapacitorComponent(int max) {
-        super(max);
-    }
-
     public MachineCapacitorComponent(EnergyType type) throws IllegalStateException {
         this(getMaxFromType(type), type);
     }

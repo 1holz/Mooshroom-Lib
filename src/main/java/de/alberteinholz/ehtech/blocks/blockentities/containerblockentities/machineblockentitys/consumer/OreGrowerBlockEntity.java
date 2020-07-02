@@ -3,12 +3,17 @@ package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.mach
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
+import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.OreGrowerController;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.math.BlockPos;
 
 public class OreGrowerBlockEntity extends ConsumerBlockEntity {
@@ -55,6 +60,11 @@ public class OreGrowerBlockEntity extends ConsumerBlockEntity {
     @Override
     public boolean containsBlockIngredients(Input.BlockIngredient... ingredients) {
         return ingredients[0].ingredient.contains(world.getBlockState(pos.offset(world.getBlockState(pos).get(DirectionalBlock.FACING))).getBlock());
+    }
+
+    @Override
+    public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
+        return new OreGrowerController(syncId, playerInv, ScreenHandlerContext.create(world, pos));
     }
 
     @Override

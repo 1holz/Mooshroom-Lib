@@ -9,7 +9,6 @@ import io.github.cottonmc.component.UniversalComponents;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import nerdhub.cardinal.components.api.component.Component;
-import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.InventoryProvider;
@@ -25,8 +24,8 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 
 public abstract class ContainerBlock extends DirectionalBlock implements BlockComponentProvider, InventoryProvider {
     public Identifier id;
@@ -39,7 +38,8 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
-            ContainerProviderRegistry.INSTANCE.openContainer(id, player, buf -> buf.writeBlockPos(pos));
+            player.openHandledScreen((ContainerBlockEntity) world.getBlockEntity(pos));
+            //FIXME:ContainerProviderRegistry.INSTANCE.openContainer(id, player, buf -> buf.writeBlockPos(pos));
         }
         return ActionResult.SUCCESS;
     }
@@ -64,10 +64,10 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
     }
 
     @Override
-    public void onBlockRemoved(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        super.onBlockRemoved(state, world, pos, newState, moved);
-        if (state.getBlock() != newState.getBlock()) {
-            world.updateHorizontalAdjacent(pos, this);
+    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
+        super.onBroken(world, pos, state);
+        if (state.getBlock() != state.getBlock()) {
+            world.updateNeighbors(pos, this);
         }
     }
 
@@ -96,7 +96,7 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
         return set;
     }
 
-    public SidedInventory getInventory(BlockState state, IWorld world, BlockPos pos) {
+    public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
         return getComponent(world, pos, UniversalComponents.INVENTORY_COMPONENT, null).asLocalInventory(world, pos);
     }
 }

@@ -3,12 +3,17 @@ package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.util.NbtType;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 
-public abstract class ContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable {
+public abstract class ContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     public ContainerInventoryComponent inventory = initializeInventoryComponent();
     public ContainerDataProviderComponent data = initializeDataProviderComponent();
 
@@ -18,8 +23,8 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
     }
 
     @Override
-    public void fromTag(CompoundTag tag) {
-        super.fromTag(tag);
+    public void fromTag(BlockState state, CompoundTag tag) {
+        super.fromTag(state, tag);
         if (world != null) {
             if (tag.contains("Inventory", NbtType.COMPOUND)) {
                 inventory.fromTag(tag.getCompound("Inventory"));
@@ -50,12 +55,22 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
     
     @Override
     public void fromClientTag(CompoundTag tag) {
-        fromTag(tag);
+        fromTag(null, tag);
     }
 
     @Override
     public CompoundTag toClientTag(CompoundTag tag) {
         return toTag(tag);
+    }
+
+    @Override
+    public Text getDisplayName() {
+        return data.containerName.getLabel();
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeBlockPos(pos);
     }
 
     protected ContainerInventoryComponent initializeInventoryComponent() {
