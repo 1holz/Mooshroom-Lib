@@ -265,7 +265,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public boolean containsInput(Input.ItemIngredient ingredient) {
         int amount = 0;
         for (Slot slot : stacks.values()) {
-            if (slot.type == Slot.Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem())) {
+            if (ingredient.ingredient != null && slot.type == Slot.Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem())) {
                 if (ingredient.tag != null) {
                     if (NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) {
                         amount += slot.stack.getCount();

@@ -1,11 +1,11 @@
-package de.alberteinholz.ehtech.blocks.guis.controllers;
+package de.alberteinholz.ehtech.blocks.guis.guis;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
-import de.alberteinholz.ehtech.blocks.guis.screens.EHContainerScreen;
+import de.alberteinholz.ehtech.blocks.guis.screens.ContainerScreen;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
@@ -20,22 +20,22 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class ContainerCraftingController extends SyncedGuiDescription {
+public abstract class ContainerGui extends SyncedGuiDescription {
     protected BlockPos pos;
     protected WPanel root;
     protected List<WButton> buttonIds = new ArrayList<WButton>();
     protected WLabel containerTitle;
     protected WLabel playerInventoryTitle;
-    public EHContainerScreen screen;
+    public ContainerScreen screen;
 
-    public ContainerCraftingController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public ContainerGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         this(null, syncId, playerInv, context);
     }
 
-    public ContainerCraftingController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public ContainerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         super(type, syncId, playerInv);
         context.run((world, pos) -> {
-            ContainerCraftingController.this.pos = pos;
+            ContainerGui.this.pos = pos;
         });
         blockInventory = getInventoryComponent().asInventory();
         initWidgetsDependencies();

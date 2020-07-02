@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
+package de.alberteinholz.ehtech.blocks.guis.guis.machines;
 
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
@@ -11,14 +11,14 @@ import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
-public class OreGrowerController extends MachineController {
+public class OreGrowerGui extends MachineGui {
     protected WItemSlot oreInputSlot;
 
-    public OreGrowerController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public OreGrowerGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         this(BlockRegistry.ORE_GROWER.screenHandlerType, syncId, playerInv, context);
     }
 
-    public OreGrowerController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public OreGrowerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         super(type, syncId, playerInv, context);
     }
 

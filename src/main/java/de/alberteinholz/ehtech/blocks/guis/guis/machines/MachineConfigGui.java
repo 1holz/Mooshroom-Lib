@@ -1,16 +1,16 @@
-package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
+package de.alberteinholz.ehtech.blocks.guis.guis.machines;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
-import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
+import de.alberteinholz.ehtech.blocks.directionals.containers.machines.MachineBlock;
+import de.alberteinholz.ehtech.blocks.guis.guis.ContainerGui;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Button;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.cottonmc.component.UniversalComponents;
@@ -28,7 +28,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public class MachineConfigController extends ContainerCraftingController {
+public class MachineConfigGui extends ContainerGui {
     protected WLabel down;
     protected WLabel up;
     protected WLabel north;
@@ -41,11 +41,11 @@ public class MachineConfigController extends ContainerCraftingController {
     protected Map<Integer, ConfigButton> configButtons;
     protected Button cancel;
 
-    public MachineConfigController(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
+    public MachineConfigGui(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
         this(BlockRegistry.MACHINE_CONFIG.screenHandlerType, syncId, playerInventory, context);
     }
 
-    public MachineConfigController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
+    public MachineConfigGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
         super(type, syncId, playerInventory, context);
     }
 

@@ -1,8 +1,8 @@
-package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.generator;
+package de.alberteinholz.ehtech.blocks.blockentities.containers.machines.generators;
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.CoalGeneratorController;
+import de.alberteinholz.ehtech.blocks.guis.guis.machines.CoalGeneratorGui;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import net.minecraft.block.entity.BlockEntityType;
@@ -59,7 +59,7 @@ public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
-        return new CoalGeneratorController(syncId, playerInv, ScreenHandlerContext.create(world, pos));
+        return new CoalGeneratorGui(syncId, playerInv, ScreenHandlerContext.create(world, pos));
     }
 
     @Override

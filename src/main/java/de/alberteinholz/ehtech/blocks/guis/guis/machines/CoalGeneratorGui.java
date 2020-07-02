@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
+package de.alberteinholz.ehtech.blocks.guis.guis.machines;
 
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
@@ -14,17 +14,17 @@ import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
-public class CoalGeneratorController extends MachineController {
+public class CoalGeneratorGui extends MachineGui {
     protected Identifier heatBarBG;
     protected Identifier heatBarFG;
     protected Bar heatBar;
     protected WItemSlot coalInputSlot;
 
-    public CoalGeneratorController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public CoalGeneratorGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         this(BlockRegistry.COAL_GENERATOR.screenHandlerType, syncId, playerInv, context);
     }
 
-    public CoalGeneratorController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public CoalGeneratorGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         super(type, syncId, playerInv, context);
     }
 

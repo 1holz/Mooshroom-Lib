@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities;
+package de.alberteinholz.ehtech.blocks.blockentities.containers;
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;

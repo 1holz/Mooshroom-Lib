@@ -2,8 +2,8 @@ package de.alberteinholz.ehtech.items;
 
 import java.util.List;
 
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
-import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
+import de.alberteinholz.ehtech.blocks.directionals.DirectionalBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.item.TooltipContext;

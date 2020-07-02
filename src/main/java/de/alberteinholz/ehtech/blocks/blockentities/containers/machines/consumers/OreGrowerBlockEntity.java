@@ -1,9 +1,9 @@
-package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.consumer;
+package de.alberteinholz.ehtech.blocks.blockentities.containers.machines.consumers;
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
-import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.OreGrowerController;
+import de.alberteinholz.ehtech.blocks.directionals.DirectionalBlock;
+import de.alberteinholz.ehtech.blocks.guis.guis.machines.OreGrowerGui;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
@@ -64,7 +64,7 @@ public class OreGrowerBlockEntity extends ConsumerBlockEntity {
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
-        return new OreGrowerController(syncId, playerInv, ScreenHandlerContext.create(world, pos));
+        return new OreGrowerGui(syncId, playerInv, ScreenHandlerContext.create(world, pos));
     }
 
     @Override

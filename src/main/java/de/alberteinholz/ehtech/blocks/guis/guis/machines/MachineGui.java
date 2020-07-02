@@ -1,12 +1,12 @@
-package de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers;
+package de.alberteinholz.ehtech.blocks.guis.guis.machines;
 
 import java.util.function.Supplier;
 
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.guis.controllers.ContainerCraftingController;
+import de.alberteinholz.ehtech.blocks.guis.guis.ContainerGui;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Bar;
 import de.alberteinholz.ehtech.blocks.guis.widgets.Button;
 import de.alberteinholz.ehtech.util.Ref;
@@ -24,7 +24,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 
-public abstract class MachineController extends ContainerCraftingController {
+public abstract class MachineGui extends ContainerGui {
     protected Identifier powerBarBG;
     protected Identifier powerBarFG;
     protected Identifier progressBarBG;
@@ -38,11 +38,11 @@ public abstract class MachineController extends ContainerCraftingController {
     protected WItemSlot powerOutputSlot;
     protected Button configurationButton;
 
-    public MachineController(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public MachineGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         this(null, syncId, playerInv, context);
     }
 
-    public MachineController(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public MachineGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
         super(type, syncId, playerInv, context);
     }
 

@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks;
+package de.alberteinholz.ehtech.blocks.directionals;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;

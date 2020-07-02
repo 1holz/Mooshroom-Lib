@@ -1,9 +1,9 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks;
+package de.alberteinholz.ehtech.blocks.directionals.containers.machines;
 
 import java.util.Set;
 
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.MachineBlockEntity;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.ContainerBlock;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
+import de.alberteinholz.ehtech.blocks.directionals.containers.ContainerBlock;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.cottonmc.component.UniversalComponents;
 import nerdhub.cardinal.components.api.ComponentType;

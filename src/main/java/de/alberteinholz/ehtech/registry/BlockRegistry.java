@@ -4,13 +4,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.function.Supplier;
 import de.alberteinholz.ehtech.TechMod;
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.consumer.OreGrowerBlockEntity;
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys.generator.CoalGeneratorBlockEntity;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.consumers.OreGrowerBlockEntity;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.generators.CoalGeneratorBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
-import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.CoalGeneratorController;
-import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.MachineConfigController;
-import de.alberteinholz.ehtech.blocks.guis.controllers.machinecontrollers.OreGrowerController;
+import de.alberteinholz.ehtech.blocks.directionals.containers.machines.MachineBlock;
+import de.alberteinholz.ehtech.blocks.guis.guis.machines.CoalGeneratorGui;
+import de.alberteinholz.ehtech.blocks.guis.guis.machines.MachineConfigGui;
+import de.alberteinholz.ehtech.blocks.guis.guis.machines.OreGrowerGui;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.itemgroups.ItemGroups;
 import de.alberteinholz.ehtech.util.Ref;
@@ -41,9 +41,9 @@ public enum BlockRegistry {
     //static
 
     private static void setupAll() {
-        COAL_GENERATOR.setup(new MachineBlock(getId(COAL_GENERATOR)), getDefaultItemSettings(), CoalGeneratorBlockEntity::new, getDefaultClientHandlerFactory(CoalGeneratorController.class), getDefaultRecipeType(getId(COAL_GENERATOR)), getDefaultSerializer());
-        MACHINE_CONFIG.setup(null, null, null, getDefaultClientHandlerFactory(MachineConfigController.class), null, null);
-        ORE_GROWER.setup(new MachineBlock(getId(ORE_GROWER)), getDefaultItemSettings(), OreGrowerBlockEntity::new, getDefaultClientHandlerFactory(OreGrowerController.class), getDefaultRecipeType(getId(ORE_GROWER)), getDefaultSerializer());
+        COAL_GENERATOR.setup(new MachineBlock(getId(COAL_GENERATOR)), getDefaultItemSettings(), CoalGeneratorBlockEntity::new, getDefaultClientHandlerFactory(CoalGeneratorGui.class), getDefaultRecipeType(getId(COAL_GENERATOR)), getDefaultSerializer());
+        MACHINE_CONFIG.setup(null, null, null, getDefaultClientHandlerFactory(MachineConfigGui.class), null, null);
+        ORE_GROWER.setup(new MachineBlock(getId(ORE_GROWER)), getDefaultItemSettings(), OreGrowerBlockEntity::new, getDefaultClientHandlerFactory(OreGrowerGui.class), getDefaultRecipeType(getId(ORE_GROWER)), getDefaultSerializer());
     }
 
     public static BlockRegistry getEntry(Identifier id) {
@@ -62,32 +62,6 @@ public enum BlockRegistry {
     private static Item.Settings getDefaultItemSettings() {
         return new Item.Settings().group(ItemGroups.EH_TECH);
     }
-
-    //FIXME
-    /*
-    private static ContainerFactory<Container> getDefaultContainerFactory(Class<?> containerClass) {
-        return (syncId, id, player, buf) -> {
-			try {
-				return (Container) containerClass.getConstructor(int.class, PlayerInventory.class, BlockContext.class).newInstance(new Object[] {syncId, player.inventory, BlockContext.create(player.world, buf.readBlockPos())});
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                TechMod.LOGGER.bigBug(e);
-                return null;
-			}
-		};
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static ContainerFactory<ContainerScreen> getDefaultScreenFactory(Class<?> containerClass) {
-        return (syncId, id, player, buf) -> {
-			try {
-				return new EHContainerScreen((ContainerCraftingController) containerClass.getConstructor(int.class, PlayerInventory.class, BlockContext.class).newInstance(new Object[] {syncId, player.inventory, BlockContext.create(player.world, buf.readBlockPos())}), player);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                TechMod.LOGGER.bigBug(e);
-                return null;
-			}
-		};
-    }
-    */
 
     private static ExtendedClientHandlerFactory<SyncedGuiDescription> getDefaultClientHandlerFactory(Class<?> containerClass) {
         return (syncId, playerInv, buf) -> {

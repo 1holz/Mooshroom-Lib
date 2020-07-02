@@ -1,10 +1,10 @@
-package de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks;
+package de.alberteinholz.ehtech.blocks.directionals.containers;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.ContainerBlockEntity;
-import de.alberteinholz.ehtech.blocks.directionalblocks.DirectionalBlock;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.ContainerBlockEntity;
+import de.alberteinholz.ehtech.blocks.directionals.DirectionalBlock;
 import io.github.cottonmc.component.UniversalComponents;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;

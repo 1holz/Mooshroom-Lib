@@ -1,9 +1,9 @@
-package de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.machineblockentitys;
+package de.alberteinholz.ehtech.blocks.blockentities.containers.machines;
 
 import java.util.Optional;
 
 import de.alberteinholz.ehtech.TechMod;
-import de.alberteinholz.ehtech.blocks.blockentities.containerblockentities.ContainerBlockEntity;
+import de.alberteinholz.ehtech.blocks.blockentities.containers.ContainerBlockEntity;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent.Slot;
@@ -12,8 +12,8 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapaci
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.ContainerBlock;
-import de.alberteinholz.ehtech.blocks.directionalblocks.containerblocks.machineblocks.MachineBlock;
+import de.alberteinholz.ehtech.blocks.directionals.containers.ContainerBlock;
+import de.alberteinholz.ehtech.blocks.directionals.containers.machines.MachineBlock;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.blocks.recipes.Input.ItemIngredient;
