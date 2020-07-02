@@ -4,16 +4,16 @@
   "version": "${version}",
 
   "name": "Einholzscher Tech Mod",
-  "description": "Lorem ipsum",
+  "description": "It is just another Minecraft Tech Mod for Fabric.",
   "authors": [
     "Albert_Einholz"
   ],
   "contact": {
-    "homepage": "Lorem ipsum",
-    "sources": "Lorem ipsum"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/einholzscher-tech-mod",
+    "sources": "https://github.com/Albert-Einholz/Einholzscher-Tech-Mod"
   },
 
-  "license": "CC0-1.0",
+  "license": "Apache-20. Licence",
   "icon": "assets/ehtech/icon.png",
 
   "environment": "*",
@@ -30,7 +30,7 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": "1.15.x"
+    "minecraft": ">=1.15.0"
   },
   "suggests": {
     "flamingo": "*"
