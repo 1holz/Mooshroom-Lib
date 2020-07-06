@@ -10,7 +10,7 @@ import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
 import io.github.cottonmc.cotton.gui.widget.WBar.Direction;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
@@ -20,12 +20,12 @@ public class CoalGeneratorGui extends MachineGui {
     protected Bar heatBar;
     protected WItemSlot coalInputSlot;
 
-    public CoalGeneratorGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        this(BlockRegistry.COAL_GENERATOR.screenHandlerType, syncId, playerInv, context);
+    public CoalGeneratorGui(int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        this(BlockRegistry.COAL_GENERATOR.screenHandlerType, syncId, playerInv, buf);
     }
 
-    public CoalGeneratorGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        super(type, syncId, playerInv, context);
+    public CoalGeneratorGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        super(type, syncId, playerInv, buf);
     }
 
     @Override

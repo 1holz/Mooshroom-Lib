@@ -5,11 +5,12 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGenerator
 import de.alberteinholz.ehtech.blocks.guis.guis.machines.CoalGeneratorGui;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
 
 public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
     public CoalGeneratorBlockEntity() {
@@ -59,7 +60,9 @@ public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
-        return new CoalGeneratorGui(syncId, playerInv, ScreenHandlerContext.create(world, pos));
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeBlockPos(pos);
+        return new CoalGeneratorGui(syncId, playerInv, buf);
     }
 
     @Override

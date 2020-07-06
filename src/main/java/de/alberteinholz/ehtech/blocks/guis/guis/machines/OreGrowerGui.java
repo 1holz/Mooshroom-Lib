@@ -7,19 +7,19 @@ import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
 public class OreGrowerGui extends MachineGui {
     protected WItemSlot oreInputSlot;
 
-    public OreGrowerGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        this(BlockRegistry.ORE_GROWER.screenHandlerType, syncId, playerInv, context);
+    public OreGrowerGui(int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        this(BlockRegistry.ORE_GROWER.screenHandlerType, syncId, playerInv, buf);
     }
 
-    public OreGrowerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        super(type, syncId, playerInv, context);
+    public OreGrowerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        super(type, syncId, playerInv, buf);
     }
 
     @Override

@@ -19,6 +19,6 @@ public class TechMod implements ModInitializer, ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-        
+        BlockRegistry.registerScreens();
     }
 }

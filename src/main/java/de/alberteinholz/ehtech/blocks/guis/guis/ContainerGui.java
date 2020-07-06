@@ -15,7 +15,7 @@ import io.github.cottonmc.cotton.gui.widget.WPanel;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
@@ -28,15 +28,13 @@ public abstract class ContainerGui extends SyncedGuiDescription {
     protected WLabel playerInventoryTitle;
     public ContainerScreen screen;
 
-    public ContainerGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        this(null, syncId, playerInv, context);
+    public ContainerGui(int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        this(null, syncId, playerInv, buf);
     }
 
-    public ContainerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
+    public ContainerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv);
-        context.run((world, pos) -> {
-            ContainerGui.this.pos = pos;
-        });
+        pos = buf.readBlockPos();
         blockInventory = getInventoryComponent().asInventory();
         initWidgetsDependencies();
         setRootPanel(root);

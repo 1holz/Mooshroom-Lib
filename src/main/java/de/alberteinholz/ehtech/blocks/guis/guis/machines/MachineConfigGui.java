@@ -21,7 +21,7 @@ import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -41,12 +41,12 @@ public class MachineConfigGui extends ContainerGui {
     protected Map<Integer, ConfigButton> configButtons;
     protected Button cancel;
 
-    public MachineConfigGui(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
-        this(BlockRegistry.MACHINE_CONFIG.screenHandlerType, syncId, playerInventory, context);
+    public MachineConfigGui(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+        this(BlockRegistry.MACHINE_CONFIG.screenHandlerType, syncId, playerInventory, buf);
     }
 
-    public MachineConfigGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
-        super(type, syncId, playerInventory, context);
+    public MachineConfigGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
+        super(type, syncId, playerInventory, buf);
     }
 
     @Override

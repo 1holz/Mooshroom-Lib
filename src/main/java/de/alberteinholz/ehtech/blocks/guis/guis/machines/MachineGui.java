@@ -19,7 +19,7 @@ import io.github.cottonmc.cotton.gui.widget.WBar.Direction;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
@@ -38,12 +38,12 @@ public abstract class MachineGui extends ContainerGui {
     protected WItemSlot powerOutputSlot;
     protected Button configurationButton;
 
-    public MachineGui(int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        this(null, syncId, playerInv, context);
+    public MachineGui(int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        this(null, syncId, playerInv, buf);
     }
 
-    public MachineGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, ScreenHandlerContext context) {
-        super(type, syncId, playerInv, context);
+    public MachineGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        super(type, syncId, playerInv, buf);
     }
 
     @Override
