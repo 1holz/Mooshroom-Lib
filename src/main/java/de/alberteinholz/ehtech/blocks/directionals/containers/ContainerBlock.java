@@ -39,7 +39,6 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
             player.openHandledScreen((ContainerBlockEntity) world.getBlockEntity(pos));
-            //FIXME:ContainerProviderRegistry.INSTANCE.openContainer(id, player, buf -> buf.writeBlockPos(pos));
         }
         return ActionResult.SUCCESS;
     }

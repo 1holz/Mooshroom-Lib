@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
-import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
@@ -17,7 +16,6 @@ import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
-import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -121,19 +119,12 @@ public class MachineConfigGui extends ContainerGui {
                     close(player);
                 } else {
                     player.openHandledScreen((MachineBlockEntity) world.getBlockEntity(pos));
-                    //FIXME
-                    //ContainerProviderRegistry.INSTANCE.openContainer(entryId, player, buf -> buf.writeBlockPos(pos));
-
                 }
             }
             return true;
         } else {
             return false;
         }
-    }
-
-    protected MachineCapacitorComponent getCapacitorComponent() {
-        return (MachineCapacitorComponent) BlockComponentProvider.get(world.getBlockState(pos)).getComponent(world, pos, UniversalComponents.CAPACITOR_COMPONENT, null);
     }
 
     protected MachineDataProviderComponent getDataProviderComponent() {

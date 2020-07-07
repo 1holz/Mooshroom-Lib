@@ -22,14 +22,22 @@ import de.alberteinholz.ehtech.util.Helper;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -191,9 +199,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         return canProcess;
     }
 
-    public void task() {
-
-    }
+    public void task() {}
 
     public void finish() {
         cancle();
@@ -205,13 +211,9 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         data.resetRecipe();
     }
 
-    public void idle() {
+    public void idle() {}
 
-    }
-
-    public void correct() {
-
-    }
+    public void correct() {}
 
     public boolean containsItemIngredients(Input.ItemIngredient... ingredients) {
         boolean bl = true;
@@ -287,6 +289,29 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
 
     @Override
     protected MachineDataProviderComponent initializeDataProviderComponent() {
-        return (MachineDataProviderComponent) data;
+        return (MachineDataProviderComponent) super.initializeDataProviderComponent();
+    }
+
+    public SideConfigScreenHandlerFactory getSideConfigScreenHandlerFactory() {
+        return new SideConfigScreenHandlerFactory();
+    }
+
+    public class SideConfigScreenHandlerFactory implements ExtendedScreenHandlerFactory {
+		@Override
+		public Text getDisplayName() {
+			return MachineBlockEntity.this.getDisplayName();
+		}
+
+		@Override
+		public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            writeScreenOpeningData((ServerPlayerEntity) player, buf);
+            return BlockRegistry.MACHINE_CONFIG.clientHandlerFactory.create(syncId, inv, buf);
+		}
+
+		@Override
+		public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+			buf.writeBlockPos(pos);
+		}
     }
 }

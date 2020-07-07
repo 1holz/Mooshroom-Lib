@@ -80,20 +80,11 @@ public class MachineRecipe implements Recipe<Inventory> {
 
     public boolean matches(BlockPos pos, World world) {
         MachineBlockEntity be = (MachineBlockEntity) world.getBlockEntity(pos);
-        if (input != null) {
-            if (input.items != null && !be.containsItemIngredients(input.items)) {
-                return false;
-            } else if (input.fluids != null && !be.containsFluidIngredients(input.fluids)) {
-                return false;
-            } else if (input.blocks != null && !be.containsBlockIngredients(input.blocks)) {
-                return false;
-            } else if (input.entities != null && !be.containsEntityIngredients(input.entities)) {
-                return false;
-            } else if (input.data != null && !be.containsDataIngredients(input.data)) {
-                return false;
-            }
+        if (input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data))) {
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     public static class Serializer implements RecipeSerializer<MachineRecipe> {

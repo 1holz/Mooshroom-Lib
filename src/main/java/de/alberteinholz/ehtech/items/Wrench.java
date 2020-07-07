@@ -79,8 +79,7 @@ public class Wrench extends Tool {
                 return ActionResult.SUCCESS;
             } else if(mode == WrenchMode.CONFIGURE) {
                 if(!context.getWorld().isClient()) {
-                    context.getPlayer().openHandledScreen((MachineBlockEntity) context.getWorld().getBlockEntity(context.getBlockPos()));
-                    //FIXME:ContainerProviderRegistry.INSTANCE.openContainer(BlockRegistry.getId(BlockRegistry.MACHINE_CONFIG), context.getPlayer(), buf -> buf.writeBlockPos(context.getBlockPos()));
+                    context.getPlayer().openHandledScreen(((MachineBlockEntity) context.getWorld().getBlockEntity(context.getBlockPos())).getSideConfigScreenHandlerFactory());
                 }
                 return ActionResult.SUCCESS;
             }

@@ -108,7 +108,7 @@ public abstract class MachineGui extends ContainerGui {
             return true;
         } else if (id == buttonIds.indexOf(configurationButton)) {
             if (!world.isClient) {
-                player.openHandledScreen((MachineBlockEntity) world.getBlockEntity(pos));
+                player.openHandledScreen(((MachineBlockEntity) world.getBlockEntity(pos)).getSideConfigScreenHandlerFactory());
             }
             return true;
         } else {
