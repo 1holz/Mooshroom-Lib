@@ -39,8 +39,8 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     public int powerBilanz = 0;
     public int lastPower = capacitor.getCurrentEnergy();
 
-    public MachineBlockEntity(BlockEntityType<?> type) {
-        super(type);
+    public MachineBlockEntity(BlockRegistry registryEntry) {
+        super(registryEntry);
         capacitor.setDataProvider((MachineDataProviderComponent) data);
         inventory.stacks.put("power_input", new ContainerInventoryComponent.Slot(ContainerInventoryComponent.Slot.Type.OTHER));
         inventory.stacks.put("power_output", new ContainerInventoryComponent.Slot(ContainerInventoryComponent.Slot.Type.OTHER));

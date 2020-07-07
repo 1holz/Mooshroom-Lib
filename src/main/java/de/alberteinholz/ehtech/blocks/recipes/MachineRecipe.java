@@ -12,6 +12,8 @@ import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineB
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.fablabsmc.fablabs.api.fluidvolume.v1.FluidVolume;
 import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -54,6 +56,11 @@ public class MachineRecipe implements Recipe<Inventory> {
         this.output = output;
         this.generates = generates;
         this.timeModifier = timeModifier;
+    }
+
+    @Override
+    public boolean isIgnoredInRecipeBook() {
+        return true;
     }
 
     @Override
@@ -101,6 +108,7 @@ public class MachineRecipe implements Recipe<Inventory> {
         }
         
         //from file to server
+        //@Environment(EnvType.SERVER)
         @Override
         public MachineRecipe read(Identifier id, JsonObject json) {
             //INPUT:
@@ -270,6 +278,7 @@ public class MachineRecipe implements Recipe<Inventory> {
         }
 
         //from server to packet
+        @Environment(EnvType.SERVER)
         @Override
         public void write(PacketByteBuf buf, MachineRecipe recipe) {
             recipe.input.write(buf);
@@ -280,6 +289,7 @@ public class MachineRecipe implements Recipe<Inventory> {
         }
 
         //from packet to client
+        @Environment(EnvType.CLIENT)
         @Override
         public MachineRecipe read(Identifier id, PacketByteBuf buf) {
             return factory.create(id, Input.read(buf), buf.readDouble(), Output.read(buf), buf.readDouble(), buf.readDouble());

@@ -2,23 +2,16 @@ package de.alberteinholz.ehtech.blocks.blockentities.containers.machines.generat
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.CoalGeneratorDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.guis.guis.machines.CoalGeneratorGui;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
-import io.netty.buffer.Unpooled;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandler;
 
 public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
     public CoalGeneratorBlockEntity() {
-        this(BlockRegistry.COAL_GENERATOR.blockEntityType);
+        this(BlockRegistry.COAL_GENERATOR);
     }
 
-    public CoalGeneratorBlockEntity(BlockEntityType<?> type) {
-        super(type);
+    public CoalGeneratorBlockEntity(BlockRegistry registryEntry) {
+        super(registryEntry);
         inventory.stacks.put("coal_input", new ContainerInventoryComponent.Slot(ContainerInventoryComponent.Slot.Type.INPUT));
     }
 
@@ -56,13 +49,6 @@ public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
         if (data.heat.getBarCurrent() > data.heat.getBarMinimum()) {
             data.decreaseHeat();
         }
-    }
-
-    @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeBlockPos(pos);
-        return new CoalGeneratorGui(syncId, playerInv, buf);
     }
 
     @Override

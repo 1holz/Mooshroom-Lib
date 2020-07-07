@@ -85,8 +85,6 @@ public class MachineConfigGui extends ContainerGui {
 
     @Override
     protected void drawDefault() {
-        ((WGridPanel) root).add(containerTitle, 0, 0, 1, 2);
-        ((WGridPanel) root).add(playerInventoryTitle, 0, 12, 1, 2);
         ((WGridPanel) root).add(createPlayerInventoryPanel(), 0, 14);
         ((WGridPanel) root).add(down, 4, 2, 2, 2);
         ((WGridPanel) root).add(up, 6, 2, 2, 2);

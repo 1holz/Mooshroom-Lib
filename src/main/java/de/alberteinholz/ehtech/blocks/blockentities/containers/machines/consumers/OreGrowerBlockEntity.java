@@ -3,27 +3,20 @@ package de.alberteinholz.ehtech.blocks.blockentities.containers.machines.consume
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.directionals.DirectionalBlock;
-import de.alberteinholz.ehtech.blocks.guis.guis.machines.OreGrowerGui;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
-import io.netty.buffer.Unpooled;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.math.BlockPos;
 
 public class OreGrowerBlockEntity extends ConsumerBlockEntity {
     public OreGrowerBlockEntity() {
-        this(BlockRegistry.ORE_GROWER.blockEntityType);
+        this(BlockRegistry.ORE_GROWER);
     }
 
-    public OreGrowerBlockEntity(BlockEntityType<?> type) {
-        super(type);
+    public OreGrowerBlockEntity(BlockRegistry registryEntry) {
+        super(registryEntry);
         inventory.stacks.put("seed_input", new ContainerInventoryComponent.Slot(ContainerInventoryComponent.Slot.Type.INPUT));
     }
 
@@ -61,13 +54,6 @@ public class OreGrowerBlockEntity extends ConsumerBlockEntity {
     @Override
     public boolean containsBlockIngredients(Input.BlockIngredient... ingredients) {
         return ingredients[0].ingredient.contains(world.getBlockState(pos.offset(world.getBlockState(pos).get(DirectionalBlock.FACING))).getBlock());
-    }
-
-    @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeBlockPos(pos);
-        return new OreGrowerGui(syncId, playerInv, buf);
     }
 
     @Override

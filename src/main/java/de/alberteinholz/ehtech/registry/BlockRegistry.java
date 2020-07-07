@@ -16,6 +16,8 @@ import de.alberteinholz.ehtech.itemgroups.ItemGroups;
 import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.client.CottonInventoryScreen;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry.Factory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -127,6 +129,7 @@ public enum BlockRegistry {
         }
     }
 
+    @Environment(EnvType.CLIENT)
     public static void registerScreens() {
         for (BlockRegistry entry : BlockRegistry.values()) {
             if (entry.screenHandlerType != null && entry.screenFactory != null) {

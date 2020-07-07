@@ -6,6 +6,8 @@ import de.alberteinholz.ehtech.registry.BlockRegistry;
 import de.alberteinholz.ehtech.registry.ItemRegistry;
 import de.alberteinholz.ehtech.util.LoggerHelper;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 
 public class TechMod implements ModInitializer, ClientModInitializer {
@@ -17,6 +19,7 @@ public class TechMod implements ModInitializer, ClientModInitializer {
 		ItemRegistry.registerItems();
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void onInitializeClient() {
         BlockRegistry.registerScreens();

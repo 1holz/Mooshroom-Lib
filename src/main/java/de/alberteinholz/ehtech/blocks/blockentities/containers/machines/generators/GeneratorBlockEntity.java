@@ -1,10 +1,10 @@
 package de.alberteinholz.ehtech.blocks.blockentities.containers.machines.generators;
 
 import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
+import de.alberteinholz.ehtech.registry.BlockRegistry;
 
 public abstract class GeneratorBlockEntity extends MachineBlockEntity {
-    public GeneratorBlockEntity(BlockEntityType<?> type) {
-        super(type);
+    public GeneratorBlockEntity(BlockRegistry registryEntry) {
+        super(registryEntry);
     }
 }

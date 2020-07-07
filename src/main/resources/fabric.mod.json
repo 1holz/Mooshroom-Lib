@@ -13,7 +13,7 @@
     "sources": "https://github.com/Albert-Einholz/Einholzscher-Tech-Mod"
   },
 
-  "license": "Apache-20. Licence",
+  "license": "Apache-2.0 Licence",
   "icon": "assets/ehtech/icon.png",
 
   "environment": "*",
