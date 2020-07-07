@@ -5,26 +5,24 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import net.minecraft.text.StringRenderable;
 import net.minecraft.text.TranslatableText;
 
 public interface AdvancedTooltip {
-
     List<String> getTooltips();
-
     Map<String, Supplier<Object>[]> getAdvancedTooltips();
 
-    //Use this:
+    //Use this in the widget class:
     /*
     @Override
-	public void addInformation(List<String> info) {
-		AdvancedTooltip.super.addInformation(info);
+	public void addTooltip(List<String> info) {
+		AdvancedTooltip.super.addTooltip(info);
     }
     */
-
-	default void addInformation(List<String> information) {
+	default void addTooltip(List<StringRenderable> info) {
 		if (!getTooltips().isEmpty()) {
 			for (String tooltip : getTooltips()) {
-				information.add(new TranslatableText(tooltip).getString());
+				info.add(new TranslatableText(tooltip));
 			}
 		}
 		if (!getAdvancedTooltips().isEmpty()) {
@@ -35,7 +33,7 @@ public interface AdvancedTooltip {
 					for (int i = 0; i < values.length; i++) {
 						args[i] = values[i].get();
 					}
-					information.add(new TranslatableText(label, args).getString());
+					info.add(new TranslatableText(label, args));
 				}
 			});
 		}

@@ -14,9 +14,11 @@ import io.github.cottonmc.cotton.gui.widget.WBar;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.StringRenderable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class Bar extends WBar implements AdvancedTooltip {
 	public SimpleDataElement element;
 	public SimpleCapacitorComponent capacitor;
@@ -62,7 +64,6 @@ public class Bar extends WBar implements AdvancedTooltip {
 		advancedTooltips.put(label, (Supplier<Object>[]) suppliers);
 	}
 
-	@Environment(EnvType.CLIENT)
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
 		if (bg!=null) {
@@ -120,8 +121,8 @@ public class Bar extends WBar implements AdvancedTooltip {
 	}
 
 	@Override
-	public void addInformation(List<String> info) {
-		AdvancedTooltip.super.addInformation(info);
+	public void addTooltip(List<StringRenderable> info) {
+		AdvancedTooltip.super.addTooltip(info);
 	}
 
 	protected String getMin() {

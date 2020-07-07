@@ -73,13 +73,11 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
         return toTag(tag);
     }
 
-    //@Environment(EnvType.SERVER)
     @Override
     public Text getDisplayName() {
         return data.containerName.getLabel();
     }
 
-    //@Environment(EnvType.SERVER)
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -87,7 +85,6 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
         return registryEntry.clientHandlerFactory.create(syncId, playerInv, buf);
     }
 
-    //@Environment(EnvType.SERVER)
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(pos);

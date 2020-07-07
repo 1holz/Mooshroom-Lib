@@ -11,9 +11,13 @@ import de.alberteinholz.ehtech.util.Ref;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WSprite;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.StringRenderable;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class Button extends WButton implements AdvancedTooltip {
     public Identifier texture;
     public WSprite overlay;
@@ -87,8 +91,8 @@ public class Button extends WButton implements AdvancedTooltip {
 	}
 
 	@Override
-	public void addInformation(List<String> info) {
-		AdvancedTooltip.super.addInformation(info);
+	public void addTooltip(List<StringRenderable> info) {
+		AdvancedTooltip.super.addTooltip(info);
 	}
 
     @Override
