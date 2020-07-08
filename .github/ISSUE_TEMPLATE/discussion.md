@@ -1,8 +1,8 @@
 ---
-name: Voting
+name: Discussion
 about: A future feature that can be voted on
 title: ''
-labels: 'voting'
+labels: 'discussion'
 assignees: ''
 ---
 
