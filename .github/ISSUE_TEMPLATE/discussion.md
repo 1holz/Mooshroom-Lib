@@ -7,10 +7,10 @@ assignees: ''
 ---
 
 # (headline)
-### Feature
+### Feature:
 (the feature that should be voted on)
 
-### Optional Alternative
+### Optional Alternative:
 (an optional alternative)
 
 ## How voting works:
