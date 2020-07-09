@@ -19,9 +19,8 @@ public class CoalGeneratorBlockEntity extends GeneratorBlockEntity {
     public boolean process() {
         CoalGeneratorDataProviderComponent data = (CoalGeneratorDataProviderComponent) this.data;
         MachineRecipe recipe = (MachineRecipe) data.getRecipe(world);
-        int generation = 0;
         if (recipe.generates != Double.NaN && recipe.generates > 0.0) {
-            generation = (int) (data.getEfficiency() * data.getSpeed() * (data.getEfficiency() * data.getSpeed() * (data.heat.getBarCurrent() - data.heat.getBarMinimum()) / (data.heat.getBarMaximum() - data.heat.getBarMinimum()) * 3 + 1));
+            int generation = (int) (data.getEfficiency() * data.getSpeed() * (data.getEfficiency() * data.getSpeed() * (data.heat.getBarCurrent() - data.heat.getBarMinimum()) / (data.heat.getBarMaximum() - data.heat.getBarMinimum()) * 3 + 1));
             if (capacitor.getCurrentEnergy() + generation <= capacitor.getMaxEnergy()) {
                 capacitor.generateEnergy(world, pos, generation);
             } else {

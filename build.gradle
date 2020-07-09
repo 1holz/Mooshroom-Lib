@@ -30,6 +30,7 @@ dependencies {
     //include modImplementation("io.github.cottonmc:UniversalComponents:0.7.2+1.16-pre2")
 	//include modImplementation(fileTree('libs'))
 	compile files("libs/universalcomponents-0.7.3+1.16.1-dev.jar")
+	include files("libs/universalcomponents-0.7.3+1.16.1-dev.jar")
 	//include modImplementation(files("libs/universalcomponents-0.7.3+1.16.1.jar", "libs/universalcomponents-0.7.3+1.16.1-sources.jar"))
 
 }
