@@ -64,7 +64,7 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
     @Environment(EnvType.CLIENT)
     @Override
     public void fromClientTag(CompoundTag tag) {
-        fromTag(null, tag);
+        fromTag(world.getBlockState(pos), tag);
     }
 
     @Environment(EnvType.CLIENT)

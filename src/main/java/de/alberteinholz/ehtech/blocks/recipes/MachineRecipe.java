@@ -96,7 +96,6 @@ public class MachineRecipe implements Recipe<Inventory> {
         
         //from file to server
         //TODO: make this shorter
-        //@Environment(EnvType.SERVER)
         @Override
         public MachineRecipe read(Identifier id, JsonObject json) {
             //INPUT:

@@ -55,19 +55,11 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
             if (!compoundTag.isEmpty()) {
                 itemStack.putSubTag("BlockEntityTag", compoundTag);
             }
-            ItemEntity itemEntity = new ItemEntity(world, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), itemStack);
+            ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), itemStack);
             itemEntity.setToDefaultPickupDelay();
             world.spawnEntity(itemEntity);
         }
         super.onBreak(world, pos, state, player);
-    }
-
-    @Override
-    public void onBroken(WorldAccess world, BlockPos pos, BlockState state) {
-        super.onBroken(world, pos, state);
-        if (state.getBlock() != state.getBlock()) {
-            world.updateNeighbors(pos, this);
-        }
     }
 
     @Override
@@ -95,6 +87,7 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
         return set;
     }
 
+    @Override
     public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
         return getComponent(world, pos, UniversalComponents.INVENTORY_COMPONENT, null).asLocalInventory(world, pos);
     }

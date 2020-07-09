@@ -130,7 +130,7 @@ public enum BlockRegistry {
     }
 
     @Environment(EnvType.CLIENT)
-    public static void registerScreens() {
+    public static void registerBlocksClient() {
         for (BlockRegistry entry : BlockRegistry.values()) {
             if (entry.screenHandlerType != null && entry.screenFactory != null) {
                 ScreenRegistry.register(entry.screenHandlerType, entry.screenFactory);
