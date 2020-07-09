@@ -108,7 +108,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public int pull(ContainerInventoryComponent target, ActionType action, Direction dir) {
         int transfer = 0;
         for (Entry<String, Slot> entry : target.getSlots(Type.OUTPUT).entrySet()) {
-            if (target.canExtract(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
+            if (target.canExtract(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)))) {
                 ItemStack extracted = target.removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
                 for (Entry<String, Slot> inEntry : getSlots(Type.INPUT).entrySet()) {
                     int insertedCount = insertStack(inEntry.getKey(), extracted, action).getCount();
@@ -129,7 +129,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public int push(ContainerInventoryComponent target, ActionType action, Direction dir) {
         int transfer = 0;
         for (Entry<String, Slot> entry : getSlots(Type.OUTPUT).entrySet()) {
-            if (target.canInsert(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
+            if (target.canInsert(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)))) {
                 ItemStack inserted = removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
                 for (Entry<String, Slot> inEntry : target.getSlots(Type.INPUT).entrySet()) {
                     int insertedCount = target.insertStack(inEntry.getKey(), inserted, action).getCount();
@@ -151,7 +151,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         if (!getType(slot).insert) {
             return false;
         } else if (dataProvider instanceof MachineDataProviderComponent) {
-            return ((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir);
+            return Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir));
         } else {
             return true;
         }
@@ -161,7 +161,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         if (!getType(slot).extract) {
             return false;
         } else if (dataProvider instanceof MachineDataProviderComponent) {
-            return ((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir);
+            return Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir));
         } else {
             return true;
         }

@@ -83,41 +83,42 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         markDirty();
     }
 
+    //TODO: make shorter with interface transferable
     public void transfer() {
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
             Block targetBlock = world.getBlockState(targetPos).getBlock();
             if (targetBlock instanceof ContainerBlock) {
                 ContainerInventoryComponent inv = (ContainerInventoryComponent) ((ContainerBlock) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, null);
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
                     inventory.pull(inv, ActionType.PERFORM, dir);
                 }
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
                     inventory.push(inv, ActionType.PERFORM, dir);
                 }
             } else if (world.getBlockEntity(targetPos) instanceof Inventory) {
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
                     Helper.pull((MachineDataProviderComponent) data, inventory, (Inventory) world.getBlockEntity(targetPos), 1, dir);
                 }
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
                     Helper.push((MachineDataProviderComponent) data, inventory, (Inventory) world.getBlockEntity(targetPos), 1, dir);
                 }
             }
             //TODO:fluid
             if (targetBlock instanceof Block) {
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir))) {
                     //TODO:fluid
                 }
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_OUTPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_OUTPUT, dir))) {
                     //TODO:fluid
                 }
             }
             if (targetBlock instanceof MachineBlock) {
                 MachineCapacitorComponent cap = (MachineCapacitorComponent) ((MachineBlock) targetBlock).getComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, null);
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir))) {
                     capacitor.pull(cap, ActionType.PERFORM, dir);
                 }
-                if (((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir)) {
+                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir))) {
                     capacitor.push(cap, ActionType.PERFORM, dir);
                 }
             }

@@ -2,6 +2,8 @@ package de.alberteinholz.ehtech.blocks.blockentities.containers.machines.consume
 
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
 import de.alberteinholz.ehtech.blocks.directionals.DirectionalBlock;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
@@ -18,6 +20,7 @@ public class OreGrowerBlockEntity extends ConsumerBlockEntity {
     public OreGrowerBlockEntity(BlockRegistry registryEntry) {
         super(registryEntry);
         inventory.stacks.put("seed_input", new ContainerInventoryComponent.Slot(ContainerInventoryComponent.Slot.Type.INPUT));
+        ((MachineDataProviderComponent) data).setConfigAvailability(new ConfigType[]{ConfigType.ITEM}, new ConfigBehavior[]{ConfigBehavior.SELF_INPUT, ConfigBehavior.FOREIGN_INPUT}, null, true);
     }
 
     @Override

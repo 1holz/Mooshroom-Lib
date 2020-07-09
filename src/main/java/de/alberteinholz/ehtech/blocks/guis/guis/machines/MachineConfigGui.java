@@ -70,8 +70,13 @@ public class MachineConfigGui extends ContainerGui {
                 for (ConfigBehavior behavior : ConfigBehavior.values()) {
                     ConfigButton button = new ConfigButton(type, dir, behavior);
                     buttonIds.add(button);
-                    configButtons.put(buttonIds.indexOf(button), button);
-                    button.setOnClick(getDefaultOnButtonClick(button));
+                    button.id = buttonIds.indexOf(button);
+                    configButtons.put(button.id, button);
+                    if (getDataProviderComponent().getConfig(type, behavior, dir) == null) {
+                        button.setEnabled(false);
+                    } else {
+                        button.setOnClick(getDefaultOnButtonClick(button));
+                    }
                 }
             }
         }
@@ -94,7 +99,7 @@ public class MachineConfigGui extends ContainerGui {
         ((WGridPanel) root).add(fluid, 0, 6, 4, 2);
         ((WGridPanel) root).add(power, 0, 8, 4, 2);
         configButtons.forEach((id, button) -> {
-            ((WGridPanel) root).add(button, button.dir.ordinal() * 2 + 4 + (int) Math.floor((double) button.behavior.ordinal() / 2.0), button.type.ordinal() * 2 + 4 + (button.behavior.ordinal() + 1) % 2);
+            ((WGridPanel) root).add(button, button.DIR.ordinal() * 2 + 4 + (int) Math.floor((double) button.BEHAVIOR.ordinal() / 2.0), button.TYPE.ordinal() * 2 + 4 + (button.BEHAVIOR.ordinal() + 1) % 2);
         });
         ((WGridPanel) root).add(cancel, 18, 10, 2, 2);
     }
@@ -103,9 +108,12 @@ public class MachineConfigGui extends ContainerGui {
     public boolean onButtonClick(PlayerEntity player, int id) {
         if (configButtons.containsKey(id)) {
             ConfigButton button = configButtons.get(id);
-            ((MachineDataProviderComponent) getDataProviderComponent()).changeConfig(button.type, button.behavior, button.dir);
-            world.getBlockEntity(pos).markDirty();
-            return true;
+            if (button.isEnabled()) {
+                ((MachineDataProviderComponent) getDataProviderComponent()).changeConfig(button.TYPE, button.BEHAVIOR, button.DIR);
+                return true;
+            } else {
+                return false;
+            }
         } else if (id == buttonIds.indexOf(cancel)) {
             if (!world.isClient) {
                 Identifier entryId = null;
@@ -132,37 +140,44 @@ public class MachineConfigGui extends ContainerGui {
     }
 
     protected class ConfigButton extends Button {
-        public ConfigType type;
-        public Direction dir;
-        public ConfigBehavior behavior;
+        public int id;
+        public final ConfigType TYPE;
+        public final Direction DIR;
+        public final ConfigBehavior BEHAVIOR;
 
         @SuppressWarnings("unchecked")
         public ConfigButton(ConfigType type, Direction dir, ConfigBehavior behavior) {
-            this.type = type;
-            this.dir = dir;
-            this.behavior = behavior;
+            this.TYPE = type;
+            this.DIR = dir;
+            this.BEHAVIOR = behavior;
             setSize(8, 8);
             resizeability = false;
-            Supplier<?>[] suppliers = {
-                () -> {
-                    return behavior.name().toLowerCase();
-                },
-                () -> {
-                    return dir.getName();
-                },
-                () -> {
-                    return String.valueOf(((MachineDataProviderComponent) ((MachineBlock) world.getBlockState(pos).getBlock()).getComponent(world, pos, UniversalComponents.DATA_PROVIDER_COMPONENT, null)).getConfig(type, behavior, dir));
-                },
-                () -> {
-                    return type.name().toLowerCase();
-                }
-            };
-            advancedTooltips.put("tooltip.ehtech.config_button", (Supplier<Object>[]) suppliers);
+            if (isEnabled()) {
+                Supplier<?>[] suppliers = {
+                    () -> {
+                        return behavior.name().toLowerCase();
+                    },
+                    () -> {
+                        return dir.getName();
+                    },
+                    () -> {
+                        return String.valueOf(Boolean.TRUE.equals(((MachineDataProviderComponent) ((MachineBlock) world.getBlockState(pos).getBlock()).getComponent(world, pos, UniversalComponents.DATA_PROVIDER_COMPONENT, null)).getConfig(type, behavior, dir)));
+                    },
+                    () -> {
+                        return type.name().toLowerCase();
+                    }
+                };
+                advancedTooltips.put("tooltip.ehtech.config_button", (Supplier<Object>[]) suppliers);
+            }
         }
 
         @Override
         public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
-            withTint(getDataProviderComponent().getConfig(type, behavior, dir) ? 0xFFFFFF00 : 0xFFFF0000);
+            if (isEnabled()) {
+                withTint(Boolean.TRUE.equals(getDataProviderComponent().getConfig(TYPE, BEHAVIOR, DIR)) ? 0xFFFFFF00 : 0xFFFF0000);
+            } else {
+                advancedTooltips.remove("tooltip.ehtech.config_button");
+            }
             super.draw(matrices, x, y, mouseX, mouseY);
         }
     }

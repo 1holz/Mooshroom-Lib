@@ -51,7 +51,7 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
 
     public int pull(CapacitorComponent target, ActionType action, Direction dir) {
         int transfer = 0;
-        if (target.canExtractEnergy() && dataProvider != null && dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canExtract(dir))) {
+        if (target.canExtractEnergy() && dataProvider != null && Boolean.TRUE.equals(dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir)) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canExtract(dir))) {
             int extractTarget = target.extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action);
             int insert = insertEnergy(getPreferredType(), extractTarget, action);
             int insertTarget = target.insertEnergy(getPreferredType(), insert, action);
@@ -65,7 +65,7 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
 
     public int push(CapacitorComponent target, ActionType action, Direction dir) {
         int transfer = 0;
-        if (target.canInsertEnergy() && dataProvider != null && dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canInsert(dir))) {
+        if (target.canInsertEnergy() && dataProvider != null && Boolean.TRUE.equals(dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir)) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canInsert(dir))) {
             int extract = extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action);
             int insertTarget = target.insertEnergy(getPreferredType(), extract, action);
             int insert = insertEnergy(getPreferredType(), insertTarget, action);
@@ -78,11 +78,11 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
     }
 
     public boolean canInsert(Direction dir) {
-        return dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.FOREIGN_INPUT, dir);
+        return Boolean.TRUE.equals(dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.FOREIGN_INPUT, dir));
     }
 
     public boolean canExtract(Direction dir) {
-        return dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.FOREIGN_OUTPUT, dir);
+        return Boolean.TRUE.equals(dataProvider.getConfig(ConfigType.POWER, ConfigBehavior.FOREIGN_OUTPUT, dir));
     }
 
     @Override

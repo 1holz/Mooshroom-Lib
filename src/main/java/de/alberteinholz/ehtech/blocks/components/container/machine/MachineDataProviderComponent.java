@@ -125,23 +125,46 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         setActivationState(String.valueOf(getActivationState().next(1)));
     }
 
-    public boolean getConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
+    public Boolean getConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
         String string = getConfigElement(type).getLabel().asString();
         int i = getIndex(behavior, dir);
-        if (behavior.def == true) {
-            return string.charAt(i) == '0' ? false : true;
+        if (string.charAt(i) == 'x') {
+            return null;
         } else {
-            return string.charAt(i) == '1' ? true : false;
+            return behavior.getForChar(string.charAt(i));
         }
     }
 
-    public void changeConfig (ConfigType type, ConfigBehavior behavior, Direction dir) {
-        setConfig(type, behavior, dir, !getConfig(type, behavior, dir));
+    public void changeConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
+        Boolean bl = getConfig(type, behavior, dir);
+        if (bl != null) {
+            setConfig(type, behavior, dir, !bl);
+        }
     }
 
-    protected void setConfig(ConfigType type, ConfigBehavior behavior, Direction dir, boolean bl) {
+    //intersection mode
+    public void setConfigAvailability(ConfigType[] type, ConfigBehavior[] behavior, Direction[] dir, boolean availabel) {
+        if (type == null) {
+            type = ConfigType.values();
+        }
+        if (behavior == null) {
+            behavior = ConfigBehavior.values();
+        }
+        if (dir == null) {
+            dir = Direction.values();
+        }
+        for (ConfigType cType : type) {
+            for (ConfigBehavior cBehavior : behavior) {
+                for (Direction cDir : dir) {
+                    setConfig(cType, cBehavior, cDir, availabel ? cBehavior.getForChar('x') : null);
+                }
+            }
+        }
+    }
+
+    protected void setConfig(ConfigType type, ConfigBehavior behavior, Direction dir, Boolean bl) {
         char[] chars = getConfigElement(type).getLabel().asString().toCharArray();
-        chars[getIndex(behavior, dir)] = bl ? '1' : '0';
+        chars[getIndex(behavior, dir)] = bl == null ? 'x' : bl ? 't' : 'f';
         ((SimpleDataElement) getConfigElement(type)).withLabel(new String(chars));
     }
 
@@ -249,8 +272,8 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
 
     public static enum ConfigBehavior {
         SELF_INPUT (false),
-        FOREIGN_INPUT (true),
         SELF_OUTPUT (false),
+        FOREIGN_INPUT (true),
         FOREIGN_OUTPUT (true);
 
         public boolean def;
@@ -261,6 +284,14 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
 
         public ConfigBehavior next(int amount) {
             return values()[(ordinal() + amount) % values().length];
+        }
+
+        public boolean getForChar(char c) {
+            if (this.def == true) {
+                return c == 'f' ? false : true;
+            } else {
+                return c == 't' ? true : false;
+            }
         }
     }
 }

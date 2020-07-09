@@ -17,7 +17,7 @@ public class Helper {
     public static int pull(MachineDataProviderComponent data, ContainerInventoryComponent inventory, Inventory target, int maxTransfer, Direction dir) {
         int transfer = 0;
         for (int i = 0; i < target.size(); i++) {
-            if (((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) {
+            if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
                 ItemStack extracted = target.removeStack(i, maxTransfer);
                 for (Entry<String, Slot> inEntry : inventory.getSlots(Type.INPUT).entrySet()) {
                     int insertedCount = inventory.insertStack(inEntry.getKey(), extracted, ActionType.PERFORM).getCount();
@@ -37,7 +37,7 @@ public class Helper {
     public static int push(MachineDataProviderComponent data, ContainerInventoryComponent inventory, Inventory target, int maxTransfer, Direction dir) {
         int transfer = 0;
         for (Entry<String, Slot> entry : inventory.getSlots(Type.OUTPUT).entrySet()) {
-            if (((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) {
+            if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
                 ItemStack extracted = inventory.removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
                 for (int i = 0; i < target.size(); i++) {
                     int transfered = addInvStack(target, i, extracted);
