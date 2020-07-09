@@ -103,13 +103,13 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                     Helper.push((MachineDataProviderComponent) data, inventory, (Inventory) world.getBlockEntity(targetPos), 1, dir);
                 }
             }
-            //TODO Fluid
+            //TODO:fluid
             if (targetBlock instanceof Block) {
                 if (((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir)) {
-                    //TODO Fluid
+                    //TODO:fluid
                 }
                 if (((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_OUTPUT, dir)) {
-                    //TODO Fluid
+                    //TODO:fluid
                 }
             }
             if (targetBlock instanceof MachineBlock) {
@@ -121,7 +121,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                     capacitor.push(cap, ActionType.PERFORM, dir);
                 }
             }
-            //only for testing TODO: remove
+            //TODO:only for testing replace with proper creative battery
             if (inventory.getStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
                 capacitor.generateEnergy(world, pos, 4);
             }
@@ -229,7 +229,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         boolean bl = true;
         for (Input.FluidIngredient ingredient : ingredients) {
             TechMod.LOGGER.wip("Containment Check for " + ingredient);
-            //TODO Fluid
+            //TODO:fluid
         }
         return bl;
     }

@@ -134,7 +134,6 @@ public enum BlockRegistry {
         for (BlockRegistry entry : BlockRegistry.values()) {
             if (entry.screenHandlerType != null && entry.screenFactory != null) {
                 ScreenRegistry.register(entry.screenHandlerType, entry.screenFactory);
-                //ScreenProviderRegistry.INSTANCE.registerFactory(getId(entry), entry.screenFactory);
             }
         }
     }

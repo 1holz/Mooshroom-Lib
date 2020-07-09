@@ -8,11 +8,9 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.tag.EntityTypeTags;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.tag.ItemTags;
-import net.minecraft.tag.Tag.Identified;
+import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagContainers;
+import net.minecraft.util.Identifier;
 
 public class Input {
     public final ItemIngredient[] items;
@@ -117,18 +115,20 @@ public class Input {
     }
 
     public static class ItemIngredient {
-        public final Identified<Item> ingredient;
+        public final Identifier id;
+        public final Tag<Item> ingredient;
         public final int amount;
         public final CompoundTag tag;
 
-        public ItemIngredient(Identified<Item> ingredient, int amount, CompoundTag tag) {
-            this.ingredient = ingredient;
+        public ItemIngredient(Identifier id, int amount, CompoundTag tag) {
+            this.id = id;
+            this.ingredient = TagContainers.instance().items().get(id);
             this.amount = amount;
             this.tag = tag;
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(ingredient.getId());
+            buf.writeIdentifier(id);
             buf.writeInt(amount);
             if (tag == null || tag.isEmpty()) {
                 buf.writeBoolean(false);
@@ -139,26 +139,25 @@ public class Input {
         }
 
         public static ItemIngredient read(PacketByteBuf buf) {
-            Identified<Item> ingredient = (Identified<Item>) ItemTags.getContainer().get(buf.readIdentifier());
-            int amount = buf.readInt();
-            CompoundTag tag = buf.readBoolean() ? buf.readCompoundTag() : new CompoundTag();
-            return new ItemIngredient(ingredient, amount, tag);
+            return new ItemIngredient(buf.readIdentifier(), buf.readInt(), buf.readBoolean() ? buf.readCompoundTag() : new CompoundTag());
         }
     }
 
     public static class FluidIngredient {
-        public final Identified<Fluid> ingredient;
+        public final Identifier id;
+        public final Tag<Fluid> ingredient;
         public final Fraction amount;
         public final CompoundTag tag;
 
-        public FluidIngredient(Identified<Fluid> ingredient, Fraction amount, CompoundTag tag) {
-            this.ingredient = ingredient;
+        public FluidIngredient(Identifier id, Fraction amount, CompoundTag tag) {
+            this.id = id;
+            this.ingredient = TagContainers.instance().fluids().get(id);
             this.amount = amount;
             this.tag = tag;
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(ingredient.getId());
+            buf.writeIdentifier(id);
             buf.writeInt(amount.getNumerator());
             buf.writeInt(amount.getDenominator());
             if (tag == null || tag.isEmpty()) {
@@ -170,45 +169,46 @@ public class Input {
         }
 
         public static FluidIngredient read(PacketByteBuf buf) {
-            Identified<Fluid> ingredient = (Identified<Fluid>) FluidTags.getContainer().get(buf.readIdentifier());
-            Fraction amount = Fraction.of(buf.readInt(), buf.readInt());
-            CompoundTag tag = buf.readBoolean() ? buf.readCompoundTag() : new CompoundTag();
-            return new FluidIngredient(ingredient, amount, tag);
+            return new FluidIngredient(buf.readIdentifier(), Fraction.of(buf.readInt(), buf.readInt()), buf.readBoolean() ? buf.readCompoundTag() : new CompoundTag());
         }
     }
 
     public static class BlockIngredient {
-        public final Identified<Block> ingredient;
-        //Are states the right thing here? Probably not...
+        public final Identifier id;
+        public final Tag<Block> ingredient;
+        //are states the right thing here? probably not...
         public final BlockState state;
 
-        public BlockIngredient(Identified<Block> ingredient) {
-            this.ingredient = ingredient;
+        public BlockIngredient(Identifier id) {
+            this.id = id;
+            this.ingredient = TagContainers.instance().blocks().get(id);
             this.state = null;
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(ingredient.getId());
+            buf.writeIdentifier(id);
         }
 
         public static BlockIngredient read(PacketByteBuf buf) {
-            return new BlockIngredient((Identified<Block>) BlockTags.getContainer().get(buf.readIdentifier()));
+            return new BlockIngredient(buf.readIdentifier());
         }
     }
 
     public static class EntityIngredient {
-        public final Identified<EntityType<?>> ingredient;
+        public final Identifier id;
+        public final Tag<EntityType<?>> ingredient;
         public final int amount;
         public final CompoundTag tag;
 
-        public EntityIngredient(Identified<EntityType<?>> ingredient, int amount, CompoundTag tag) {
-            this.ingredient = ingredient;
+        public EntityIngredient(Identifier id, int amount, CompoundTag tag) {
+            this.id = id;
+            this.ingredient = TagContainers.instance().entityTypes().get(id);
             this.amount = amount;
             this.tag = tag;
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(ingredient.getId());
+            buf.writeIdentifier(id);
             buf.writeInt(amount);
             if (tag == null || tag.isEmpty()) {
                 buf.writeBoolean(false);
@@ -219,11 +219,7 @@ public class Input {
         }
 
         public static EntityIngredient read(PacketByteBuf buf) {
-            Identified<EntityType<?>> ingredient = (Identified<EntityType<?>>) EntityTypeTags.getContainer()
-                    .get(buf.readIdentifier());
-            int amount = buf.readInt();
-            CompoundTag tag = buf.readBoolean() ? buf.readCompoundTag() : new CompoundTag();
-            return new EntityIngredient(ingredient, amount, tag);
+            return new EntityIngredient(buf.readIdentifier(), buf.readInt(), buf.readBoolean() ? buf.readCompoundTag() : new CompoundTag());
         }
     }
 
@@ -236,13 +232,12 @@ public class Input {
 
         public void write(PacketByteBuf buf) {
             CompoundTag compoundTag = new CompoundTag();
-            compoundTag.put("dummy", tag);
+            compoundTag.put("data", tag);
             buf.writeCompoundTag(compoundTag);
         }
 
         public static DataIngredient read(PacketByteBuf buf) {
-            net.minecraft.nbt.Tag tag = buf.readCompoundTag().get("dummy");
-            return new DataIngredient(tag);
+            return new DataIngredient(buf.readCompoundTag().get("data"));
         }
     }
 }
