@@ -1,38 +1,34 @@
 {
-  "schemaVersion": 1,
-  "id": "ehtech",
-  "version": "${version}",
-
-  "name": "Einholzscher Tech Mod",
-  "description": "It is just another Minecraft Tech Mod for Fabric.",
-  "authors": [
-    "Albert_Einholz"
-  ],
-  "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/einholzscher-tech-mod",
-    "sources": "https://github.com/Albert-Einholz/Einholzscher-Tech-Mod"
-  },
-
-  "license": "Apache-2.0 Licence",
-  "icon": "assets/ehtech/icon.png",
-
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "de.alberteinholz.ehtech.TechMod"
+    "schemaVersion": 1,
+    "name": "Einholzscher Tech Mod",
+    "id": "ehtech",
+    "version": "${version}",
+    "icon": "assets/ehtech/icon.png",
+    "description": "It is just another Minecraft Tech Mod for Fabric.",
+    "authors": [
+        "Albert_Einholz"
     ],
-    "client": [
-      "de.alberteinholz.ehtech.TechMod"
-    ]
-  },
-  "mixins": [],
-
-  "depends": {
-    "fabricloader": ">=0.7.4",
-    "fabric": "*",
-    "minecraft": ">=1.15.0"
-  },
-  "suggests": {
-    "flamingo": "*"
-  }
+    "contact": {
+        "homepage": "https://www.curseforge.com/minecraft/mc-mods/einholzscher-tech-mod",
+        "sources": "https://github.com/Albert-Einholz/Einholzscher-Tech-Mod"
+    },
+    "license": "Apache-2.0 Licence",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "de.alberteinholz.ehtech.TechMod"
+        ],
+        "client": [
+            "de.alberteinholz.ehtech.TechMod"
+        ]
+    },
+    "mixins": [],
+    "depends": {
+        "fabricloader": ">=0.7.4",
+        "fabric": "*",
+        "minecraft": ">=1.15.0"
+    },
+    "suggests": {
+        "flamingo": "*"
+    }
 }
