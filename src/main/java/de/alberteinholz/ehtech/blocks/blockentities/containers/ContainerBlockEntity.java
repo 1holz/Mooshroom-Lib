@@ -18,6 +18,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class ContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     protected final BlockRegistry registryEntry;
@@ -75,7 +76,7 @@ public abstract class ContainerBlockEntity extends BlockEntity implements BlockE
 
     @Override
     public Text getDisplayName() {
-        return data.containerName.getLabel();
+        return new TranslatableText(data.containerName.getLabel().asString());
     }
 
     @Override
