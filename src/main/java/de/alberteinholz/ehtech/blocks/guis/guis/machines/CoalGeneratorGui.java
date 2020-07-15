@@ -39,7 +39,7 @@ public class CoalGeneratorGui extends MachineGui {
     protected void initWidgets() {
         super.initWidgets();
         heatBar = new Bar(heatBarBG, heatBarFG, ((CoalGeneratorDataProviderComponent) getDataProviderComponent()).heat, Direction.UP);
-        coalInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("coal_input"));
+        coalInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).getContainerInventoryComponent().getNumber("coal_input"));
     }
 
     @Override

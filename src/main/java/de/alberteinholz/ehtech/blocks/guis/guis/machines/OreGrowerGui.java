@@ -32,7 +32,7 @@ public class OreGrowerGui extends MachineGui {
     @Override
     protected void initWidgets() {
         super.initWidgets();
-        oreInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("seed_input"));
+        oreInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).getContainerInventoryComponent().getNumber("seed_input"));
     }
 
     @Override

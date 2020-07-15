@@ -76,7 +76,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return stacks.get(id);
     }
 
-    public Slot.Type getType(String id) {
+    public Type getType(String id) {
         return getSlot(id).type;
     }
 
@@ -126,14 +126,19 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return transfer;
     }
 
-    public int push(ContainerInventoryComponent target, ActionType action, Direction dir) {
-        int transfer = 0;
-        for (Entry<String, Slot> entry : getSlots(Type.OUTPUT).entrySet()) {
-            if (target.canInsert(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)))) {
-                ItemStack inserted = removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
-                for (Entry<String, Slot> inEntry : target.getSlots(Type.INPUT).entrySet()) {
-                    int insertedCount = target.insertStack(inEntry.getKey(), inserted, action).getCount();
-                    target.removeStack(entry.getKey(), insertedCount, action);
+    public int push(Inventory target, ActionType action, Direction dir) {
+        return push(target, action, dir, 0);
+    }
+
+    public int push(Inventory target, ActionType action, Direction dir, int transfer) {
+        InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
+        ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
+        for (String id : getSlots(Type.OUTPUT).keySet()) {
+            if (targetContainerComponent.canInsert(id, dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)))) {
+                ItemStack inserted = removeStack(id, maxTransfer, ActionType.TEST);
+                for (String inId : targetContainerComponent.getSlots(Type.INPUT).keySet()) {
+                    int insertedCount = targetContainerComponent.insertStack(inId, inserted, action).getCount();
+                    targetContainerComponent.removeStack(id, insertedCount, action);
                     transfer += insertedCount;
                     if (transfer >= maxTransfer) {
                         break;

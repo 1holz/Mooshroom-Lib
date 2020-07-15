@@ -59,8 +59,8 @@ public abstract class MachineGui extends ContainerGui {
     @Override
     protected void initWidgets() {
         super.initWidgets();
-        powerInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("power_input"));
-        upgradeSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("upgrade"));
+        powerInputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).getContainerInventoryComponent().getNumber("power_input"));
+        upgradeSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).getContainerInventoryComponent().getNumber("upgrade"));
         powerBar = new Bar(powerBarBG, powerBarFG, getCapacitorComponent(), Direction.UP);
         powerBar.addDefaultTooltip("tooltip.ehtech.maschine.power_bar_amount");
         Supplier<?>[] powerBarTrendSuppliers = {
@@ -80,8 +80,8 @@ public abstract class MachineGui extends ContainerGui {
         buttonIds.add(activationButton);
         progressBar = new Bar(progressBarBG, progressBarFG, ((MachineDataProviderComponent) getDataProviderComponent()).progress, Direction.RIGHT);
         progressBar.addDefaultTooltip("tooltip.ehtech.maschine.progress_bar");
-        networkSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("network"));
-        powerOutputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).component.getNumber("power_output"));
+        networkSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).getContainerInventoryComponent().getNumber("network"));
+        powerOutputSlot = WItemSlot.of(blockInventory, ((InventoryWrapper) blockInventory).getContainerInventoryComponent().getNumber("power_output"));
         configurationButton = (Button) new Button().setLabel(new LiteralText("CON"));
         configurationButton.tooltips.add("tooltip.ehtech.configuration_button");
         configurationButton.setOnClick(getDefaultOnButtonClick(configurationButton));

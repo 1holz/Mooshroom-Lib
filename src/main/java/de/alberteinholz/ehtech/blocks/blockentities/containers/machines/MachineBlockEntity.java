@@ -12,7 +12,6 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapaci
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
-import de.alberteinholz.ehtech.blocks.directionals.containers.ContainerBlock;
 import de.alberteinholz.ehtech.blocks.directionals.containers.machines.MachineBlock;
 import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
@@ -22,7 +21,10 @@ import de.alberteinholz.ehtech.util.Helper;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
+import io.github.cottonmc.component.fluid.TankComponent;
+import io.github.cottonmc.component.item.InventoryComponent;
 import io.netty.buffer.Unpooled;
+import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
@@ -88,13 +90,15 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
             Block targetBlock = world.getBlockState(targetPos).getBlock();
-            if (targetBlock instanceof ContainerBlock) {
-                ContainerInventoryComponent inv = (ContainerInventoryComponent) ((ContainerBlock) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, null);
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
-                    inventory.pull(inv, ActionType.PERFORM, dir);
-                }
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
-                    inventory.push(inv, ActionType.PERFORM, dir);
+            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) {
+                InventoryComponent inv = ((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite());
+                if (inv instanceof ContainerInventoryComponent) {
+                    if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
+                        inventory.pull((ContainerInventoryComponent) inv, ActionType.PERFORM, dir);
+                    }
+                    if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
+                        inventory.push((ContainerInventoryComponent) inv, ActionType.PERFORM, dir);
+                    }
                 }
             } else if (world.getBlockEntity(targetPos) instanceof Inventory) {
                 if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
@@ -105,7 +109,9 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                 }
             }
             //TODO:fluid
-            if (targetBlock instanceof Block) {
+            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite())) {
+                @SuppressWarnings("unused")
+                TankComponent tank = ((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite());
                 if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir))) {
                     //TODO:fluid
                 }
@@ -113,7 +119,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                     //TODO:fluid
                 }
             }
-            if (targetBlock instanceof MachineBlock) {
+            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, dir.getOpposite())) {
                 MachineCapacitorComponent cap = (MachineCapacitorComponent) ((MachineBlock) targetBlock).getComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, null);
                 if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir))) {
                     capacitor.pull(cap, ActionType.PERFORM, dir);
@@ -122,7 +128,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                     capacitor.push(cap, ActionType.PERFORM, dir);
                 }
             }
-            //TODO:only for testing replace with proper creative battery
+            //TODO: only for early development replace with proper creative battery
             if (inventory.getStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
                 capacitor.generateEnergy(world, pos, 4);
             }

@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Direction;
 
 public class Helper {
+    @Deprecated
     public static int pull(MachineDataProviderComponent data, ContainerInventoryComponent inventory, Inventory target, int maxTransfer, Direction dir) {
         int transfer = 0;
         for (int i = 0; i < target.size(); i++) {
@@ -34,6 +35,7 @@ public class Helper {
         return transfer;
     }
 
+    @Deprecated
     public static int push(MachineDataProviderComponent data, ContainerInventoryComponent inventory, Inventory target, int maxTransfer, Direction dir) {
         int transfer = 0;
         for (Entry<String, Slot> entry : inventory.getSlots(Type.OUTPUT).entrySet()) {
@@ -70,4 +72,6 @@ public class Helper {
         }
         return 0;
     }
+
+    //TODO: make helper methode for translation keys
 }
