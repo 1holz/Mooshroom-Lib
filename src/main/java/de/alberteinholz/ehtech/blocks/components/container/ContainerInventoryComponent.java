@@ -1,14 +1,16 @@
 package de.alberteinholz.ehtech.blocks.components.container;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
+import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent.Slot.Type;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
@@ -32,7 +34,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     public HashMap<String, Slot> stacks = new LinkedHashMap<String, Slot>();
     protected final List<Runnable> listeners = new ArrayList<>();
-    protected ContainerDataProviderComponent dataProvider;
+    protected ContainerDataProviderComponent data;
     public int maxTransfer = 1;
 
     @Override
@@ -101,18 +103,31 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
     }
 
-    public void setDataProvider(ContainerDataProviderComponent dataProvider) {
-        this.dataProvider = dataProvider;
+    public void setDataProvider(ContainerDataProviderComponent data) {
+        this.data = data;
     }
 
-    public int pull(ContainerInventoryComponent target, ActionType action, Direction dir) {
+    public int pull(Inventory target, ActionType action, Direction dir) {
         int transfer = 0;
-        for (Entry<String, Slot> entry : target.getSlots(Type.OUTPUT).entrySet()) {
-            if (target.canExtract(entry.getKey(), dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)))) {
-                ItemStack extracted = target.removeStack(entry.getKey(), maxTransfer, ActionType.TEST);
-                for (Entry<String, Slot> inEntry : getSlots(Type.INPUT).entrySet()) {
-                    int insertedCount = insertStack(inEntry.getKey(), extracted, action).getCount();
-                    target.removeStack(entry.getKey(), insertedCount, action);
+        if (!(data instanceof MachineDataProviderComponent && Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)))) {
+            TechMod.LOGGER.smallBug();
+            return transfer;
+        }
+        InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
+        ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
+        int[] intSlotIds = new int[target.size()];
+        Arrays.setAll(intSlotIds, i -> i);
+        Set<?> iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.OUTPUT).keySet() : new HashSet<>(Arrays.asList(intSlotIds));
+        for (Object id : iterable) {
+            boolean targetCanExtract = targetContainerComponent != null ? targetContainerComponent.canExtract((String) id, dir) : targetComponent != null ? targetComponent.canExtract((int) id) : true;
+            //TODO: Go on here
+        }
+        for (String id : targetContainerComponent.getSlots(Type.OUTPUT).keySet()) {
+            if (targetContainerComponent.canExtract(id, dir) && Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
+                ItemStack extracted = targetContainerComponent.removeStack(id, maxTransfer, ActionType.TEST);
+                for (String inId : getSlots(Type.INPUT).keySet()) {
+                    int insertedCount = insertStack(inId, extracted, action).getCount();
+                    targetContainerComponent.removeStack(id, insertedCount, action);
                     transfer += insertedCount;
                     if (transfer >= maxTransfer) {
                         break;
@@ -127,14 +142,16 @@ public class ContainerInventoryComponent implements InventoryComponent {
     }
 
     public int push(Inventory target, ActionType action, Direction dir) {
-        return push(target, action, dir, 0);
-    }
-
-    public int push(Inventory target, ActionType action, Direction dir, int transfer) {
+        int transfer = 0;
+        if (!(data instanceof MachineDataProviderComponent)) {
+            Exception e = new IllegalStateException("data has to extend MachineDataProviderComponent");
+            TechMod.LOGGER.smallBug(e);
+            return transfer;
+        }
         InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
         ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
         for (String id : getSlots(Type.OUTPUT).keySet()) {
-            if (targetContainerComponent.canInsert(id, dir) && dataProvider != null && !(dataProvider instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)))) {
+            if (targetContainerComponent.canInsert(id, dir) && data != null && !(data instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)))) {
                 ItemStack inserted = removeStack(id, maxTransfer, ActionType.TEST);
                 for (String inId : targetContainerComponent.getSlots(Type.INPUT).keySet()) {
                     int insertedCount = targetContainerComponent.insertStack(inId, inserted, action).getCount();
@@ -155,8 +172,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public boolean canInsert(String slot, Direction dir) {
         if (!getType(slot).insert) {
             return false;
-        } else if (dataProvider instanceof MachineDataProviderComponent) {
-            return Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir));
+        } else if (data instanceof MachineDataProviderComponent) {
+            return Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir));
         } else {
             return true;
         }
@@ -165,8 +182,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public boolean canExtract(String slot, Direction dir) {
         if (!getType(slot).extract) {
             return false;
-        } else if (dataProvider instanceof MachineDataProviderComponent) {
-            return Boolean.TRUE.equals(((MachineDataProviderComponent) dataProvider).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir));
+        } else if (data instanceof MachineDataProviderComponent) {
+            return Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir));
         } else {
             return true;
         }
