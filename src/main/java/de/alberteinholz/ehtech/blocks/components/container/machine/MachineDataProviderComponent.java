@@ -46,69 +46,34 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
 
     @Override
     public DataElement getElementFor(Unit unit) {
-        if (unit == progress.getBarUnit()) {
-            return progress;
-        } else {
-            return super.getElementFor(unit);
-        }
+        if (unit == progress.getBarUnit()) return progress;
+        else return super.getElementFor(unit);
     }
 
     @Override
     public void fromTag(CompoundTag tag) {
         super.fromTag(tag);
-        if (tag.contains("ActivationState", NbtType.STRING)) {
-            setActivationState(tag.getString("ActivationState"));
-        }
-        if (tag.contains("ItemConfig", NbtType.STRING)) {
-            configItem.withLabel(tag.getString("ItemConfig"));
-        }
-        if (tag.contains("FluidConfig", NbtType.STRING)) {
-            configFluid.withLabel(tag.getString("FluidConfig"));
-        }
-        if (tag.contains("PowerConfig", NbtType.STRING)) {
-            configPower.withLabel(tag.getString("PowerConfig"));
-        }
-        if (tag.contains("Efficiency", NbtType.NUMBER)) {
-            setEfficiency(tag.getDouble("Efficiency"));
-        }
-        if (tag.contains("ProgressCurrent", NbtType.NUMBER)) {
-            setProgress(tag.getDouble("ProgressCurrent"));
-        }
-        if (tag.contains("Recipe", NbtType.STRING)) {
-            setRecipeById(new Identifier(tag.getString("Recipe")));
-        }
-        if (tag.contains("Speed", NbtType.NUMBER)) {
-            setSpeed(tag.getDouble("Speed"));
-        }
+        if (tag.contains("ActivationState", NbtType.STRING)) setActivationState(tag.getString("ActivationState"));
+        if (tag.contains("ItemConfig", NbtType.STRING)) configItem.withLabel(tag.getString("ItemConfig"));
+        if (tag.contains("FluidConfig", NbtType.STRING)) configFluid.withLabel(tag.getString("FluidConfig"));
+        if (tag.contains("PowerConfig", NbtType.STRING)) configPower.withLabel(tag.getString("PowerConfig"));
+        if (tag.contains("Efficiency", NbtType.NUMBER)) setEfficiency(tag.getDouble("Efficiency"));
+        if (tag.contains("ProgressCurrent", NbtType.NUMBER)) setProgress(tag.getDouble("ProgressCurrent"));
+        if (tag.contains("Recipe", NbtType.STRING)) setRecipeById(new Identifier(tag.getString("Recipe")));
+        if (tag.contains("Speed", NbtType.NUMBER)) setSpeed(tag.getDouble("Speed"));
     }
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
-        if (getActivationState() != ActivationState.values()[0]) {
-            tag.putString("ActivationState", String.valueOf(getActivationState()));
-        }
-        if (configItem.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") {
-            tag.putString("ItemConfig", configItem.getLabel().asString());
-        }
-        if (configFluid.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") {
-            tag.putString("FluidConfig", configFluid.getLabel().asString());
-        }
-        if (configPower.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") {
-            tag.putString("PowerConfig", configPower.getLabel().asString());
-        }
-        if (getEfficiency() != 1.0) {
-            tag.putDouble("Efficiency", getEfficiency());
-        }
-        if (progress.getBarCurrent() > 0.0) {
-            tag.putDouble("ProgressCurrent", progress.getBarCurrent());
-        }
-        if (recipe.hasLabel()) {
-            tag.putString("Recipe", recipe.getLabel().asString());
-        }
-        if (getSpeed() != 1.0) {
-            tag.putDouble("Speed", getSpeed());
-        }
+        if (getActivationState() != ActivationState.values()[0]) tag.putString("ActivationState", String.valueOf(getActivationState()));
+        if (configItem.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") tag.putString("ItemConfig", configItem.getLabel().asString());
+        if (configFluid.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") tag.putString("FluidConfig", configFluid.getLabel().asString());
+        if (configPower.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") tag.putString("PowerConfig", configPower.getLabel().asString());
+        if (getEfficiency() != 1.0) tag.putDouble("Efficiency", getEfficiency());
+        if (progress.getBarCurrent() > 0.0) tag.putDouble("ProgressCurrent", progress.getBarCurrent());
+        if (recipe.hasLabel()) tag.putString("Recipe", recipe.getLabel().asString());
+        if (getSpeed() != 1.0) tag.putDouble("Speed", getSpeed());
         return tag;
     }
 
@@ -128,31 +93,24 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     public Boolean getConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
         String string = getConfigElement(type).getLabel().asString();
         int i = getIndex(behavior, dir);
-        if (string.charAt(i) == 'x') {
-            return null;
-        } else {
-            return behavior.getForChar(string.charAt(i));
-        }
+        if (string.charAt(i) == 'x') return null;
+        else return behavior.getForChar(string.charAt(i));
+    }
+
+    public boolean allowsConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
+        return Boolean.TRUE.equals(getConfig(type, behavior, dir));
     }
 
     public void changeConfig(ConfigType type, ConfigBehavior behavior, Direction dir) {
         Boolean bl = getConfig(type, behavior, dir);
-        if (bl != null) {
-            setConfig(type, behavior, dir, !bl);
-        }
+        if (bl != null) setConfig(type, behavior, dir, !bl);
     }
 
     //intersection mode
     public void setConfigAvailability(ConfigType[] type, ConfigBehavior[] behavior, Direction[] dir, boolean availabel) {
-        if (type == null) {
-            type = ConfigType.values();
-        }
-        if (behavior == null) {
-            behavior = ConfigBehavior.values();
-        }
-        if (dir == null) {
-            dir = Direction.values();
-        }
+        if (type == null) type = ConfigType.values();
+        if (behavior == null) behavior = ConfigBehavior.values();
+        if (dir == null) dir = Direction.values();
         for (ConfigType cType : type) {
             for (ConfigBehavior cBehavior : behavior) {
                 for (Direction cDir : dir) {
@@ -173,13 +131,10 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     }
 
     protected DataElement getConfigElement(ConfigType type) {
-        if (type == ConfigType.ITEM) {
-            return configItem;
-        } else if (type == ConfigType.FLUID) {
-            return configFluid;
-        } else if (type == ConfigType.POWER) {
-            return configPower;
-        } else {
+        if (type == ConfigType.ITEM) return configItem;
+        else if (type == ConfigType.FLUID) return configFluid;
+        else if (type == ConfigType.POWER) return configPower;
+        else {
             TechMod.LOGGER.smallBug();
             return null;
         }
@@ -207,11 +162,8 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
     }
 
     public void setRecipe(Recipe<?> recipe) {
-        if (recipe != null) {
-            setRecipeById(recipe.getId());
-        } else {
-            resetRecipe();
-        }
+        if (recipe != null) setRecipeById(recipe.getId());
+        else resetRecipe();
     }
 
     private void setRecipeById(Identifier id) {
@@ -287,11 +239,8 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         }
 
         public boolean getForChar(char c) {
-            if (this.def == true) {
-                return c == 'f' ? false : true;
-            } else {
-                return c == 't' ? true : false;
-            }
+            if (this.def == true) return c == 'f' ? false : true;
+            else return c == 't' ? true : false;
         }
     }
 }

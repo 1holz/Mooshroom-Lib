@@ -17,18 +17,17 @@ import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
 import de.alberteinholz.ehtech.blocks.recipes.Input.ItemIngredient;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
-import de.alberteinholz.ehtech.util.Helper;
 import io.github.cottonmc.component.UniversalComponents;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
 import io.github.cottonmc.component.fluid.TankComponent;
-import io.github.cottonmc.component.item.InventoryComponent;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -65,22 +64,12 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         powerBilanz = capacitor.getCurrentEnergy() - lastPower;
         lastPower = capacitor.getCurrentEnergy();
         transfer();
-        if (!isRunning && isActivated()) {
-            isRunning = checkForRecipe();
-        }
+        if (!isRunning && isActivated()) isRunning = checkForRecipe();
         if (isRunning) {
-            if (data.progress.getBarCurrent() == data.progress.getBarMinimum()) {
-                start();
-            }
-            if (process()) {
-                task();
-            }
-            if (data.progress.getBarCurrent() == data.progress.getBarMaximum()) {
-                finish();
-            }
-        } else {
-            idle();
-        }
+            if (data.progress.getBarCurrent() == data.progress.getBarMinimum()) start();
+            if (process()) task();
+            if (data.progress.getBarCurrent() == data.progress.getBarMaximum()) finish();
+        } else idle();
         correct();
         markDirty();
     }
@@ -90,48 +79,28 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
             Block targetBlock = world.getBlockState(targetPos).getBlock();
-            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) {
-                InventoryComponent inv = ((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite());
+            BlockEntity targeBlockEntity = world.getBlockEntity(targetPos);
+            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) || targeBlockEntity instanceof Inventory) {
+                Inventory inv = ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) ? new InventoryWrapper(((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) : (Inventory) targeBlockEntity;
                 if (inv instanceof ContainerInventoryComponent) {
-                    if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
-                        inventory.pull((ContainerInventoryComponent) inv, ActionType.PERFORM, dir);
-                    }
-                    if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
-                        inventory.push((ContainerInventoryComponent) inv, ActionType.PERFORM, dir);
-                    }
-                }
-            } else if (world.getBlockEntity(targetPos) instanceof Inventory) {
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
-                    Helper.pull((MachineDataProviderComponent) data, inventory, (Inventory) world.getBlockEntity(targetPos), 1, dir);
-                }
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
-                    Helper.push((MachineDataProviderComponent) data, inventory, (Inventory) world.getBlockEntity(targetPos), 1, dir);
+                    if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) inventory.pull(inv, ActionType.PERFORM, dir);
+                    if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) inventory.push(inv, ActionType.PERFORM, dir);
                 }
             }
             //TODO:fluid
             if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite())) {
                 @SuppressWarnings("unused")
                 TankComponent tank = ((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite());
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir))) {
-                    //TODO:fluid
-                }
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.FLUID, ConfigBehavior.SELF_OUTPUT, dir))) {
-                    //TODO:fluid
-                }
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.FLUID, ConfigBehavior.SELF_INPUT, dir)); //TODO:fluid
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.FLUID, ConfigBehavior.SELF_OUTPUT, dir)); //TODO:fluid
             }
             if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, dir.getOpposite())) {
                 MachineCapacitorComponent cap = (MachineCapacitorComponent) ((MachineBlock) targetBlock).getComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, null);
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir))) {
-                    capacitor.pull(cap, ActionType.PERFORM, dir);
-                }
-                if (Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir))) {
-                    capacitor.push(cap, ActionType.PERFORM, dir);
-                }
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir)) capacitor.pull(cap, ActionType.PERFORM, dir);
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir)) capacitor.push(cap, ActionType.PERFORM, dir);
             }
             //TODO: only for early development replace with proper creative battery
-            if (inventory.getStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) {
-                capacitor.generateEnergy(world, pos, 4);
-            }
+            if (inventory.getStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) capacitor.generateEnergy(world, pos, 4);
         }
     }
 
@@ -176,33 +145,21 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         boolean canProcess = true;
         if (doConsum) {
             consum = (int) (data.getEfficiency() * data.getSpeed() * recipe.consumes);
-            if (!(capacitor.extractEnergy(capacitor.getPreferredType(), consum, ActionType.TEST) == consum)) {
-                canConsum = false;
-            }
+            if (!(capacitor.extractEnergy(capacitor.getPreferredType(), consum, ActionType.TEST) == consum)) canConsum = false;
         }
         if (doGenerate) {
             generation = (int) (data.getEfficiency() * data.getSpeed() * recipe.generates);
-            if (!(capacitor.getCurrentEnergy() + generation <= capacitor.getMaxEnergy())) {
-                canGenerate = false;
-            }
+            if (!(capacitor.getCurrentEnergy() + generation <= capacitor.getMaxEnergy())) canGenerate = false;
         }
         if (doConsum) {
-            if (canConsum && canGenerate) {
-                capacitor.extractEnergy(capacitor.getPreferredType(), consum, ActionType.PERFORM);
-            } else {
-                canProcess = false;
-            }
+            if (canConsum && canGenerate) capacitor.extractEnergy(capacitor.getPreferredType(), consum, ActionType.PERFORM);
+            else canProcess = false;
         }
         if (doGenerate) {
-            if (canConsum && canGenerate) {
-                capacitor.generateEnergy(world, pos, generation);
-            } else {
-                canProcess = false;
-            }
+            if (canConsum && canGenerate) capacitor.generateEnergy(world, pos, generation);
+            else canProcess = false;
         }
-        if (canProcess) {
-            data.addProgress(recipe.timeModifier * data.getSpeed());
-        }
+        if (canProcess) data.addProgress(recipe.timeModifier * data.getSpeed());
         return canProcess;
     }
 
@@ -225,9 +182,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     public boolean containsItemIngredients(Input.ItemIngredient... ingredients) {
         boolean bl = true;
         for (Input.ItemIngredient ingredient : ingredients) {
-            if (!inventory.containsInput(ingredient)) {
-                bl = false;
-            }
+            if (!inventory.containsInput(ingredient)) bl = false;
         }
         return bl;
     }
@@ -258,23 +213,16 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
 
     public boolean isActivated() {
         MachineDataProviderComponent.ActivationState activationState = ((MachineDataProviderComponent) data).getActivationState();
-        if (activationState == MachineDataProviderComponent.ActivationState.ALWAYS_ON) {
-            return true;
-        } else if(activationState == MachineDataProviderComponent.ActivationState.REDSTONE_ON) {
-            return world.isReceivingRedstonePower(pos);
-        } else if(activationState == MachineDataProviderComponent.ActivationState.REDSTONE_OFF) {
-            return !world.isReceivingRedstonePower(pos);
-        } else {
-            return false;
-        }
+        if (activationState == MachineDataProviderComponent.ActivationState.ALWAYS_ON) return true;
+        else if(activationState == MachineDataProviderComponent.ActivationState.REDSTONE_ON) return world.isReceivingRedstonePower(pos);
+        else if(activationState == MachineDataProviderComponent.ActivationState.REDSTONE_OFF) return !world.isReceivingRedstonePower(pos);
+        else return false;
     }
 
     @Override
     public void fromTag(BlockState state,CompoundTag tag) {
         super.fromTag(state, tag);
-        if (world != null && tag.contains("Capacitor", NbtType.COMPOUND)) {
-            capacitor.fromTag(tag.getCompound("Capacitor"));
-        }
+        if (world != null && tag.contains("Capacitor", NbtType.COMPOUND)) capacitor.fromTag(tag.getCompound("Capacitor"));
     }
 
     @Override
@@ -283,9 +231,7 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         if (world != null) {
             CompoundTag capacitorTag = new CompoundTag();
             capacitor.toTag(capacitorTag);
-            if (!capacitorTag.isEmpty()) {
-                tag.put("Capacitor", capacitorTag);
-            }
+            if (!capacitorTag.isEmpty()) tag.put("Capacitor", capacitorTag);
         }
         return tag;
     }

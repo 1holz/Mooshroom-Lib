@@ -66,9 +66,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public Map<String, Slot> getSlots(Type type) {
         Map<String, Slot> map = new HashMap<String, Slot>();
         stacks.forEach((id, slot) -> {
-            if (slot.type == type) {
-                map.put(id, slot);
-            }
+            if (slot.type == type) map.put(id, slot);
         });
         return map;
     }
@@ -96,11 +94,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
     }
     
     public boolean checkSlot(String slot) {
-        if (stacks.containsKey(slot)) {
-            return true;
-        } else {
-            return false;
-        }
+        if (stacks.containsKey(slot)) return true;
+        else return false;
     }
 
     public void setDataProvider(ContainerDataProviderComponent data) {
@@ -109,7 +104,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
 
     public int pull(Inventory target, ActionType action, Direction dir) {
         int transfer = 0;
-        if (!(data instanceof MachineDataProviderComponent && Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)))) {
+        if (!(data instanceof MachineDataProviderComponent && ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
             TechMod.LOGGER.smallBug();
             return transfer;
         }
@@ -119,94 +114,84 @@ public class ContainerInventoryComponent implements InventoryComponent {
         Arrays.setAll(intSlotIds, i -> i);
         Set<?> iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.OUTPUT).keySet() : new HashSet<>(Arrays.asList(intSlotIds));
         for (Object id : iterable) {
-            boolean targetCanExtract = targetContainerComponent != null ? targetContainerComponent.canExtract((String) id, dir) : targetComponent != null ? targetComponent.canExtract((int) id) : true;
-            //TODO: Go on here
-        }
-        for (String id : targetContainerComponent.getSlots(Type.OUTPUT).keySet()) {
-            if (targetContainerComponent.canExtract(id, dir) && Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
-                ItemStack extracted = targetContainerComponent.removeStack(id, maxTransfer, ActionType.TEST);
-                for (String inId : getSlots(Type.INPUT).keySet()) {
-                    int insertedCount = insertStack(inId, extracted, action).getCount();
-                    targetContainerComponent.removeStack(id, insertedCount, action);
-                    transfer += insertedCount;
-                    if (transfer >= maxTransfer) {
-                        break;
-                    }
-                };
-                if (transfer >= maxTransfer) {
-                    break;
+            if (targetContainerComponent != null ? targetContainerComponent.canExtract((String) id, dir) : targetComponent != null ? targetComponent.canExtract((int) id) : true) {
+                ItemStack extracted = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, maxTransfer, ActionType.TEST) : targetComponent != null ? targetComponent.removeStack((int) id, ActionType.TEST) : target.getStack((int) id);
+                if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
+                for (String ownId : getSlots(Type.INPUT).keySet()) {
+                    int insertedCount = insertStack(ownId, extracted, action).getCount();
+                    int extractedCount = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, insertedCount, action).getCount() : target.removeStack((int) id, insertedCount).getCount();
+                    transfer += extractedCount;
+                    if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new Exception("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
+                    if (transfer >= maxTransfer) break;
                 }
             }
-        };
+            if (transfer >= maxTransfer) break;
+        }
         return transfer;
     }
 
     public int push(Inventory target, ActionType action, Direction dir) {
         int transfer = 0;
-        if (!(data instanceof MachineDataProviderComponent)) {
-            Exception e = new IllegalStateException("data has to extend MachineDataProviderComponent");
-            TechMod.LOGGER.smallBug(e);
+        if (!(data instanceof MachineDataProviderComponent && ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
+            TechMod.LOGGER.smallBug();
             return transfer;
         }
         InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
         ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
+        int[] intSlotIds = new int[target.size()];
+        Arrays.setAll(intSlotIds, i -> i);
+        Set<?> iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.INPUT).keySet() : new HashSet<>(Arrays.asList(intSlotIds));
         for (String id : getSlots(Type.OUTPUT).keySet()) {
-            if (targetContainerComponent.canInsert(id, dir) && data != null && !(data instanceof MachineDataProviderComponent && !Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)))) {
-                ItemStack inserted = removeStack(id, maxTransfer, ActionType.TEST);
-                for (String inId : targetContainerComponent.getSlots(Type.INPUT).keySet()) {
-                    int insertedCount = targetContainerComponent.insertStack(inId, inserted, action).getCount();
-                    targetContainerComponent.removeStack(id, insertedCount, action);
-                    transfer += insertedCount;
-                    if (transfer >= maxTransfer) {
-                        break;
-                    }
-                };
-                if (transfer >= maxTransfer) {
-                    break;
+            ItemStack extracted = removeStack(id, maxTransfer, ActionType.TEST);
+            if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
+            for (Object foreigenId : iterable) {
+                int insertedCount = targetContainerComponent != null ? targetContainerComponent.insertStack((String) foreigenId, extracted, action).getCount() : targetComponent != null ? targetComponent.insertStack((int) foreigenId, extracted, action).getCount() : 0;
+                if (!(target instanceof InventoryWrapper)) {
+                    ItemStack gotten = target.getStack((int) foreigenId);
+                    insertedCount = gotten.getCount() + extracted.getCount() > gotten.getMaxCount() || gotten.getCount() + extracted.getCount() > target.getMaxCountPerStack() ? Math.min(gotten.getMaxCount(), target.getMaxCountPerStack()) - gotten.getCount() : extracted.getCount();
+                    if (action.shouldPerform()) gotten.increment(insertedCount);
                 }
+                int extractedCount = removeStack(id, insertedCount, action).getCount();
+                transfer += extractedCount;
+                if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new Exception("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
+                if (transfer >= maxTransfer) break;
             }
+            if (transfer >= maxTransfer) break;
         };
         return transfer;
     }
 
+    //TODO: merge push and pull into this
+    public static int move(Inventory from, Inventory to, ActionType action, Direction dir) {
+        int transfer = 0;
+        //add code here
+        return transfer;
+    }
+
     public boolean canInsert(String slot, Direction dir) {
-        if (!getType(slot).insert) {
-            return false;
-        } else if (data instanceof MachineDataProviderComponent) {
-            return Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir));
-        } else {
-            return true;
-        }
+        if (!getType(slot).insert) return false;
+        else if (data instanceof MachineDataProviderComponent) return ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir);
+        else return true;
     }
 
     public boolean canExtract(String slot, Direction dir) {
-        if (!getType(slot).extract) {
-            return false;
-        } else if (data instanceof MachineDataProviderComponent) {
-            return Boolean.TRUE.equals(((MachineDataProviderComponent) data).getConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir));
-        } else {
-            return true;
-        }
+        if (!getType(slot).extract) return false;
+        else if (data instanceof MachineDataProviderComponent) return ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir);
+        else return true;
     }
 
+    //FIXME: maybe deletes items
     public ItemStack insertStack(String id, ItemStack stack, ActionType action) {
 		ItemStack target = getStack(id);
-		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack))  {
-			return stack;
-		}
+		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack)) return stack;
 		int count = target.getCount();
 		int maxSize = Math.min(target.getItem().getMaxCount(), getMaxStackSize(id));
-		if (count == maxSize) {
-			return stack;
-		}
+		if (count == maxSize) return stack;
 		int sizeLeft = maxSize - count;
 		if (sizeLeft >= stack.getCount()) {
 			if (action.shouldPerform()) {
-				if (target.isEmpty()) {
-					setStack(id, stack);
-				} else {
-					target.increment(stack.getCount());
-				}
+				if (target.isEmpty()) setStack(id, stack);
+				else target.increment(stack.getCount());
 				onChanged();
 			}
 			return ItemStack.EMPTY;
@@ -216,9 +201,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
 					ItemStack newStack = stack.copy();
 					newStack.setCount(maxSize);
 					setStack(id, newStack);
-				} else {
-					target.setCount(maxSize);
-				}
+				} else target.setCount(maxSize);
 				onChanged();
 			}
 			stack.decrement(sizeLeft);
@@ -230,9 +213,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
 	public ItemStack insertStack(ItemStack stack, ActionType action) {
         for (String id : stacks.keySet()) {
             stack = insertStack(id, stack, action);
-			if (stack.isEmpty()) {
-                return stack;
-            }
+			if (stack.isEmpty()) return stack;
         }
 		return stack;
     }
@@ -247,11 +228,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
 
     public ItemStack removeStack(String id, int amount, ActionType action) {
 		ItemStack stack = getStack(id);
-		if (!action.shouldPerform()) {
-			stack = stack.copy();
-		} else {
-			onChanged();
-		}
+		if (!action.shouldPerform()) stack = stack.copy();
+		else onChanged();
         return stack.split(amount);
     }
 
@@ -267,9 +245,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public int amountOf(Set<Item> items) {
         int amount = 0;
         for (Slot slot : stacks.values()) {
-            if (items.contains(slot.stack.getItem())) {
-                amount += slot.stack.getCount();
-            }
+            if (items.contains(slot.stack.getItem())) amount += slot.stack.getCount();
         }
 		return amount;
     }
@@ -277,9 +253,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     @Override
     public boolean contains(Set<Item> items) {
 		for (Slot slot : stacks.values()) {
-			if (items.contains(slot.stack.getItem()) && slot.stack.getCount() > 0) {
-				return true;
-			}
+			if (items.contains(slot.stack.getItem()) && slot.stack.getCount() > 0) return true;
 		}
 		return false;
     }
@@ -288,20 +262,12 @@ public class ContainerInventoryComponent implements InventoryComponent {
         int amount = 0;
         for (Slot slot : stacks.values()) {
             if (ingredient.ingredient != null && slot.type == Slot.Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem())) {
-                if (ingredient.tag != null) {
-                    if (NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) {
-                        amount += slot.stack.getCount();
-                    }
-                } else {
-                    amount += slot.stack.getCount();
-                }
+                if (ingredient.tag != null) if (NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) amount += slot.stack.getCount();
+                else amount += slot.stack.getCount();
             }
         }
-        if (amount >= ingredient.amount) {
-            return true;
-        } else {
-            return false;
-        }
+        if (amount >= ingredient.amount) return true;
+        else return false;
     }
 
     @Override
@@ -315,9 +281,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     @Override
     public CompoundTag toTag(CompoundTag tag) {
         for (Map.Entry<String, ContainerInventoryComponent.Slot> slot : stacks.entrySet()) {
-            if (!slot.getValue().stack.isEmpty()) {
-                tag.put(slot.getKey(), StackSerializer.toTag(stacks.get(slot.getKey()).stack, new CompoundTag()));
-            }
+            if (!slot.getValue().stack.isEmpty()) tag.put(slot.getKey(), StackSerializer.toTag(stacks.get(slot.getKey()).stack, new CompoundTag()));
         }
 		return tag;
     }
@@ -327,9 +291,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         stacks.containsKey(slot);
         int i = 0;
         for (Iterator<Map.Entry<String, Slot>> iterator = stacks.entrySet().iterator(); iterator.hasNext();) {
-            if (iterator.next().getKey() == slot) {
-                break;
-            }
+            if (iterator.next().getKey() == slot) break;
             i++;
         }
         return i;

@@ -28,9 +28,8 @@ public class InventoryWrapper implements SidedInventory {
     }
 
     public ContainerInventoryComponent getContainerInventoryComponent() throws UnsupportedOperationException {
-        if (component instanceof ContainerInventoryComponent) {
-            return (ContainerInventoryComponent) component;
-        } else {
+        if (component instanceof ContainerInventoryComponent) return (ContainerInventoryComponent) component;
+        else {
             UnsupportedOperationException exception = new UnsupportedOperationException("Component is not a ContainerInventoryComponent");
             TechMod.LOGGER.bigBug(exception);
             throw exception;
@@ -53,9 +52,7 @@ public class InventoryWrapper implements SidedInventory {
     @Override
     public boolean isEmpty() {
 		for (int i = 0; i < size(); i++) {
-			if (!getStack(i).isEmpty()) {
-				return false;
-			}
+			if (!getStack(i).isEmpty()) return false;
 		}
 		return true;
     }
@@ -100,30 +97,21 @@ public class InventoryWrapper implements SidedInventory {
     public int[] getAvailableSlots(Direction side) {
         List<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < component.getStacks().size(); i++) {
-            if (!(component instanceof ContainerInventoryComponent)) {
-                list.add(i);
-            } else if (((ContainerInventoryComponent) component).isSlotAvailable(getId(i), side)) {
-                list.add(i);
-            }
+            if (!(component instanceof ContainerInventoryComponent)) list.add(i);
+            else if (((ContainerInventoryComponent) component).isSlotAvailable(getId(i), side)) list.add(i);
         }
         return list.stream().mapToInt(i -> i).toArray();
     }
 
     @Override
     public boolean canInsert(int slot, ItemStack stack, Direction dir) {
-        if (component instanceof ContainerInventoryComponent) {
-            return ((ContainerInventoryComponent) component).canInsert(getId(slot), dir);
-        } else {
-            return component.canInsert(slot);
-        }
+        if (component instanceof ContainerInventoryComponent) return ((ContainerInventoryComponent) component).canInsert(getId(slot), dir);
+        else return component.canInsert(slot);
     }
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        if (component instanceof ContainerInventoryComponent) {
-            return ((ContainerInventoryComponent) component).canExtract(getId(slot),dir);
-        } else {
-            return component.canExtract(slot);
-        }
+        if (component instanceof ContainerInventoryComponent) return ((ContainerInventoryComponent) component).canExtract(getId(slot),dir);
+        else return component.canExtract(slot);
     }
 }

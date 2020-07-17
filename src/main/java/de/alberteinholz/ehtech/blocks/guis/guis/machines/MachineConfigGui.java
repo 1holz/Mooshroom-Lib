@@ -161,7 +161,7 @@ public class MachineConfigGui extends ContainerGui {
                         return dir.getName();
                     },
                     () -> {
-                        return String.valueOf(Boolean.TRUE.equals(((MachineDataProviderComponent) ((MachineBlock) world.getBlockState(pos).getBlock()).getComponent(world, pos, UniversalComponents.DATA_PROVIDER_COMPONENT, null)).getConfig(type, behavior, dir)));
+                        return String.valueOf(((MachineDataProviderComponent) ((MachineBlock) world.getBlockState(pos).getBlock()).getComponent(world, pos, UniversalComponents.DATA_PROVIDER_COMPONENT, null)).allowsConfig(type, behavior, dir));
                     },
                     () -> {
                         return type.name().toLowerCase();
@@ -174,7 +174,7 @@ public class MachineConfigGui extends ContainerGui {
         @Override
         public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
             if (isEnabled()) {
-                withTint(Boolean.TRUE.equals(getDataProviderComponent().getConfig(TYPE, BEHAVIOR, DIR)) ? 0xFFFFFF00 : 0xFFFF0000);
+                withTint(getDataProviderComponent().allowsConfig(TYPE, BEHAVIOR, DIR) ? 0xFFFFFF00 : 0xFFFF0000);
             } else {
                 advancedTooltips.remove("tooltip.ehtech.config_button");
             }
