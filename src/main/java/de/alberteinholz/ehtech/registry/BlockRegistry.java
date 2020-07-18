@@ -28,6 +28,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -51,9 +52,7 @@ public enum BlockRegistry {
 
     public static BlockRegistry getEntry(Identifier id) {
         for (BlockRegistry entry : BlockRegistry.values()) {
-            if (entry.name().equalsIgnoreCase(id.getPath())) {
-                return entry;
-            }
+            if (entry.name().equalsIgnoreCase(id.getPath())) return entry;
         }
         return null;
     }
@@ -62,8 +61,8 @@ public enum BlockRegistry {
         return new Identifier(Ref.MOD_ID, entry.toString().toLowerCase());
     }
 
-    private static Item.Settings getDefaultItemSettings() {
-        return new Item.Settings().group(ItemGroups.EH_TECH);
+    private static Settings getDefaultItemSettings() {
+        return new Settings().group(ItemGroups.EH_TECH);
     }
 
     private static <T extends Recipe<?>> RecipeType<T> getDefaultRecipeType(Identifier id) {
@@ -108,33 +107,19 @@ public enum BlockRegistry {
     public static void registerBlocks() {
         setupAll();
         for (BlockRegistry entry : BlockRegistry.values()) {
-            if (entry.block != null) {
-                Registry.register(Registry.BLOCK, getId(entry), entry.block);
-            }
-            if (entry.itemSettings != null && entry.block != null) {
-                Registry.register(Registry.ITEM, getId(entry), new BlockItem(entry.block, entry.itemSettings));
-            }
-            if (entry.blockEntitySupplier != null && entry.block != null) {
-                entry.blockEntityType = Registry.register(Registry.BLOCK_ENTITY_TYPE, getId(entry), BlockEntityType.Builder.create(entry.blockEntitySupplier, entry.block).build(null));
-            }
-            if (entry.clientHandlerFactory != null) {
-                entry.screenHandlerType = ScreenHandlerRegistry.registerExtended(getId(entry), entry.clientHandlerFactory);
-            }
-            if (entry.recipeType != null) {
-                Registry.register(Registry.RECIPE_TYPE, getId(entry), entry.recipeType);
-            }
-            if (entry.recipeSerializer != null) {
-                Registry.register(Registry.RECIPE_SERIALIZER, getId(entry), entry.recipeSerializer);
-            }
+            if (entry.block != null) Registry.register(Registry.BLOCK, getId(entry), entry.block);
+            if (entry.itemSettings != null && entry.block != null) Registry.register(Registry.ITEM, getId(entry), new BlockItem(entry.block, entry.itemSettings));
+            if (entry.blockEntitySupplier != null && entry.block != null) entry.blockEntityType = Registry.register(Registry.BLOCK_ENTITY_TYPE, getId(entry), BlockEntityType.Builder.create(entry.blockEntitySupplier, entry.block).build(null));
+            if (entry.clientHandlerFactory != null) entry.screenHandlerType = ScreenHandlerRegistry.registerExtended(getId(entry), entry.clientHandlerFactory);
+            if (entry.recipeType != null) Registry.register(Registry.RECIPE_TYPE, getId(entry), entry.recipeType);
+            if (entry.recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, getId(entry), entry.recipeSerializer);
         }
     }
 
     @Environment(EnvType.CLIENT)
     public static void registerBlocksClient() {
         for (BlockRegistry entry : BlockRegistry.values()) {
-            if (entry.screenHandlerType != null && entry.screenFactory != null) {
-                ScreenRegistry.register(entry.screenHandlerType, entry.screenFactory);
-            }
+            if (entry.screenHandlerType != null && entry.screenFactory != null) ScreenRegistry.register(entry.screenHandlerType, entry.screenFactory);
         }
     }
 }

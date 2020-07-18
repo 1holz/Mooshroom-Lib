@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.blockentities.containers.machines.MachineBlockEntity;
+import de.alberteinholz.ehtech.blocks.components.container.InventoryWrapper;
 import de.alberteinholz.ehtech.blocks.recipes.Input.BlockIngredient;
 import de.alberteinholz.ehtech.blocks.recipes.Input.DataIngredient;
 import de.alberteinholz.ehtech.blocks.recipes.Input.EntityIngredient;
@@ -76,11 +77,7 @@ public class MachineRecipe implements Recipe<Inventory> {
 
     public boolean matches(BlockPos pos, World world) {
         MachineBlockEntity be = (MachineBlockEntity) world.getBlockEntity(pos);
-        if (input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data))) {
-            return true;
-        } else {
-            return false;
-        }
+        return input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data));
     }
 
     public static class Serializer implements RecipeSerializer<MachineRecipe> {
@@ -95,7 +92,7 @@ public class MachineRecipe implements Recipe<Inventory> {
         }
         
         //from file to server
-        //TODO: make this shorter
+        //TODO: make this shorter and/or make json to ingredient in input
         @Override
         public MachineRecipe read(Identifier id, JsonObject json) {
             //INPUT:
@@ -188,9 +185,7 @@ public class MachineRecipe implements Recipe<Inventory> {
 							} catch (CommandSyntaxException e) {
 								TechMod.LOGGER.bigBug(e);
 							}
-                        } else {
-                            itemStacksList.add(new ItemStack(Registry.ITEM.get(new Identifier(JsonHelper.getString(itemOutput, "item"))), JsonHelper.getInt(itemOutput, "amount", 1)));
-                        }
+                        } else itemStacksList.add(new ItemStack(Registry.ITEM.get(new Identifier(JsonHelper.getString(itemOutput, "item"))), JsonHelper.getInt(itemOutput, "amount", 1)));
                     }
                 }
                 ItemStack[] itemStacks = !itemStacksList.isEmpty() ? itemStacksList.toArray(new ItemStack[itemStacksList.size()]) : null;
@@ -206,9 +201,8 @@ public class MachineRecipe implements Recipe<Inventory> {
 							} catch (CommandSyntaxException e) {
 								TechMod.LOGGER.bigBug(e);
 							}
-                        } else {
-                            fluidVolumesList.add(new FluidVolume(Registry.FLUID.get(new Identifier(JsonHelper.getString(fluidOutput, "fluid"))), Fraction.of(JsonHelper.getInt(fluidOutput, "numerator", 1), JsonHelper.getInt(fluidOutput, "denominator", 1))));
-                        }
+                        } else fluidVolumesList.add(new FluidVolume(Registry.FLUID.get(new Identifier(JsonHelper.getString(fluidOutput, "fluid"))), Fraction.of(JsonHelper.getInt(fluidOutput, "numerator", 1), JsonHelper.getInt(fluidOutput, "denominator", 1))));
+
                     }
                 }
                 FluidVolume[] fluidVolumes = !fluidVolumesList.isEmpty() ? fluidVolumesList.toArray(new FluidVolume[fluidVolumesList.size()]) : null;
@@ -290,7 +284,8 @@ public class MachineRecipe implements Recipe<Inventory> {
     @Deprecated
     @Override
     public boolean matches(Inventory inv, World world) {
-        return false;
+        if (inv instanceof InventoryWrapper) return matches(((InventoryWrapper) inv).pos, world);
+        else return false;
     }
 
     @Deprecated

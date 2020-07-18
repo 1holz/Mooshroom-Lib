@@ -9,13 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent.Slot.Type;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
-import de.alberteinholz.ehtech.blocks.recipes.Input;
+import de.alberteinholz.ehtech.blocks.recipes.Input.ItemIngredient;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
 import io.github.cottonmc.component.serializer.StackSerializer;
@@ -183,11 +184,9 @@ public class ContainerInventoryComponent implements InventoryComponent {
     //FIXME: maybe deletes items
     public ItemStack insertStack(String id, ItemStack stack, ActionType action) {
 		ItemStack target = getStack(id);
-		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack)) return stack;
-		int count = target.getCount();
-		int maxSize = Math.min(target.getItem().getMaxCount(), getMaxStackSize(id));
-		if (count == maxSize) return stack;
-		int sizeLeft = maxSize - count;
+		int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(id));
+		if (!target.isEmpty() || !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize) return stack;
+		int sizeLeft = maxSize - target.getCount();
 		if (sizeLeft >= stack.getCount()) {
 			if (action.shouldPerform()) {
 				if (target.isEmpty()) setStack(id, stack);
@@ -258,13 +257,10 @@ public class ContainerInventoryComponent implements InventoryComponent {
 		return false;
     }
     
-    public boolean containsInput(Input.ItemIngredient ingredient) {
+    public boolean containsInput(ItemIngredient ingredient) {
         int amount = 0;
         for (Slot slot : stacks.values()) {
-            if (ingredient.ingredient != null && slot.type == Slot.Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem())) {
-                if (ingredient.tag != null) if (NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) amount += slot.stack.getCount();
-                else amount += slot.stack.getCount();
-            }
+            if (ingredient.ingredient != null && slot.type == Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem()) && ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) amount += slot.stack.getCount();
         }
         if (amount >= ingredient.amount) return true;
         else return false;
@@ -290,7 +286,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public int getNumber(String slot) {
         stacks.containsKey(slot);
         int i = 0;
-        for (Iterator<Map.Entry<String, Slot>> iterator = stacks.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator<Entry<String, Slot>> iterator = stacks.entrySet().iterator(); iterator.hasNext();) {
             if (iterator.next().getKey() == slot) break;
             i++;
         }

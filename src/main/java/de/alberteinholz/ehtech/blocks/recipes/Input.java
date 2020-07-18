@@ -29,50 +29,35 @@ public class Input {
 
     public void write(PacketByteBuf buf) {
         if (items != null || items.length > 0) {
-            buf.writeBoolean(true);
-            buf.writeInt(items.length);
+            buf.writeBoolean(true).writeInt(items.length);
             for (ItemIngredient ingredient : items) {
                 ingredient.write(buf);
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (fluids != null || fluids.length > 0) {
-            buf.writeBoolean(true);
-            buf.writeInt(fluids.length);
+            buf.writeBoolean(true).writeInt(fluids.length);
             for (FluidIngredient ingredient : fluids) {
                 ingredient.write(buf);
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (blocks != null || blocks.length > 0) {
-            buf.writeBoolean(true);
-            buf.writeInt(blocks.length);
+            buf.writeBoolean(true).writeInt(blocks.length);
             for (BlockIngredient ingredient : blocks) {
                 ingredient.write(buf);
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (entities != null || entities.length > 0) {
-            buf.writeBoolean(true);
-            buf.writeInt(entities.length);
+            buf.writeBoolean(true).writeInt(entities.length);
             for (EntityIngredient ingredient : entities) {
                 ingredient.write(buf);
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (data != null || data.length > 0) {
-            buf.writeBoolean(true);
-            buf.writeInt(data.length);
+            buf.writeBoolean(true).writeInt(data.length);
             for (DataIngredient ingredient : data) {
                 ingredient.write(buf);
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
     }
 
     public static Input read(PacketByteBuf buf) {
@@ -128,11 +113,9 @@ public class Input {
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id);
-            buf.writeInt(amount);
-            if (tag == null || tag.isEmpty()) {
-                buf.writeBoolean(false);
-            } else {
+            buf.writeIdentifier(id).writeInt(amount);
+            if (tag == null || tag.isEmpty()) buf.writeBoolean(false);
+            else {
                 buf.writeBoolean(true);
                 buf.writeCompoundTag(tag);
             }
@@ -157,12 +140,9 @@ public class Input {
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id);
-            buf.writeInt(amount.getNumerator());
-            buf.writeInt(amount.getDenominator());
-            if (tag == null || tag.isEmpty()) {
-                buf.writeBoolean(false);
-            } else {
+            buf.writeIdentifier(id).writeInt(amount.getNumerator()).writeInt(amount.getDenominator());
+            if (tag == null || tag.isEmpty()) buf.writeBoolean(false);
+            else {
                 buf.writeBoolean(true);
                 buf.writeCompoundTag(tag);
             }
@@ -208,11 +188,9 @@ public class Input {
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id);
-            buf.writeInt(amount);
-            if (tag == null || tag.isEmpty()) {
-                buf.writeBoolean(false);
-            } else {
+            buf.writeIdentifier(id).writeInt(amount);
+            if (tag == null || tag.isEmpty()) buf.writeBoolean(false);
+            else {
                 buf.writeBoolean(true);
                 buf.writeCompoundTag(tag);
             }

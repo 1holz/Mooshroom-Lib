@@ -10,11 +10,15 @@ import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryCom
 import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent.Slot.Type;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineCapacitorComponent;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
+import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ActivationState;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
 import de.alberteinholz.ehtech.blocks.directionals.containers.machines.MachineBlock;
-import de.alberteinholz.ehtech.blocks.recipes.Input;
 import de.alberteinholz.ehtech.blocks.recipes.MachineRecipe;
+import de.alberteinholz.ehtech.blocks.recipes.Input.BlockIngredient;
+import de.alberteinholz.ehtech.blocks.recipes.Input.DataIngredient;
+import de.alberteinholz.ehtech.blocks.recipes.Input.EntityIngredient;
+import de.alberteinholz.ehtech.blocks.recipes.Input.FluidIngredient;
 import de.alberteinholz.ehtech.blocks.recipes.Input.ItemIngredient;
 import de.alberteinholz.ehtech.registry.BlockRegistry;
 import io.github.cottonmc.component.UniversalComponents;
@@ -179,17 +183,20 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
 
     public void correct() {}
 
-    public boolean containsItemIngredients(Input.ItemIngredient... ingredients) {
+    public boolean containsItemIngredients(ItemIngredient... ingredients) {
         boolean bl = true;
-        for (Input.ItemIngredient ingredient : ingredients) {
-            if (!inventory.containsInput(ingredient)) bl = false;
+        for (ItemIngredient ingredient : ingredients) {
+            if (!inventory.containsInput(ingredient)) {
+                bl = false;
+                break;
+            } 
         }
         return bl;
     }
 
-    public boolean containsFluidIngredients(Input.FluidIngredient... ingredients) {
+    public boolean containsFluidIngredients(FluidIngredient... ingredients) {
         boolean bl = true;
-        for (Input.FluidIngredient ingredient : ingredients) {
+        for (FluidIngredient ingredient : ingredients) {
             TechMod.LOGGER.wip("Containment Check for " + ingredient);
             //TODO:fluid
         }
@@ -197,25 +204,25 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
     }
 
     //only by overriding
-    public boolean containsBlockIngredients(Input.BlockIngredient... ingredients) {
+    public boolean containsBlockIngredients(BlockIngredient... ingredients) {
         return true;
     }
 
     //only by overriding
-    public boolean containsEntityIngredients(Input.EntityIngredient... ingredients) {
+    public boolean containsEntityIngredients(EntityIngredient... ingredients) {
         return true;
     }
 
     //only by overriding
-    public boolean containsDataIngredients(Input.DataIngredient... ingredients) {
+    public boolean containsDataIngredients(DataIngredient... ingredients) {
         return true;
     }
 
     public boolean isActivated() {
-        MachineDataProviderComponent.ActivationState activationState = ((MachineDataProviderComponent) data).getActivationState();
-        if (activationState == MachineDataProviderComponent.ActivationState.ALWAYS_ON) return true;
-        else if(activationState == MachineDataProviderComponent.ActivationState.REDSTONE_ON) return world.isReceivingRedstonePower(pos);
-        else if(activationState == MachineDataProviderComponent.ActivationState.REDSTONE_OFF) return !world.isReceivingRedstonePower(pos);
+        ActivationState activationState = ((MachineDataProviderComponent) data).getActivationState();
+        if (activationState == ActivationState.ALWAYS_ON) return true;
+        else if(activationState == ActivationState.REDSTONE_ON) return world.isReceivingRedstonePower(pos);
+        else if(activationState == ActivationState.REDSTONE_OFF) return !world.isReceivingRedstonePower(pos);
         else return false;
     }
 
