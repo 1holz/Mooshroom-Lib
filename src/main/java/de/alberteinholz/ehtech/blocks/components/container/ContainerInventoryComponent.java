@@ -3,7 +3,6 @@ package de.alberteinholz.ehtech.blocks.components.container;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -111,15 +110,16 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
         InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
         ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
-        int[] intSlotIds = new int[target.size()];
+        Integer[] intSlotIds = new Integer[target.size()];
         Arrays.setAll(intSlotIds, i -> i);
-        Set<?> iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.OUTPUT).keySet() : new HashSet<>(Arrays.asList(intSlotIds));
-        for (Object id : iterable) {
+        for (Object id : targetContainerComponent != null ? targetContainerComponent.getSlots(Type.OUTPUT).keySet().toArray() : intSlotIds) {
             if (targetContainerComponent != null ? targetContainerComponent.canExtract((String) id, dir) : targetComponent != null ? targetComponent.canExtract((int) id) : true) {
                 ItemStack extracted = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, maxTransfer, ActionType.TEST) : targetComponent != null ? targetComponent.removeStack((int) id, ActionType.TEST) : target.getStack((int) id);
+                if (extracted.getCount() <= 0) continue;
                 if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
                 for (String ownId : getSlots(Type.INPUT).keySet()) {
                     int insertedCount = insertStack(ownId, extracted, action).getCount();
+                    if (insertedCount <= 0) continue;
                     int extractedCount = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, insertedCount, action).getCount() : target.removeStack((int) id, insertedCount).getCount();
                     transfer += extractedCount;
                     if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new Exception("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
@@ -139,11 +139,12 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
         InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
         ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
-        int[] intSlotIds = new int[target.size()];
+        Integer[] intSlotIds = new Integer[target.size()];
         Arrays.setAll(intSlotIds, i -> i);
-        Set<?> iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.INPUT).keySet() : new HashSet<>(Arrays.asList(intSlotIds));
+        Object[] iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.INPUT).keySet().toArray() : intSlotIds;
         for (String id : getSlots(Type.OUTPUT).keySet()) {
             ItemStack extracted = removeStack(id, maxTransfer, ActionType.TEST);
+            if (extracted.getCount() <= 0) continue;
             if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
             for (Object foreigenId : iterable) {
                 int insertedCount = targetContainerComponent != null ? targetContainerComponent.insertStack((String) foreigenId, extracted, action).getCount() : targetComponent != null ? targetComponent.insertStack((int) foreigenId, extracted, action).getCount() : 0;
@@ -152,6 +153,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
                     insertedCount = gotten.getCount() + extracted.getCount() > gotten.getMaxCount() || gotten.getCount() + extracted.getCount() > target.getMaxCountPerStack() ? Math.min(gotten.getMaxCount(), target.getMaxCountPerStack()) - gotten.getCount() : extracted.getCount();
                     if (action.shouldPerform()) gotten.increment(insertedCount);
                 }
+                if (insertedCount <= 0) continue;
                 int extractedCount = removeStack(id, insertedCount, action).getCount();
                 transfer += extractedCount;
                 if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new Exception("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
@@ -185,7 +187,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public ItemStack insertStack(String id, ItemStack stack, ActionType action) {
 		ItemStack target = getStack(id);
 		int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(id));
-		if (!target.isEmpty() || !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize) return stack;
+		if (!target.isEmpty() && target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize) return stack;
 		int sizeLeft = maxSize - target.getCount();
 		if (sizeLeft >= stack.getCount()) {
 			if (action.shouldPerform()) {
@@ -261,9 +263,9 @@ public class ContainerInventoryComponent implements InventoryComponent {
         int amount = 0;
         for (Slot slot : stacks.values()) {
             if (ingredient.ingredient != null && slot.type == Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem()) && ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) amount += slot.stack.getCount();
+            if (amount >= ingredient.amount) return true;
         }
-        if (amount >= ingredient.amount) return true;
-        else return false;
+        return false;
     }
 
     @Override

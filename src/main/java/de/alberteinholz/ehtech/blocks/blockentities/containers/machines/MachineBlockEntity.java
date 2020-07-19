@@ -83,13 +83,11 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
             Block targetBlock = world.getBlockState(targetPos).getBlock();
-            BlockEntity targeBlockEntity = world.getBlockEntity(targetPos);
-            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) || targeBlockEntity instanceof Inventory) {
-                Inventory inv = ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) ? new InventoryWrapper(((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) : (Inventory) targeBlockEntity;
-                if (inv instanceof ContainerInventoryComponent) {
-                    if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) inventory.pull(inv, ActionType.PERFORM, dir);
-                    if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) inventory.push(inv, ActionType.PERFORM, dir);
-                }
+            BlockEntity targetBlockEntity = world.getBlockEntity(targetPos);
+            if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) || targetBlockEntity instanceof Inventory) {
+                Inventory inv = ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) ? new InventoryWrapper(((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) : (Inventory) targetBlockEntity;
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) inventory.pull(inv, ActionType.PERFORM, dir);
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) inventory.push(inv, ActionType.PERFORM, dir);
             }
             //TODO:fluid
             if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite())) {
