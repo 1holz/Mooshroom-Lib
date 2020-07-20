@@ -85,11 +85,12 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
             Block targetBlock = world.getBlockState(targetPos).getBlock();
             BlockEntity targetBlockEntity = world.getBlockEntity(targetPos);
             if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) || targetBlockEntity instanceof Inventory) {
-                Inventory inv = ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) ? new InventoryWrapper(((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) : (Inventory) targetBlockEntity;
-                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) inventory.pull(inv, ActionType.PERFORM, dir);
-                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) inventory.push(inv, ActionType.PERFORM, dir);
+                Inventory foreignInv = ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite()) ? new InventoryWrapper(((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.INVENTORY_COMPONENT, dir.getOpposite())) : (Inventory) targetBlockEntity;
+                InventoryWrapper ownInv = new InventoryWrapper(inventory);
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir)) ContainerInventoryComponent.move(foreignInv, ownInv, 1, dir, ActionType.PERFORM);
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir)) ContainerInventoryComponent.move(ownInv, foreignInv, 1, dir, ActionType.PERFORM);
             }
-            //TODO:fluid
+            //TODO: Fluid
             if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite())) {
                 @SuppressWarnings("unused")
                 TankComponent tank = ((BlockComponentProvider) targetBlock).getComponent(world, targetPos, UniversalComponents.TANK_COMPONENT, dir.getOpposite());
@@ -98,8 +99,8 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
             }
             if (targetBlock instanceof BlockComponentProvider && ((BlockComponentProvider) targetBlock).hasComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, dir.getOpposite())) {
                 MachineCapacitorComponent cap = (MachineCapacitorComponent) ((MachineBlock) targetBlock).getComponent(world, targetPos, UniversalComponents.CAPACITOR_COMPONENT, null);
-                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir)) capacitor.pull(cap, ActionType.PERFORM, dir);
-                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir)) capacitor.push(cap, ActionType.PERFORM, dir);
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir)) MachineCapacitorComponent.move(cap, capacitor, capacitor.getPreferredType(), dir, ActionType.PERFORM); //capacitor.pull(cap, ActionType.PERFORM, dir);
+                if (((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir)) MachineCapacitorComponent.move(capacitor, cap, capacitor.getPreferredType(), dir, ActionType.PERFORM); //capacitor.push(cap, ActionType.PERFORM, dir);
             }
             //TODO: only for early development replace with proper creative battery
             if (inventory.getStack("power_input").getItem() == Items.BEDROCK && capacitor.getCurrentEnergy() < capacitor.getMaxEnergy()) capacitor.generateEnergy(world, pos, 4);

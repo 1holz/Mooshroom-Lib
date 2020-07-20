@@ -1,7 +1,6 @@
 package de.alberteinholz.ehtech.blocks.components.container;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -16,6 +15,7 @@ import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataPr
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
 import de.alberteinholz.ehtech.blocks.recipes.Input.ItemIngredient;
+import de.alberteinholz.ehtech.util.Helper;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
 import io.github.cottonmc.component.serializer.StackSerializer;
@@ -35,7 +35,6 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public HashMap<String, Slot> stacks = new LinkedHashMap<String, Slot>();
     protected final List<Runnable> listeners = new ArrayList<>();
     protected ContainerDataProviderComponent data;
-    public int maxTransfer = 1;
 
     @Override
     public List<Runnable> getListeners() {
@@ -102,72 +101,35 @@ public class ContainerInventoryComponent implements InventoryComponent {
         this.data = data;
     }
 
-    public int pull(Inventory target, ActionType action, Direction dir) {
+    //for using InventoryComponents wrap them in an InventoryWrapper
+    //check ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, configBehavior, dir) first
+    public static int move(Inventory from, Inventory to, int maxTransfer, Direction dir, ActionType action) {
         int transfer = 0;
-        if (!(data instanceof MachineDataProviderComponent && ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_INPUT, dir))) {
-            TechMod.LOGGER.smallBug();
-            return transfer;
-        }
-        InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
-        ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
-        Integer[] intSlotIds = new Integer[target.size()];
-        Arrays.setAll(intSlotIds, i -> i);
-        for (Object id : targetContainerComponent != null ? targetContainerComponent.getSlots(Type.OUTPUT).keySet().toArray() : intSlotIds) {
-            if (targetContainerComponent != null ? targetContainerComponent.canExtract((String) id, dir) : targetComponent != null ? targetComponent.canExtract((int) id) : true) {
-                ItemStack extracted = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, maxTransfer, ActionType.TEST) : targetComponent != null ? targetComponent.removeStack((int) id, ActionType.TEST) : target.getStack((int) id).copy();
-                if (extracted.isEmpty()) continue;
-                if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
-                for (String ownId : getSlots(Type.INPUT).keySet()) {
-                    int insertedCount = extracted.getCount() - insertStack(ownId, extracted, action).getCount();
-                    if (insertedCount <= 0) continue;
-                    int extractedCount = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, insertedCount, action).getCount() : target.removeStack((int) id, insertedCount).getCount();
-                    transfer += extractedCount;
-                    if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new IllegalStateException("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
+        InventoryComponent fromComponent = from instanceof InventoryWrapper && ((InventoryWrapper) from).component != null ? ((InventoryWrapper) from).component : null;
+        ContainerInventoryComponent fromContainerComponent = fromComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) fromComponent : null;
+        InventoryComponent toComponent = to instanceof InventoryWrapper && ((InventoryWrapper) to).component != null ? ((InventoryWrapper) to).component : null;
+        ContainerInventoryComponent toContainerComponent = toComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) toComponent : null;
+        for (Object idFrom : fromContainerComponent != null ? fromContainerComponent.getSlots(Type.OUTPUT).keySet().toArray() : Helper.countingArray(from.size())) {
+            if (fromContainerComponent != null ? fromContainerComponent.canExtract((String) idFrom, dir) : fromComponent != null ? fromComponent.canExtract((int) idFrom) : true) {
+                ItemStack extractionTest = fromContainerComponent != null ? fromContainerComponent.removeStack((String) idFrom, maxTransfer, ActionType.TEST) : fromComponent != null ? fromComponent.removeStack((int) idFrom, ActionType.TEST) : from.getStack((int) idFrom).copy();
+                if (extractionTest.isEmpty()) continue;
+                if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
+                for (Object idTo : toContainerComponent != null ? toContainerComponent.getSlots(Type.INPUT).keySet().toArray() : Helper.countingArray(to.size())) {
+                    int insertionCount = extractionTest.getCount() - (toContainerComponent != null ? toContainerComponent.insertStack((String) idTo, extractionTest, action).getCount() : toComponent != null ? toComponent.insertStack((int) idTo, extractionTest, action).getCount() : 0);
+                    if (!(to instanceof InventoryWrapper)) {
+                        ItemStack gotten = to.getStack((int) idTo);
+                        insertionCount = gotten.getCount() + extractionTest.getCount() > gotten.getMaxCount() || gotten.getCount() + extractionTest.getCount() > to.getMaxCountPerStack() ? Math.min(gotten.getMaxCount(), to.getMaxCountPerStack()) - gotten.getCount() : extractionTest.getCount();
+                        if (action.shouldPerform()) gotten.increment(insertionCount);
+                    }
+                    if (insertionCount <= 0) continue;
+                    int extractionCount = fromContainerComponent != null ? fromContainerComponent.removeStack((String) idFrom, insertionCount, action).getCount() : from.removeStack((int) idFrom, insertionCount).getCount();
+                    transfer += extractionCount;
+                    if (insertionCount != extractionCount) TechMod.LOGGER.smallBug(new IllegalStateException("Item moving wasn't performed correctly. This could lead to item deletion.")); 
                     if (transfer >= maxTransfer) break;
                 }
             }
             if (transfer >= maxTransfer) break;
         }
-        return transfer;
-    }
-
-    public int push(Inventory target, ActionType action, Direction dir) {
-        int transfer = 0;
-        if (!(data instanceof MachineDataProviderComponent && ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.SELF_OUTPUT, dir))) {
-            TechMod.LOGGER.smallBug();
-            return transfer;
-        }
-        InventoryComponent targetComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component != null ? ((InventoryWrapper) target).component : null;
-        ContainerInventoryComponent targetContainerComponent = target instanceof InventoryWrapper && ((InventoryWrapper) target).component instanceof ContainerInventoryComponent ? ((InventoryWrapper) target).getContainerInventoryComponent() : null;
-        Integer[] intSlotIds = new Integer[target.size()];
-        Arrays.setAll(intSlotIds, i -> i);
-        Object[] iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.INPUT).keySet().toArray() : intSlotIds;
-        for (String id : getSlots(Type.OUTPUT).keySet()) {
-            ItemStack extracted = removeStack(id, maxTransfer, ActionType.TEST);
-            if (extracted.isEmpty()) continue;
-            if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
-            for (Object foreigenId : iterable) {
-                int insertedCount = extracted.getCount() - (targetContainerComponent != null ? targetContainerComponent.insertStack((String) foreigenId, extracted, action).getCount() : targetComponent != null ? targetComponent.insertStack((int) foreigenId, extracted, action).getCount() : 0);
-                if (!(target instanceof InventoryWrapper)) {
-                    ItemStack gotten = target.getStack((int) foreigenId);
-                    insertedCount = gotten.getCount() + extracted.getCount() > gotten.getMaxCount() || gotten.getCount() + extracted.getCount() > target.getMaxCountPerStack() ? Math.min(gotten.getMaxCount(), target.getMaxCountPerStack()) - gotten.getCount() : extracted.getCount();
-                    if (action.shouldPerform()) gotten.increment(insertedCount);
-                }
-                if (insertedCount <= 0) continue;
-                int extractedCount = removeStack(id, insertedCount, action).getCount();
-                transfer += extractedCount;
-                if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new IllegalStateException("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
-                if (transfer >= maxTransfer) break;
-            }
-            if (transfer >= maxTransfer) break;
-        };
-        return transfer;
-    }
-
-    //TODO: merge push and pull into this
-    public static int move(Inventory from, Inventory to, ActionType action, Direction dir) {
-        int transfer = 0;
-        //add code here
         return transfer;
     }
 
@@ -183,7 +145,6 @@ public class ContainerInventoryComponent implements InventoryComponent {
         else return true;
     }
 
-    //FIXME: maybe deletes items
     public ItemStack insertStack(String id, ItemStack stack, ActionType action) {
 		ItemStack target = getStack(id);
 		int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(id));

@@ -27,17 +27,11 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
 
     protected static int getMaxFromType(EnergyType type) {
         int i = 0;
-        if (type == EnergyTypes.ULTRA_LOW_VOLTAGE) {
-            i = 1;
-        } else if (type == EnergyTypes.LOW_VOLTAGE) {
-            i = 2;
-        } else if (type == EnergyTypes.MEDIUM_VOLTAGE) {
-            i = 3;
-        } else if (type == EnergyTypes.HIGH_VOLTAGE) {
-            i = 4;
-        } else if (type == EnergyTypes.ULTRA_HIGH_VOLTAGE) {
-            i = 5;
-        }
+        if (type == EnergyTypes.ULTRA_LOW_VOLTAGE) i = 1;
+        else if (type == EnergyTypes.LOW_VOLTAGE) i = 2;
+        else if (type == EnergyTypes.MEDIUM_VOLTAGE) i = 3;
+        else if (type == EnergyTypes.HIGH_VOLTAGE) i = 4;
+        else if (type == EnergyTypes.ULTRA_HIGH_VOLTAGE) i = 5;
         return 10000 * 16 ^ i;
     }
     
@@ -49,30 +43,15 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
         this.dataProvider = dataProvider;
     }
 
-    public int pull(CapacitorComponent target, ActionType action, Direction dir) {
+    //check ((MachineDataProviderComponent) data).allowsConfig(ConfigType.POWER, configBehavior, dir) first
+    public static int move(CapacitorComponent from, CapacitorComponent to, EnergyType type, Direction dir, ActionType action) {
         int transfer = 0;
-        if (target.canExtractEnergy() && dataProvider != null && dataProvider.allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_INPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canExtract(dir))) {
-            int extractTarget = target.extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action);
-            int insert = insertEnergy(getPreferredType(), extractTarget, action);
-            int insertTarget = target.insertEnergy(getPreferredType(), insert, action);
-            transfer += extractTarget - insert;
-            if (insertTarget != 0) {
-                TechMod.LOGGER.smallBug(new Exception("Unable to insert power back to the origin. Power will be deleted!"));
-            }
-        }
-        return transfer;
-    }
-
-    public int push(CapacitorComponent target, ActionType action, Direction dir) {
-        int transfer = 0;
-        if (target.canInsertEnergy() && dataProvider != null && dataProvider.allowsConfig(ConfigType.POWER, ConfigBehavior.SELF_OUTPUT, dir) && !(target instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) target).canInsert(dir))) {
-            int extract = extractEnergy(getPreferredType(), getPreferredType().getMaximumTransferSize(), action);
-            int insertTarget = target.insertEnergy(getPreferredType(), extract, action);
-            int insert = insertEnergy(getPreferredType(), insertTarget, action);
-            transfer += extract - insertTarget;
-            if (insert != 0) {
-                TechMod.LOGGER.smallBug(new Exception("Unable to insert power back to the origin. Power will be deleted!"));
-            }
+        if (from.canExtractEnergy() && !(from instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) from).canExtract(dir)) && to.canInsertEnergy() && !(to instanceof MachineCapacitorComponent && !((MachineCapacitorComponent) to).canInsert(dir))) {
+            int extractionTest = from.extractEnergy(type, type.getMaximumTransferSize(), ActionType.TEST);
+            int insertionCount = extractionTest - to.insertEnergy(type, extractionTest, action);
+            int extractionCount = from.extractEnergy(type, insertionCount, action);
+            transfer += extractionTest;
+            if (insertionCount != extractionCount) TechMod.LOGGER.smallBug(new IllegalStateException("Power moving wasn't performed correctly. This could lead to power deletion."));
         }
         return transfer;
     }
@@ -87,36 +66,19 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
 
     @Override
     public void fromTag(CompoundTag tag) {
-        if (tag.contains("EnergyType", NbtType.STRING)) {
-            energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(tag.getString("EnergyType")));
-        }
-        if (tag.contains("Energy", NbtType.NUMBER)) {
-            currentEnergy = tag.getInt("Energy");
-        }
-        if (tag.contains("MaxEnergy", NbtType.NUMBER)) {
-            maxEnergy = tag.getInt("MaxEnergy");
-        } else {
-            maxEnergy = getMaxFromType(energyType);
-        }
-        if (tag.contains("Harm", NbtType.NUMBER)) {
-			harm = tag.getInt("Harm");
-		}
+        if (tag.contains("EnergyType", NbtType.STRING)) energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(tag.getString("EnergyType")));
+        if (tag.contains("Energy", NbtType.NUMBER)) currentEnergy = tag.getInt("Energy");
+        if (tag.contains("MaxEnergy", NbtType.NUMBER)) maxEnergy = tag.getInt("MaxEnergy");
+        else maxEnergy = getMaxFromType(energyType);
+        if (tag.contains("Harm", NbtType.NUMBER)) harm = tag.getInt("Harm");
     }
     
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) {
-            tag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
-        }
-        if (currentEnergy > 0) {
-            tag.putInt("Energy", currentEnergy);
-        }
-        if (maxEnergy != getMaxFromType(energyType)) {
-            tag.putInt("MaxEnergy", maxEnergy);
-        }
-        if (harm != 0) {
-            tag.putInt("Harm", harm);
-        }
+        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) tag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
+        if (currentEnergy > 0) tag.putInt("Energy", currentEnergy);
+        if (maxEnergy != getMaxFromType(energyType)) tag.putInt("MaxEnergy", maxEnergy);
+        if (harm != 0) tag.putInt("Harm", harm);
         return tag;
     }
 }
