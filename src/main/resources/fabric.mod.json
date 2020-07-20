@@ -16,10 +16,12 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "de.alberteinholz.ehtech.TechMod"
+            "de.alberteinholz.ehtech.TechMod",
+            "de.alberteinholz.ehmooshroom.MooshroomLib"
         ],
         "client": [
-            "de.alberteinholz.ehtech.TechMod"
+            "de.alberteinholz.ehtech.TechMod",
+            "de.alberteinholz.ehmooshroom.MooshroomLib"
         ]
     },
     "mixins": [],
