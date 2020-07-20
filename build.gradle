@@ -22,41 +22,26 @@ dependencies {
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
 
-	include modImplementation("io.github.cottonmc:LibGui:2.0.1+1.16.1")
-	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:2.4.1")
+	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}")
+	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")
 	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:2.4.1")
 	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-block:2.4.1")
-	//include modImplementation("io.github.OnyxStudios:Cardinal-Components-API:2.4.0-nightly.1.16-pre2")
     //include modImplementation("io.github.cottonmc:UniversalComponents:0.7.2+1.16-pre2")
-	//include modImplementation(fileTree('libs'))
-	compile files("libs/universalcomponents-0.7.3+1.16.1-dev.jar")
-	include files("libs/universalcomponents-0.7.3+1.16.1-dev.jar")
-	//include modImplementation(files("libs/universalcomponents-0.7.3+1.16.1.jar", "libs/universalcomponents-0.7.3+1.16.1-sources.jar"))
+	compile files("libs/universalcomponents-${project.universal_components_version}-dev.jar")
+	include files("libs/universalcomponents-${project.universal_components_version}-dev.jar")
+	//include modImplementation(uc)
 
 }
 
 repositories {
-	//maven { url "https://maven.onyxstudios.dev" }
     maven {
         name = "CottonMC"
         url = "http://server.bbkr.space:8081/artifactory/libs-release"
     }
-	/*
-	maven {
-        name = "Ladysnake Libs"
-        url = "https://maven.onyxstudios.dev"
-	}
-	*/
     maven {
         name = "Ladysnake Libs"
         url = "https://dl.bintray.com/ladysnake/libs"
     }
-	/*
-	maven {
-        name = "Cardinal Components"
-        url "https://jitpack.io"
-    }
-	*/
 }
 
 processResources {
