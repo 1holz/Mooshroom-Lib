@@ -38,14 +38,9 @@ public class Wrench extends Tool {
                 mode = mode.next();
             }
             compoundTag.putString("Mode", mode.toString());
-            if(world.isClient) {
-                ((ClientPlayerEntity) playerEntity).sendMessage((Text)(new TranslatableText("title.ehtech.wrench", playerEntity.getStackInHand(hand).getTag().getString("Mode"))), true);
-            }
+            if(world.isClient) ((ClientPlayerEntity) playerEntity).sendMessage((Text)(new TranslatableText("title.ehtech.wrench", playerEntity.getStackInHand(hand).getTag().getString("Mode"))), true);
             return new TypedActionResult<>(ActionResult.SUCCESS, playerEntity.getStackInHand(hand));
-        } else {
-            return new TypedActionResult<>(ActionResult.PASS, playerEntity.getStackInHand(hand));
-        }
-        
+        } else return new TypedActionResult<>(ActionResult.PASS, playerEntity.getStackInHand(hand));
     }
 
     @Override
@@ -54,46 +49,24 @@ public class Wrench extends Tool {
         Block block = blockState.getBlock();
         //BlockEntity blockEntity = context.getWorld().getBlockEntity(context.getBlockPos());
         if(context.getPlayer().isSneaking()) {
-            if(mode == WrenchMode.ROTATE) {
-                if(block instanceof DirectionalBlock) {
-                    Direction direction = blockState.get(DirectionalBlock.FACING);
-                    Direction[] values = Direction.values();
-                    direction = values[(direction.ordinal() + 1) % values.length];
-                    context.getWorld().setBlockState(context.getBlockPos(), blockState.with(Properties.FACING, direction));
-                }
-                return ActionResult.SUCCESS;
-            } else if(mode == WrenchMode.POWER) {
-                if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
-                }
-                return ActionResult.SUCCESS;
-            } else if(mode == WrenchMode.ITEM) {
-                if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
-                }
-                return ActionResult.SUCCESS;
-            } else if(mode == WrenchMode.FLUID) {
-                if(context.getWorld().isClient()) {
-                    ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
-                }
-                return ActionResult.SUCCESS;
-            } else if(mode == WrenchMode.CONFIGURE) {
-                if(!context.getWorld().isClient()) {
-                    context.getPlayer().openHandledScreen(((MachineBlockEntity) context.getWorld().getBlockEntity(context.getBlockPos())).getSideConfigScreenHandlerFactory());
-                }
-                return ActionResult.SUCCESS;
-            }
+            if(mode == WrenchMode.ROTATE && block instanceof DirectionalBlock) {
+                Direction direction = blockState.get(DirectionalBlock.FACING);
+                Direction[] values = Direction.values();
+                direction = values[(direction.ordinal() + 1) % values.length];
+                context.getWorld().setBlockState(context.getBlockPos(), blockState.with(Properties.FACING, direction));
+            } else if(mode == WrenchMode.POWER && context.getWorld().isClient()) ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
+            else if(mode == WrenchMode.ITEM && context.getWorld().isClient()) ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
+            else if(mode == WrenchMode.FLUID && context.getWorld().isClient()) ((ClientPlayerEntity) context.getPlayer()).sendMessage(new TranslatableText("chat.ehtech.wip"), false);
+            else if(mode == WrenchMode.CONFIGURE && !context.getWorld().isClient()) context.getPlayer().openHandledScreen(((MachineBlockEntity) context.getWorld().getBlockEntity(context.getBlockPos())).getSideConfigScreenHandlerFactory());
+            return ActionResult.SUCCESS;
         }
         return super.useOnBlock(context);
     }
 
     @Override
     public void appendTooltip(ItemStack itemStack, World world, List<Text> tooltip, TooltipContext tooltipContext) {
-        if(itemStack.getTag() != null && itemStack.getTag().getString("Mode") != null) {
-            tooltip.add(new TranslatableText("tooltip.ehtech.wrench.withmode", itemStack.getTag().getString("Mode")));
-        } else {
-            tooltip.add(new TranslatableText("tooltip.ehtech.wrench.withoutmode"));
-        }
+        if(itemStack.getTag() != null && itemStack.getTag().getString("Mode") != null) tooltip.add(new TranslatableText("tooltip.ehtech.wrench.withmode", itemStack.getTag().getString("Mode")));
+        else tooltip.add(new TranslatableText("tooltip.ehtech.wrench.withoutmode"));
     }
 
     public enum WrenchMode {
