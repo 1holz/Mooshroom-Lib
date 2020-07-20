@@ -77,6 +77,8 @@ public class MachineRecipe implements Recipe<Inventory> {
 
     public boolean matches(BlockPos pos, World world) {
         MachineBlockEntity be = (MachineBlockEntity) world.getBlockEntity(pos);
+        //TODO: convert generate & consume to data ingredient
+        if (consumes != Double.NaN && be.capacitor.getCurrentEnergy() < consumes) return false;
         return input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data));
     }
 
