@@ -130,13 +130,14 @@ public class MachineDataProviderComponent extends ContainerDataProviderComponent
         return dir.getId() * ConfigBehavior.values().length + behavior.ordinal();
     }
 
-    protected DataElement getConfigElement(ConfigType type) {
+    protected DataElement getConfigElement(ConfigType type) throws IllegalArgumentException {
         if (type == ConfigType.ITEM) return configItem;
         else if (type == ConfigType.FLUID) return configFluid;
         else if (type == ConfigType.POWER) return configPower;
         else {
-            TechMod.LOGGER.smallBug();
-            return null;
+            IllegalArgumentException e = new IllegalArgumentException("ConfigType " + type.toString() + "seems to be not supported.");
+            TechMod.LOGGER.smallBug(e);
+            throw e;
         }
     }
     

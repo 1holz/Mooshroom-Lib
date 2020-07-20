@@ -114,15 +114,15 @@ public class ContainerInventoryComponent implements InventoryComponent {
         Arrays.setAll(intSlotIds, i -> i);
         for (Object id : targetContainerComponent != null ? targetContainerComponent.getSlots(Type.OUTPUT).keySet().toArray() : intSlotIds) {
             if (targetContainerComponent != null ? targetContainerComponent.canExtract((String) id, dir) : targetComponent != null ? targetComponent.canExtract((int) id) : true) {
-                ItemStack extracted = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, maxTransfer, ActionType.TEST) : targetComponent != null ? targetComponent.removeStack((int) id, ActionType.TEST) : target.getStack((int) id);
-                if (extracted.getCount() <= 0) continue;
+                ItemStack extracted = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, maxTransfer, ActionType.TEST) : targetComponent != null ? targetComponent.removeStack((int) id, ActionType.TEST) : target.getStack((int) id).copy();
+                if (extracted.isEmpty()) continue;
                 if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
                 for (String ownId : getSlots(Type.INPUT).keySet()) {
-                    int insertedCount = insertStack(ownId, extracted, action).getCount();
+                    int insertedCount = extracted.getCount() - insertStack(ownId, extracted, action).getCount();
                     if (insertedCount <= 0) continue;
                     int extractedCount = targetContainerComponent != null ? targetContainerComponent.removeStack((String) id, insertedCount, action).getCount() : target.removeStack((int) id, insertedCount).getCount();
                     transfer += extractedCount;
-                    if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new Exception("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
+                    if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new IllegalStateException("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
                     if (transfer >= maxTransfer) break;
                 }
             }
@@ -144,10 +144,10 @@ public class ContainerInventoryComponent implements InventoryComponent {
         Object[] iterable = targetContainerComponent != null ? targetContainerComponent.getSlots(Type.INPUT).keySet().toArray() : intSlotIds;
         for (String id : getSlots(Type.OUTPUT).keySet()) {
             ItemStack extracted = removeStack(id, maxTransfer, ActionType.TEST);
-            if (extracted.getCount() <= 0) continue;
+            if (extracted.isEmpty()) continue;
             if (extracted.getCount() > maxTransfer - transfer) extracted.setCount(maxTransfer - transfer);
             for (Object foreigenId : iterable) {
-                int insertedCount = targetContainerComponent != null ? targetContainerComponent.insertStack((String) foreigenId, extracted, action).getCount() : targetComponent != null ? targetComponent.insertStack((int) foreigenId, extracted, action).getCount() : 0;
+                int insertedCount = extracted.getCount() - (targetContainerComponent != null ? targetContainerComponent.insertStack((String) foreigenId, extracted, action).getCount() : targetComponent != null ? targetComponent.insertStack((int) foreigenId, extracted, action).getCount() : 0);
                 if (!(target instanceof InventoryWrapper)) {
                     ItemStack gotten = target.getStack((int) foreigenId);
                     insertedCount = gotten.getCount() + extracted.getCount() > gotten.getMaxCount() || gotten.getCount() + extracted.getCount() > target.getMaxCountPerStack() ? Math.min(gotten.getMaxCount(), target.getMaxCountPerStack()) - gotten.getCount() : extracted.getCount();
@@ -156,7 +156,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
                 if (insertedCount <= 0) continue;
                 int extractedCount = removeStack(id, insertedCount, action).getCount();
                 transfer += extractedCount;
-                if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new Exception("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
+                if (insertedCount != extractedCount) TechMod.LOGGER.smallBug(new IllegalStateException("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
                 if (transfer >= maxTransfer) break;
             }
             if (transfer >= maxTransfer) break;
@@ -187,7 +187,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public ItemStack insertStack(String id, ItemStack stack, ActionType action) {
 		ItemStack target = getStack(id);
 		int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(id));
-		if (!target.isEmpty() && target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize) return stack;
+		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize) return stack;
 		int sizeLeft = maxSize - target.getCount();
 		if (sizeLeft >= stack.getCount()) {
 			if (action.shouldPerform()) {
@@ -229,8 +229,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
 
     public ItemStack removeStack(String id, int amount, ActionType action) {
 		ItemStack stack = getStack(id);
-		if (!action.shouldPerform()) stack = stack.copy();
-		else onChanged();
+		if (action.shouldPerform()) onChanged();
+		else stack = stack.copy();
         return stack.split(amount);
     }
 
@@ -262,7 +262,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public boolean containsInput(ItemIngredient ingredient) {
         int amount = 0;
         for (Slot slot : stacks.values()) {
-            if (ingredient.ingredient != null && slot.type == Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem()) && ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) amount += slot.stack.getCount();
+            if (ingredient.ingredient != null && slot.type == Type.INPUT && ingredient.ingredient.contains(slot.stack.getItem()) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true))) amount += slot.stack.getCount();
             if (amount >= ingredient.amount) return true;
         }
         return false;

@@ -127,11 +127,12 @@ public abstract class MachineBlockEntity extends ContainerBlockEntity implements
                             break;
                         } else {
                             consumingLeft -= slot.stack.getCount();
-                            slot.stack.setCount(0);
+                            slot.stack.setCount(0);;
                         }
                     }
                 }
             }
+            //TODO: Fluids
         }
     }
 
