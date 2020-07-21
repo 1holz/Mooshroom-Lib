@@ -27,7 +27,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
@@ -84,7 +83,7 @@ public enum BlockRegistry {
 
     //supplied
     public Block block;
-    public Item.Settings itemSettings;
+    public Settings itemSettings;
     public Supplier<BlockEntity> blockEntitySupplier;
     public ExtendedClientHandlerFactory<SyncedGuiDescription> clientHandlerFactory;
     public RecipeType<MachineRecipe> recipeType;
@@ -94,7 +93,7 @@ public enum BlockRegistry {
     public BlockEntityType<BlockEntity> blockEntityType;
     public ScreenHandlerType<SyncedGuiDescription> screenHandlerType;
 
-    private void setup(Block block, Item.Settings itemSettings, Supplier<BlockEntity> blockEntitySupplier, ExtendedClientHandlerFactory<SyncedGuiDescription> clientHandlerFactory, RecipeType<MachineRecipe> recipeType, RecipeSerializer<?> recipeSerializer, Factory<SyncedGuiDescription, CottonInventoryScreen<SyncedGuiDescription>> screenFactory) {
+    private void setup(Block block, Settings itemSettings, Supplier<BlockEntity> blockEntitySupplier, ExtendedClientHandlerFactory<SyncedGuiDescription> clientHandlerFactory, RecipeType<MachineRecipe> recipeType, RecipeSerializer<?> recipeSerializer, Factory<SyncedGuiDescription, CottonInventoryScreen<SyncedGuiDescription>> screenFactory) {
         this.block = block;
         this.itemSettings = itemSettings;
         this.blockEntitySupplier = blockEntitySupplier;

@@ -4,6 +4,7 @@ import de.alberteinholz.ehtech.itemgroups.ItemGroups;
 import de.alberteinholz.ehtech.items.Wrench;
 import de.alberteinholz.ehtech.util.Ref;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.Settings;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -16,8 +17,8 @@ public enum ItemRegistry {
 		WRENCH.setup(new Wrench(getStandardItemSettings()));
 	}
 
-	private static Item.Settings getStandardItemSettings() {
-        return new Item.Settings().group(ItemGroups.EH_TECH);
+	private static Settings getStandardItemSettings() {
+        return new Settings().group(ItemGroups.EH_TECH);
 	}
 	
 	//non static

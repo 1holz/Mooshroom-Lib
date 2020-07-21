@@ -10,13 +10,13 @@ import net.fabricmc.api.ModInitializer;
 public class MooshroomLib implements ModInitializer, ClientModInitializer {
     @Override
 	public void onInitialize() {
-        //BlockRegistry.registerBlocks();
-		//ItemRegistry.registerItems();
+        BlockRegistry.registerMain();
+		ItemRegistry.registerItems();
 	}
 
 	@Environment(EnvType.CLIENT)
 	@Override
 	public void onInitializeClient() {
-        //BlockRegistry.registerBlocksClient();
+        BlockRegistry.registerClient();
     }
 }

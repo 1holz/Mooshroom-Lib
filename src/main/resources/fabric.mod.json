@@ -4,7 +4,7 @@
     "id": "ehtech",
     "version": "${version}",
     "icon": "assets/ehtech/icon.png",
-    "description": "It is just another Minecraft Tech Mod for Fabric.",
+    "description": "The Einholzscher Tech Mod is just another Minecraft Tech Mod for Fabric.",
     "authors": [
         "Albert_Einholz"
     ],
