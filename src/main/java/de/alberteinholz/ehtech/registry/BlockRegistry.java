@@ -25,6 +25,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedCl
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.BlockEntityType.Builder;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item.Settings;
@@ -108,7 +109,7 @@ public enum BlockRegistry {
         for (BlockRegistry entry : BlockRegistry.values()) {
             if (entry.block != null) Registry.register(Registry.BLOCK, getId(entry), entry.block);
             if (entry.itemSettings != null && entry.block != null) Registry.register(Registry.ITEM, getId(entry), new BlockItem(entry.block, entry.itemSettings));
-            if (entry.blockEntitySupplier != null && entry.block != null) entry.blockEntityType = Registry.register(Registry.BLOCK_ENTITY_TYPE, getId(entry), BlockEntityType.Builder.create(entry.blockEntitySupplier, entry.block).build(null));
+            if (entry.blockEntitySupplier != null && entry.block != null) entry.blockEntityType = Registry.register(Registry.BLOCK_ENTITY_TYPE, getId(entry), Builder.create(entry.blockEntitySupplier, entry.block).build(null));
             if (entry.clientHandlerFactory != null) entry.screenHandlerType = ScreenHandlerRegistry.registerExtended(getId(entry), entry.clientHandlerFactory);
             if (entry.recipeType != null) Registry.register(Registry.RECIPE_TYPE, getId(entry), entry.recipeType);
             if (entry.recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, getId(entry), entry.recipeSerializer);

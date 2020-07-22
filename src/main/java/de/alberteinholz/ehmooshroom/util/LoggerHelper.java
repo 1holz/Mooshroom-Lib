@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LoggerHelper {
-    public Logger logger;
-    public String bugTracker;
+    protected Logger logger;
+    protected String bugTracker;
 
     public LoggerHelper(String bugTracker) {
         this(LogManager.getLogger(), bugTracker);
