@@ -1,4 +1,4 @@
-package de.alberteinholz.ehmooshroom.impl.registry;
+package de.alberteinholz.ehmooshroom.registry;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
