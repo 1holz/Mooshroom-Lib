@@ -29,7 +29,7 @@ public class BlockRegistryEntry {
     private Identifier id;
     //supplied:
     public Block block;
-    public Settings itemSettings;
+    public Settings itemSettings; //TODO: use Item instead of Item.Settings
     public BlockEntityType<? extends BlockEntity> blockEntityType;
     public ExtendedClientHandlerFactory<ScreenHandler> clientHandlerFactory;
     public Factory<ScreenHandler, ? extends Screen> screenFactory; //if you know a way to make ? extends Screen & ScreenHandlerProvider<? extends ScreenHandler> tell me
@@ -38,9 +38,13 @@ public class BlockRegistryEntry {
     //created:
     public ScreenHandlerType<ScreenHandler> screenHandlerType;
 
-    public BlockRegistryEntry(Identifier id) throws NullPointerException {
-        if (id == null) MooshroomLib.LOGGER.smallBug(new NullPointerException("Skiping registering of block with null id."));
-        else this.id = id;
+    protected BlockRegistryEntry(Identifier id) throws NullPointerException {
+        if (id == null) {
+            NullPointerException e = new NullPointerException("Skiping creation of BlockRegistryEntry with null id.");
+            MooshroomLib.LOGGER.smallBug(e);
+            throw e;
+        }
+        this.id = id;
     }
 
     public BlockRegistryEntry withBlock(Block block) {
@@ -49,14 +53,17 @@ public class BlockRegistryEntry {
     }
 
     public BlockRegistryEntry withBlockItem(Settings itemSettings) {
-        if (block == null) MooshroomLib.LOGGER.smallBug(new NullPointerException("You should register Block before BlockItem for " + id.toString()));
+        if (block == null) MooshroomLib.LOGGER.smallBug(new NullPointerException("You should add a Block before BlockItem for " + id.toString()));
         this.itemSettings = itemSettings;
         return this;
     }
 
     public BlockRegistryEntry withBlockEntity(Supplier<? extends BlockEntity> blockEntitySupplier) {
-        if (block == null) MooshroomLib.LOGGER.smallBug(new NullPointerException("You must register Block before BlockEntity for " + id.toString()));
-        else blockEntityType = Builder.create(blockEntitySupplier, block).build(null);
+        if (block == null) {
+            MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Block before BlockEntity for " + id.toString()));
+            return this;
+        }
+        blockEntityType = Builder.create(blockEntitySupplier, block).build(null);
         return this;
     }
 
@@ -89,20 +96,24 @@ public class BlockRegistryEntry {
     }
 
     protected void registerMain() {
-        if (id != null) {
-            if (block != null) Registry.register(Registry.BLOCK, id, block);
-            if (itemSettings != null && block != null) Registry.register(Registry.ITEM, id, new BlockItem(block, itemSettings));
-            if (blockEntityType != null) Registry.register(Registry.BLOCK_ENTITY_TYPE, id, blockEntityType);
-            if (clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, clientHandlerFactory);
-            if (recipeType != null) Registry.register(Registry.RECIPE_TYPE, id, recipeType);
-            if (recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, id, recipeSerializer);
+        if (id == null) {
+            MooshroomLib.LOGGER.smallBug(new NullPointerException("Skiping registration of BlockRegistryEntry with null id."));
+            return;
         }
+        if (block != null) Registry.register(Registry.BLOCK, id, block);
+        if (itemSettings != null && block != null) Registry.register(Registry.ITEM, id, new BlockItem(block, itemSettings));
+        if (blockEntityType != null) Registry.register(Registry.BLOCK_ENTITY_TYPE, id, blockEntityType);
+        if (clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, clientHandlerFactory);
+        if (recipeType != null) Registry.register(Registry.RECIPE_TYPE, id, recipeType);
+        if (recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, id, recipeSerializer);
     }
 
     @Environment(EnvType.CLIENT)
     protected void registerClient() {
-        if (id != null) {
-            if (screenHandlerType != null && screenFactory != null) ScreenRegistry.register(screenHandlerType, screenFactory);
+        if (id == null) {
+            MooshroomLib.LOGGER.smallBug(new NullPointerException("Skiping registration of BlockRegistryEntry with null id."));
+            return;
         }
+        if (screenHandlerType != null && screenFactory != null) ScreenRegistry.register(screenHandlerType, screenFactory);
     }
 }
