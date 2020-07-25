@@ -1,27 +1,24 @@
 {
     "schemaVersion": 1,
-    "name": "Einholzscher Tech Mod",
-    "id": "ehtech",
+    "name": "Mooshroom Library",
+    "id": "ehmooshroom",
     "version": "${version}",
-    "icon": "assets/ehtech/icon.png",
-    "description": "The Einholzscher Tech Mod is just another Minecraft Tech Mod for Fabric.",
+    "icon": "assets/ehmooshroom/icon.png",
+    "description": "This is a libary for my minecraft mods.",
     "authors": [
         "Albert_Einholz"
     ],
     "contact": {
-        "homepage": "https://www.curseforge.com/minecraft/mc-mods/einholzscher-tech-mod",
-        "sources": "https://github.com/Albert-Einholz/Einholzscher-Tech-Mod"
+        "homepage": "Lorem ipsum",
+        "sources": "https://github.com/Albert-Einholz/Mooshroom-Lib"
     },
     "license": "Apache-2.0 Licence",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "de.alberteinholz.ehtech.TechMod",
             "de.alberteinholz.ehmooshroom.MooshroomLib"
         ],
-        "client": [
-            "de.alberteinholz.ehtech.TechMod"
-        ]
+        "client": []
     },
     "mixins": [],
     "depends": {

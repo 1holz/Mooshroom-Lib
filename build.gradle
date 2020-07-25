@@ -22,18 +22,21 @@ dependencies {
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
 
+	/*
 	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}")
 	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")
 	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:2.4.1")
 	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-block:2.4.1")
     //include modImplementation("io.github.cottonmc:UniversalComponents:0.7.2+1.16-pre2")
-	compile files("libs/universalcomponents-${project.universal_components_version}-dev.jar")
+	//compile files("libs/universalcomponents-${project.universal_components_version}-dev.jar")
 	include files("libs/universalcomponents-${project.universal_components_version}-dev.jar")
 	//include modImplementation(uc)
+	*/
 
 }
 
 repositories {
+	/*
     maven {
         name = "CottonMC"
         url = "http://server.bbkr.space:8081/artifactory/libs-release"
@@ -42,6 +45,7 @@ repositories {
         name = "Ladysnake Libs"
         url = "https://dl.bintray.com/ladysnake/libs"
     }
+	*/
 }
 
 processResources {
