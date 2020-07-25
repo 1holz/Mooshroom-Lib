@@ -16,6 +16,7 @@ import net.minecraft.block.entity.BlockEntityType.Builder;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.ScreenHandlerProvider;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
@@ -29,7 +30,7 @@ public class BlockRegistryEntry {
     private Identifier id;
     //supplied:
     public Block block;
-    public Settings itemSettings; //TODO: use Item instead of Item.Settings
+    public Item item;
     public BlockEntityType<? extends BlockEntity> blockEntityType;
     public ExtendedClientHandlerFactory<ScreenHandler> clientHandlerFactory;
     public Factory<ScreenHandler, ? extends Screen> screenFactory; //if you know a way to make ? extends Screen & ScreenHandlerProvider<? extends ScreenHandler> tell me
@@ -52,9 +53,14 @@ public class BlockRegistryEntry {
         return this;
     }
 
-    public BlockRegistryEntry withBlockItem(Settings itemSettings) {
-        if (block == null) MooshroomLib.LOGGER.smallBug(new NullPointerException("You should add a Block before BlockItem for " + id.toString()));
-        this.itemSettings = itemSettings;
+    public BlockRegistryEntry withBlockItemBuild(Settings itemSettings) {
+        if (block == null) MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Block before BlockItemBuild for " + id.toString()));
+        this.item = new BlockItem(block, itemSettings);
+        return this;
+    }
+
+    public BlockRegistryEntry withItem(Item item) {
+        this.item = item;
         return this;
     }
 
@@ -101,7 +107,7 @@ public class BlockRegistryEntry {
             return;
         }
         if (block != null) Registry.register(Registry.BLOCK, id, block);
-        if (itemSettings != null && block != null) Registry.register(Registry.ITEM, id, new BlockItem(block, itemSettings));
+        if (item != null && block != null) Registry.register(Registry.ITEM, id, item);
         if (blockEntityType != null) Registry.register(Registry.BLOCK_ENTITY_TYPE, id, blockEntityType);
         if (clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, clientHandlerFactory);
         if (recipeType != null) Registry.register(Registry.RECIPE_TYPE, id, recipeType);
