@@ -14,8 +14,8 @@ public class MooshroomLib implements ModInitializer/*, ClientModInitializer*/ {
     @Override
 	public void onInitialize() {
 		//Which order here?
-		for (BlockRegistryEntry entry : BlockRegistryHelper.BLOCKS.values()) entry.register();
 		for (ItemRegistryEntry entry : ItemRegistryHelper.ITEMS.values()) entry.register();
+		for (BlockRegistryEntry entry : BlockRegistryHelper.BLOCKS.values()) entry.register();
 	}
 
 	//Is this needed?

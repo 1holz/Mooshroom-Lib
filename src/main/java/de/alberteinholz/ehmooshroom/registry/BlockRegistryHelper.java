@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedCl
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
@@ -22,7 +23,7 @@ public class BlockRegistryHelper {
     public Settings defaultItemSettings;
     public Supplier<? extends BlockEntity> defaultBlockEntitySupplier;
     public ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory;
-    public Factory<ScreenHandler, ? extends Screen> defaultScreenFactory; //if you know a way to make ? extends Screen & ScreenHandlerProvider<? extends ScreenHandler> tell me
+    public Factory<ScreenHandler, ? extends HandledScreen> defaultScreenFactory;
     public RecipeType<? extends Recipe<?>> defaultRecipeType;
     public RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer;
 
@@ -36,7 +37,7 @@ public class BlockRegistryHelper {
     }
     */
 
-    public BlockRegistryHelper(Block defaultBlock, Settings defaultItemSettings, Supplier<? extends BlockEntity> defaultBlockEntitySupplier, ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory, Factory<ScreenHandler, ? extends Screen> defaultScreenFactory, RecipeType<? extends Recipe<?>> defaultRecipeType, RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer) {
+    public BlockRegistryHelper(Block defaultBlock, Settings defaultItemSettings, Supplier<? extends BlockEntity> defaultBlockEntitySupplier, ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory, Factory<ScreenHandler, ? extends HandledScreen> defaultScreenFactory, RecipeType<? extends Recipe<?>> defaultRecipeType, RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer) {
         this.defaultBlock = defaultBlock;
         this.defaultItemSettings = defaultItemSettings;
         this.defaultBlockEntitySupplier = defaultBlockEntitySupplier;
