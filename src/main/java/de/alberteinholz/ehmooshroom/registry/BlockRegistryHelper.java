@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry.Factory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
@@ -23,7 +22,7 @@ public class BlockRegistryHelper {
     public Settings defaultItemSettings;
     public Supplier<? extends BlockEntity> defaultBlockEntitySupplier;
     public ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory;
-    public Factory<ScreenHandler, ? extends HandledScreen> defaultScreenFactory;
+    public Factory<ScreenHandler, ? extends HandledScreen<? extends ScreenHandler>> defaultScreenFactory;
     public RecipeType<? extends Recipe<?>> defaultRecipeType;
     public RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer;
 
@@ -37,7 +36,7 @@ public class BlockRegistryHelper {
     }
     */
 
-    public BlockRegistryHelper(Block defaultBlock, Settings defaultItemSettings, Supplier<? extends BlockEntity> defaultBlockEntitySupplier, ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory, Factory<ScreenHandler, ? extends HandledScreen> defaultScreenFactory, RecipeType<? extends Recipe<?>> defaultRecipeType, RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer) {
+    public BlockRegistryHelper(Block defaultBlock, Settings defaultItemSettings, Supplier<? extends BlockEntity> defaultBlockEntitySupplier, ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory, Factory<ScreenHandler, ? extends HandledScreen<? extends ScreenHandler>> defaultScreenFactory, RecipeType<? extends Recipe<?>> defaultRecipeType, RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer) {
         this.defaultBlock = defaultBlock;
         this.defaultItemSettings = defaultItemSettings;
         this.defaultBlockEntitySupplier = defaultBlockEntitySupplier;

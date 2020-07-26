@@ -13,9 +13,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.BlockEntityType.Builder;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.ScreenHandlerProvider;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.Settings;
@@ -34,7 +32,7 @@ public class BlockRegistryEntry {
     public Item item;
     public BlockEntityType<? extends BlockEntity> blockEntityType;
     public ExtendedClientHandlerFactory<ScreenHandler> clientHandlerFactory;
-    public Factory<ScreenHandler, ? extends HandledScreen> screenFactory;
+    public Factory<ScreenHandler, ? extends HandledScreen<? extends ScreenHandler>> screenFactory;
     public RecipeType<? extends Recipe<?>> recipeType;
     public RecipeSerializer<? extends Recipe<?>> recipeSerializer;
     //created:
@@ -79,7 +77,7 @@ public class BlockRegistryEntry {
         return this;
     }
 
-    public BlockRegistryEntry withScreen(Factory<ScreenHandler, ? extends HandledScreen> screenFactory) {
+    public BlockRegistryEntry withScreen(Factory<ScreenHandler, ? extends HandledScreen<? extends ScreenHandler>> screenFactory) {
         this.screenFactory = screenFactory;
         return this;
     }
