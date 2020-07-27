@@ -18,7 +18,9 @@
         "main": [
             "de.alberteinholz.ehmooshroom.MooshroomLib"
         ],
-        "client": []
+        "client": [
+            "de.alberteinholz.ehmooshroom.MooshroomLib"
+        ]
     },
     "mixins": [],
     "depends": {

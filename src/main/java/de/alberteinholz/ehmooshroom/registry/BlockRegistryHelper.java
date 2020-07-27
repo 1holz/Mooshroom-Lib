@@ -21,8 +21,8 @@ public class BlockRegistryHelper {
     public Block defaultBlock;
     public Settings defaultItemSettings;
     public Supplier<? extends BlockEntity> defaultBlockEntitySupplier;
-    public ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory;
-    public Factory<ScreenHandler, ? extends HandledScreen<? extends ScreenHandler>> defaultScreenFactory;
+    public ExtendedClientHandlerFactory<? extends ScreenHandler> defaultClientHandlerFactory;
+    public Factory<ScreenHandler, HandledScreen<ScreenHandler>> defaultScreenFactory;
     public RecipeType<? extends Recipe<?>> defaultRecipeType;
     public RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer;
 
@@ -36,7 +36,7 @@ public class BlockRegistryHelper {
     }
     */
 
-    public BlockRegistryHelper(Block defaultBlock, Settings defaultItemSettings, Supplier<? extends BlockEntity> defaultBlockEntitySupplier, ExtendedClientHandlerFactory<ScreenHandler> defaultClientHandlerFactory, Factory<ScreenHandler, ? extends HandledScreen<? extends ScreenHandler>> defaultScreenFactory, RecipeType<? extends Recipe<?>> defaultRecipeType, RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer) {
+    public BlockRegistryHelper(Block defaultBlock, Settings defaultItemSettings, Supplier<? extends BlockEntity> defaultBlockEntitySupplier, ExtendedClientHandlerFactory<? extends ScreenHandler> defaultClientHandlerFactory, Factory<ScreenHandler, HandledScreen<ScreenHandler>> defaultScreenFactory, RecipeType<? extends Recipe<?>> defaultRecipeType, RecipeSerializer<? extends Recipe<?>> defaultRecipeSerializer) {
         this.defaultBlock = defaultBlock;
         this.defaultItemSettings = defaultItemSettings;
         this.defaultBlockEntitySupplier = defaultBlockEntitySupplier;
