@@ -15,12 +15,8 @@ public class ItemRegistryEntry {
     public Item item;
     public ItemGroup itemGroup;
 
-    protected ItemRegistryEntry(Identifier id) throws NullPointerException {
-        if (id == null) {
-            NullPointerException e = new NullPointerException("Skiping creation of ItemRegistryEntry with null id.");
-            MooshroomLib.LOGGER.smallBug(e);
-            throw e;
-        }
+    //use null id only for templates
+    protected ItemRegistryEntry(Identifier id) {
         this.id = id;
     }
 
@@ -30,6 +26,7 @@ public class ItemRegistryEntry {
 
     public ItemRegistryEntry withItem(Item item) {
         this.item = item;
+        if (id != null && item != null) Registry.register(Registry.ITEM, id, item);
         return this;
     }
 
@@ -46,21 +43,8 @@ public class ItemRegistryEntry {
         return this;
     }
 
-    public ItemRegistryEntry register() {
-        registerMain();
-        return this;
-    }
-
-    protected void registerMain() {
-        if (id == null) {
-            MooshroomLib.LOGGER.smallBug(new NullPointerException("Skiping registration of ItemRegistryEntry with null id."));
-            return;
-        }
-        if (item != null) Registry.register(Registry.ITEM, id, item);
-    }
-
     @FunctionalInterface
-    public static interface ItemFactory<I extends Item> {
+    private static interface ItemFactory<I extends Item> {
         I create(Settings itemSettings);
     }
 }
