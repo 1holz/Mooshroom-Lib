@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry.Factory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -15,6 +16,8 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.BlockEntityType.Builder;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
@@ -24,11 +27,12 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-public class BlockRegistryEntry {
+public class RegistryEntry {
     private final Identifier id;
     //supplied:
     public Block block;
     public Item item;
+    public ItemGroup itemGroup;
     public BlockEntityType<? extends BlockEntity> blockEntityType;
     public ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     public Factory screenFactory;
@@ -38,17 +42,17 @@ public class BlockRegistryEntry {
     public ScreenHandlerType<? extends ScreenHandler> screenHandlerType;
 
     //use null id only for templates
-    protected BlockRegistryEntry(Identifier id) {
+    protected RegistryEntry(Identifier id) {
         this.id = id;
     }
 
-    public BlockRegistryEntry withBlock(Block block) {
+    public RegistryEntry withBlock(Block block) {
         this.block = block;
         if (id != null && this.block != null) Registry.register(Registry.BLOCK, id, this.block);
         return this;
     }
 
-    public BlockRegistryEntry withBlockItemBuild(Settings itemSettings) {
+    public RegistryEntry withBlockItemBuild(Settings itemSettings) {
         if (block == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Block before BlockItemBuild for " + id.toString()));
             return this;
@@ -56,13 +60,37 @@ public class BlockRegistryEntry {
         return withItem(new BlockItem(this.block, itemSettings));
     }
 
-    public BlockRegistryEntry withItem(Item item) {
+    public RegistryEntry withItemBuild(ItemFactory<? extends Item> factory, Settings settings) {
+        return withItem(factory.create(settings));
+    }
+
+    @FunctionalInterface
+    private static interface ItemFactory<I extends Item> {
+        I create(Settings itemSettings);
+    }
+
+    public RegistryEntry withItem(Item item) {
         this.item = item;
         if (id != null && this.item != null) Registry.register(Registry.ITEM, id, this.item);
         return this;
     }
 
-    public BlockRegistryEntry withBlockEntityBuild(Supplier<? extends BlockEntity> blockEntitySupplier) {
+    //Probably shouldn't be used for templates
+    public RegistryEntry withItemGroupBuild() {
+        if (item == null) {
+            MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add an Item before ItemGroupBuild for " + id.toString()));
+            return this;
+        }
+        return withItemGroup(FabricItemGroupBuilder.create(id).icon(() -> new ItemStack(item)).build());
+    }
+
+    //Do we need this? Maybe for templates only?
+    public RegistryEntry withItemGroup(ItemGroup itemGroup) {
+        this.itemGroup = itemGroup;
+        return this;
+    }
+
+    public RegistryEntry withBlockEntityBuild(Supplier<? extends BlockEntity> blockEntitySupplier) {
         if (block == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Block before BlockEntityBuild for " + id.toString()));
             return this;
@@ -70,19 +98,19 @@ public class BlockRegistryEntry {
         return withBlockEntity(Builder.create(blockEntitySupplier, this.block).build(null));
     }
 
-    public BlockRegistryEntry withBlockEntity(BlockEntityType<? extends BlockEntity> blockEntityType) {
+    public RegistryEntry withBlockEntity(BlockEntityType<? extends BlockEntity> blockEntityType) {
         this.blockEntityType = blockEntityType;
         if (id != null && this.blockEntityType != null) Registry.register(Registry.BLOCK_ENTITY_TYPE, id, this.blockEntityType);
         return this;
     }
 
-    public BlockRegistryEntry withGui(ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+    public RegistryEntry withGui(ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         this.clientHandlerFactory = clientHandlerFactory;
         if (id != null && this.clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, this.clientHandlerFactory);
         return this;
     }
 
-    public BlockRegistryEntry withScreen(Factory screenFactory) {
+    public RegistryEntry withScreen(Factory screenFactory) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
         this.screenFactory = screenFactory;
         if (id != null && screenHandlerType == null) {
@@ -93,21 +121,22 @@ public class BlockRegistryEntry {
         return this;
     }
 
-    public BlockRegistryEntry withRecipe(RecipeType<? extends Recipe<?>> recipeType) {
+    public RegistryEntry withRecipe(RecipeType<? extends Recipe<?>> recipeType) {
         this.recipeType = recipeType;
         if (id != null && this.recipeType != null) Registry.register(Registry.RECIPE_TYPE, id, this.recipeType);
         return this;
     }
 
-    public BlockRegistryEntry withRecipeSerializer(RecipeSerializer<? extends Recipe<?>> recipeSerializer) {
+    public RegistryEntry withRecipeSerializer(RecipeSerializer<? extends Recipe<?>> recipeSerializer) {
         this.recipeSerializer = recipeSerializer;
         if (id != null && this.recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, id, this.recipeSerializer);
         return this;
     }
 
-    public BlockRegistryEntry applyTemplate(BlockRegistryEntry template) {
+    public RegistryEntry applyTemplate(RegistryEntry template) {
         if (this.block == null && template.block != null) withBlock(template.block);
         if (this.item == null && template.item != null) withItem(template.item);
+        if (this.itemGroup == null && template.item != null) withItemGroup(template.itemGroup);
         if (this.blockEntityType == null && template.blockEntityType != null) withBlockEntity(template.blockEntityType);
         if (this.clientHandlerFactory == null && template.clientHandlerFactory != null) withGui(template.clientHandlerFactory);
         if (this.screenFactory == null && template.screenFactory != null) withScreen(template.screenFactory);
