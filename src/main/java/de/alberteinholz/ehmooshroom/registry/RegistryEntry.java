@@ -81,10 +81,6 @@ public class RegistryEntry {
 
     //Probably shouldn't be used for templates
     public RegistryEntry withItemGroupBuild() {
-        if (item == null) {
-            MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add an Item before ItemGroupBuild for " + id.toString()));
-            return this;
-        }
         return withItemGroup(FabricItemGroupBuilder.create(id).icon(() -> new ItemStack(item)).build());
     }
 
