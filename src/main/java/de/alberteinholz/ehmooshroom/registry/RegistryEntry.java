@@ -65,7 +65,7 @@ public class RegistryEntry {
     }
 
     @FunctionalInterface
-    private static interface ItemFactory<I extends Item> {
+    public static interface ItemFactory<I extends Item> {
         I create(Settings itemSettings);
     }
 
