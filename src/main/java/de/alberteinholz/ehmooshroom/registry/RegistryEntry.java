@@ -60,6 +60,10 @@ public class RegistryEntry {
         return withItem(new BlockItem(this.block, itemSettings));
     }
 
+    public RegistryEntry withItemBuildAutoItemGroup(ItemFactory<? extends Item> factory, Settings settings) {
+        return withItemBuild(factory, settings.group(itemGroup));
+    }
+
     public RegistryEntry withItemBuild(ItemFactory<? extends Item> factory, Settings settings) {
         return withItem(factory.create(settings));
     }
