@@ -19,6 +19,10 @@ public class RegistryHelper {
         return result;
     }
 
+    public static RegistryEntry createTemplate() {
+        return create(null);
+    }
+
     public static RegistryEntry create(Identifier id) {
         RegistryEntry entry = id == null || !ENTRIES.containsKey(id) ? new RegistryEntry(id) : ENTRIES.get(id);
         if (id != null) ENTRIES.putIfAbsent(id, entry);

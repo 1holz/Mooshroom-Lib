@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry.Factory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -46,6 +47,15 @@ public class RegistryEntry {
         this.id = id;
     }
 
+    public RegistryEntry withBlockBuild(BlockFactory<? extends Block> factory, AbstractBlock.Settings blockSettings) {
+        return withBlock(factory.create(blockSettings));
+    }
+
+    @FunctionalInterface
+    public static interface BlockFactory<B extends Block> {
+        B create(AbstractBlock.Settings blockSettings);
+    }
+
     public RegistryEntry withBlock(Block block) {
         this.block = block;
         if (id != null && this.block != null) Registry.register(Registry.BLOCK, id, this.block);
@@ -64,13 +74,13 @@ public class RegistryEntry {
         return withItemBuild(factory, settings.group(itemGroup));
     }
 
-    public RegistryEntry withItemBuild(ItemFactory<? extends Item> factory, Settings settings) {
+    public RegistryEntry withItemBuild(ItemFactory<? extends Item> factory, Item.Settings settings) {
         return withItem(factory.create(settings));
     }
 
     @FunctionalInterface
     public static interface ItemFactory<I extends Item> {
-        I create(Settings itemSettings);
+        I create(Item.Settings itemSettings);
     }
 
     public RegistryEntry withItem(Item item) {
@@ -134,14 +144,14 @@ public class RegistryEntry {
     }
 
     public RegistryEntry applyTemplate(RegistryEntry template) {
-        if (this.block == null && template.block != null) withBlock(template.block);
-        if (this.item == null && template.item != null) withItem(template.item);
-        if (this.itemGroup == null && template.item != null) withItemGroup(template.itemGroup);
-        if (this.blockEntityType == null && template.blockEntityType != null) withBlockEntity(template.blockEntityType);
-        if (this.clientHandlerFactory == null && template.clientHandlerFactory != null) withGui(template.clientHandlerFactory);
-        if (this.screenFactory == null && template.screenFactory != null) withScreen(template.screenFactory);
-        if (this.recipeType == null && template.recipeType != null) withRecipe(template.recipeType);
-        if (this.recipeSerializer == null && template.recipeSerializer != null) withRecipeSerializer(template.recipeSerializer);
+        if (block == null && template.block != null) withBlock(template.block);
+        if (item == null && template.item != null) withItem(template.item);
+        if (itemGroup == null && template.item != null) withItemGroup(template.itemGroup);
+        if (blockEntityType == null && template.blockEntityType != null) withBlockEntity(template.blockEntityType);
+        if (clientHandlerFactory == null && template.clientHandlerFactory != null) withGui(template.clientHandlerFactory);
+        if (screenFactory == null && template.screenFactory != null) withScreen(template.screenFactory);
+        if (recipeType == null && template.recipeType != null) withRecipe(template.recipeType);
+        if (recipeSerializer == null && template.recipeSerializer != null) withRecipeSerializer(template.recipeSerializer);
         return this;
     }
 }
