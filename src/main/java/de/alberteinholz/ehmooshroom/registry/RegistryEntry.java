@@ -1,5 +1,6 @@
 package de.alberteinholz.ehmooshroom.registry;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
@@ -42,7 +43,6 @@ public class RegistryEntry {
     //created:
     public ScreenHandlerType<? extends ScreenHandler> screenHandlerType;
 
-    //use null id only for templates
     protected RegistryEntry(Identifier id) {
         this.id = id;
     }
@@ -58,7 +58,7 @@ public class RegistryEntry {
 
     public RegistryEntry withBlock(Block block) {
         this.block = block;
-        if (id != null && this.block != null) Registry.register(Registry.BLOCK, id, this.block);
+        if (this.block != null) Registry.register(Registry.BLOCK, id, this.block);
         return this;
     }
 
@@ -85,7 +85,7 @@ public class RegistryEntry {
 
     public RegistryEntry withItem(Item item) {
         this.item = item;
-        if (id != null && this.item != null) Registry.register(Registry.ITEM, id, this.item);
+        if (this.item != null) Registry.register(Registry.ITEM, id, this.item);
         return this;
     }
 
@@ -110,48 +110,40 @@ public class RegistryEntry {
 
     public RegistryEntry withBlockEntity(BlockEntityType<? extends BlockEntity> blockEntityType) {
         this.blockEntityType = blockEntityType;
-        if (id != null && this.blockEntityType != null) Registry.register(Registry.BLOCK_ENTITY_TYPE, id, this.blockEntityType);
+        if (this.blockEntityType != null) Registry.register(Registry.BLOCK_ENTITY_TYPE, id, this.blockEntityType);
         return this;
     }
 
     public RegistryEntry withGui(ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         this.clientHandlerFactory = clientHandlerFactory;
-        if (id != null && this.clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, this.clientHandlerFactory);
+        if (this.clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, this.clientHandlerFactory);
         return this;
     }
 
     public RegistryEntry withScreen(Factory screenFactory) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
         this.screenFactory = screenFactory;
-        if (id != null && screenHandlerType == null) {
+        if (screenHandlerType == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Gui before Screen for " + id.toString()));
             return this;
         }
-        if (id != null && this.screenHandlerType != null && this.screenFactory != null) ScreenRegistry.register(this.screenHandlerType, this.screenFactory);
+        if (this.screenHandlerType != null && this.screenFactory != null) ScreenRegistry.register(this.screenHandlerType, this.screenFactory);
         return this;
     }
 
     public RegistryEntry withRecipe(RecipeType<? extends Recipe<?>> recipeType) {
         this.recipeType = recipeType;
-        if (id != null && this.recipeType != null) Registry.register(Registry.RECIPE_TYPE, id, this.recipeType);
+        if (this.recipeType != null) Registry.register(Registry.RECIPE_TYPE, id, this.recipeType);
         return this;
     }
 
     public RegistryEntry withRecipeSerializer(RecipeSerializer<? extends Recipe<?>> recipeSerializer) {
         this.recipeSerializer = recipeSerializer;
-        if (id != null && this.recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, id, this.recipeSerializer);
+        if (this.recipeSerializer != null) Registry.register(Registry.RECIPE_SERIALIZER, id, this.recipeSerializer);
         return this;
     }
 
-    public RegistryEntry applyTemplate(RegistryEntry template) {
-        if (block == null && template.block != null) withBlock(template.block);
-        if (item == null && template.item != null) withItem(template.item);
-        if (itemGroup == null && template.item != null) withItemGroup(template.itemGroup);
-        if (blockEntityType == null && template.blockEntityType != null) withBlockEntity(template.blockEntityType);
-        if (clientHandlerFactory == null && template.clientHandlerFactory != null) withGui(template.clientHandlerFactory);
-        if (screenFactory == null && template.screenFactory != null) withScreen(template.screenFactory);
-        if (recipeType == null && template.recipeType != null) withRecipe(template.recipeType);
-        if (recipeSerializer == null && template.recipeSerializer != null) withRecipeSerializer(template.recipeSerializer);
-        return this;
+    public RegistryEntry applyTemplate(Function<RegistryEntry, RegistryEntry> template) {
+        return template.apply(this);
     }
 }

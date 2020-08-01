@@ -2,6 +2,7 @@ package de.alberteinholz.ehmooshroom.registry;
 
 import java.util.HashMap;
 
+import de.alberteinholz.ehmooshroom.MooshroomLib;
 import net.minecraft.util.Identifier;
 
 public class RegistryHelper {
@@ -19,13 +20,13 @@ public class RegistryHelper {
         return result;
     }
 
-    public static RegistryEntry createTemplate() {
-        return create(null);
-    }
-
     public static RegistryEntry create(Identifier id) {
-        RegistryEntry entry = id == null || !ENTRIES.containsKey(id) ? new RegistryEntry(id) : ENTRIES.get(id);
-        if (id != null) ENTRIES.putIfAbsent(id, entry);
+        if (id == null) {
+            MooshroomLib.LOGGER.smallBug(new NullPointerException("Skipping RegistryEntry with null id"));
+            return null;
+        }
+        RegistryEntry entry = ENTRIES.containsKey(id) ? ENTRIES.get(id) : new RegistryEntry(id);
+        ENTRIES.putIfAbsent(id, entry);
         return entry;
     }
 }
