@@ -30,7 +30,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public class RegistryEntry {
-    private final Identifier id;
+    public final Identifier id;
     //supplied:
     public Block block;
     public Item item;
