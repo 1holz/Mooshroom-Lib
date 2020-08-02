@@ -8,6 +8,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry.Factory;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
@@ -86,6 +87,15 @@ public class RegistryEntry {
     public RegistryEntry withItem(Item item) {
         this.item = item;
         if (this.item != null) Registry.register(Registry.ITEM, id, this.item);
+        return this;
+    }
+
+    public RegistryEntry makeItemFurnaceFuel(int ticks) {
+        if (item == null) {
+            MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
+            return this;
+        }
+        FuelRegistry.INSTANCE.add(item, ticks);
         return this;
     }
 
