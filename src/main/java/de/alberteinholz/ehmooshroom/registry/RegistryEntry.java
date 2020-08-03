@@ -104,7 +104,7 @@ public class RegistryEntry {
         return withItemGroup(FabricItemGroupBuilder.create(id).icon(() -> new ItemStack(item)).build());
     }
 
-    //Do we need this? Maybe for templates only?
+    //Is this needed? Maybe for templates only?
     public RegistryEntry withItemGroup(ItemGroup itemGroup) {
         this.itemGroup = itemGroup;
         return this;
@@ -130,7 +130,9 @@ public class RegistryEntry {
         return this;
     }
 
-    public RegistryEntry withScreen(Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory) {
+    //FIXME: IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!!!
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public RegistryEntry withScreen(Factory screenFactory) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
         this.screenFactory = screenFactory;
         if (screenHandlerType == null) {
