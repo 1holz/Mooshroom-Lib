@@ -12,7 +12,7 @@ public class RegistryHelper {
         return ENTRIES.get(id);
     }
 
-    public static RegistryEntry[] makeCompressed(Identifier id, int size, int baseIndex, RegistryEntry belowBaseTemplate, RegistryEntry baseTemplate, RegistryEntry overBaseTemplate) {
+    public static RegistryEntry[] makeCompresseable(Identifier id, int size, int baseIndex, RegistryEntry belowBaseTemplate, RegistryEntry baseTemplate, RegistryEntry overBaseTemplate) {
         RegistryEntry[] result = new RegistryEntry[size];
         for (int i = 0; i < size; i++) {
             //TODO: something with autoid id = new Identifier(id.getNamespace(), i == baseIndex ? )

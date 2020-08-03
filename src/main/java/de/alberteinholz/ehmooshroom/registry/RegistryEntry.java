@@ -17,6 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.BlockEntityType.Builder;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -38,7 +39,7 @@ public class RegistryEntry {
     public ItemGroup itemGroup;
     public BlockEntityType<? extends BlockEntity> blockEntityType;
     public ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
-    public Factory screenFactory;
+    public Factory<ScreenHandler, ? extends HandledScreen<ScreenHandler>> screenFactory;
     public RecipeType<? extends Recipe<?>> recipeType;
     public RecipeSerializer<? extends Recipe<?>> recipeSerializer;
     //created:
@@ -99,7 +100,6 @@ public class RegistryEntry {
         return this;
     }
 
-    //Probably shouldn't be used for templates
     public RegistryEntry withItemGroupBuild() {
         return withItemGroup(FabricItemGroupBuilder.create(id).icon(() -> new ItemStack(item)).build());
     }
@@ -130,7 +130,7 @@ public class RegistryEntry {
         return this;
     }
 
-    public RegistryEntry withScreen(Factory screenFactory) {
+    public RegistryEntry withScreen(Factory<ScreenHandler, ? extends HandledScreen<ScreenHandler>> screenFactory) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
         this.screenFactory = screenFactory;
         if (screenHandlerType == null) {
