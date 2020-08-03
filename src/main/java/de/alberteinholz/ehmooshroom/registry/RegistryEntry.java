@@ -39,7 +39,7 @@ public class RegistryEntry {
     public ItemGroup itemGroup;
     public BlockEntityType<? extends BlockEntity> blockEntityType;
     public ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
-    public Factory<ScreenHandler, ? extends HandledScreen<ScreenHandler>> screenFactory;
+    public Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory;
     public RecipeType<? extends Recipe<?>> recipeType;
     public RecipeSerializer<? extends Recipe<?>> recipeSerializer;
     //created:
@@ -130,14 +130,14 @@ public class RegistryEntry {
         return this;
     }
 
-    public RegistryEntry withScreen(Factory<ScreenHandler, ? extends HandledScreen<ScreenHandler>> screenFactory) {
+    public RegistryEntry withScreen(Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
         this.screenFactory = screenFactory;
         if (screenHandlerType == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Gui before Screen for " + id.toString()));
             return this;
         }
-        if (this.screenHandlerType != null && this.screenFactory != null) ScreenRegistry.register(this.screenHandlerType, this.screenFactory);
+        if (this.screenHandlerType != null && this.screenFactory != null) ScreenRegistry.<ScreenHandler, HandledScreen<ScreenHandler>>register(this.screenHandlerType, this.screenFactory);
         return this;
     }
 

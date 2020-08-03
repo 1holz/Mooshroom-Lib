@@ -7,8 +7,8 @@ public class LoggerHelper {
     protected Logger logger;
     protected String bugTracker;
 
-    public LoggerHelper(String bugTracker) {
-        this(LogManager.getLogger(), bugTracker);
+    public LoggerHelper(String name, String bugTracker) {
+        this(LogManager.getLogger(name), bugTracker);
     }
 
     public LoggerHelper(Logger logger, String bugTracker) {

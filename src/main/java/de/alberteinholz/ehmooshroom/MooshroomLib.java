@@ -8,7 +8,7 @@ import net.fabricmc.api.ModInitializer;
 
 public class MooshroomLib implements ModInitializer, ClientModInitializer {
 	public static final String MOD_ID = "ehmooshroom";
-	public static final LoggerHelper LOGGER = new LoggerHelper("https://github.com/Albert-Einholz/Mooshroom-Lib/issues");
+	public static final LoggerHelper LOGGER = new LoggerHelper(MOD_ID, "https://github.com/Albert-Einholz/Mooshroom-Lib/issues");
 	
     @Override
 	public void onInitialize() {}
