@@ -132,7 +132,11 @@ public class RegistryEntry {
 
     //FIXME: IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!!!
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public RegistryEntry withScreen(Factory screenFactory) {
+    public RegistryEntry withScreenHacky(Factory screenFactory) {
+        return withScreen(screenFactory);
+    }
+
+    public RegistryEntry withScreen(Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
         this.screenFactory = screenFactory;
         if (screenHandlerType == null) {
