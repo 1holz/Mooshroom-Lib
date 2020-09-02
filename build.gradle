@@ -17,19 +17,18 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}-${project.minecraft_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"//-${project.minecraft_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
 
-	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}+${project.minecraft_version}")
+	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}")//+${project.minecraft_version}")
 	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")
 	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:2.4.1")
 	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-block:2.4.1")
-    //include modImplementation("io.github.cottonmc:UniversalComponents:0.7.2+1.16-pre2")
-	compile files("libs/universalcomponents-${project.universalcomponents_version}+${project.minecraft_version}-dev.jar")
-	include files("libs/universalcomponents-${project.universalcomponents_version}+${project.minecraft_version}-dev.jar")
-	//include modImplementation(uc)
+    include modImplementation("io.github.cottonmc:UniversalComponents:${project.universalcomponents_version}+${project.minecraft_version}")
+	//compile files("libs/universalcomponents-${project.universalcomponents_version}+${project.minecraft_version}-dev.jar")
+	//include files("libs/universalcomponents-${project.universalcomponents_version}+${project.minecraft_version}-dev.jar")
 
 }
 
@@ -41,6 +40,10 @@ repositories {
     maven {
         name = "Ladysnake Libs"
         url = "https://dl.bintray.com/ladysnake/libs"
+    }
+    maven {
+        name = "OnyxStudios"
+        url = "https://maven.onyxstudios.dev"
     }
 }
 
