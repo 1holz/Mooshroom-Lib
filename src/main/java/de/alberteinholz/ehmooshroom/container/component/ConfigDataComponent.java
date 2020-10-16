@@ -3,7 +3,6 @@ package de.alberteinholz.ehmooshroom.container.component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
 import io.github.cottonmc.component.data.DataProviderComponent;
@@ -17,11 +16,6 @@ import net.minecraft.util.math.Direction;
 
 public class ConfigDataComponent implements DataProviderComponent {
     protected final Map<Identifier, SimpleDataElement> configs = new HashMap<>();
-    /*
-    public SimpleDataElement configItem = new SimpleDataElement("xxxxxxxxxxxxxxxxxxxxxxxx");
-    public SimpleDataElement configFluid = new SimpleDataElement("xxxxxxxxxxxxxxxxxxxxxxxx");
-    public SimpleDataElement configPower = new SimpleDataElement("xxxxxxxxxxxxxxxxxxxxxxxx");
-    */
 
     public void addConfig(Identifier... ids) {
         for (Identifier id : ids) configs.put(id, new SimpleDataElement(getDefault()));
@@ -44,14 +38,12 @@ public class ConfigDataComponent implements DataProviderComponent {
     //it's recommended to add all needed configs befor
     @Override
     public void fromTag(CompoundTag tag) {
-        for (String id : tag.getCompound("Config").getKeys()) {
-            
+        for (String sId : tag.getCompound("Config").getKeys()) {
+            if (!tag.contains(sId, NbtType.STRING) || !tag.getString(sId).matches("^[tfTF]{24}$")) continue;
+            Identifier id = new Identifier(sId);
+            if (!configs.containsKey(id)) addConfig(id);
+            configs.get(id).withLabel(tag.getString(sId));
         }
-        /*
-        if (tag.contains("ItemConfig", NbtType.STRING)) configItem.withLabel(tag.getString("ItemConfig"));
-        if (tag.contains("FluidConfig", NbtType.STRING)) configFluid.withLabel(tag.getString("FluidConfig"));
-        if (tag.contains("PowerConfig", NbtType.STRING)) configPower.withLabel(tag.getString("PowerConfig"));
-        */
     }
 
     @Override
@@ -60,37 +52,30 @@ public class ConfigDataComponent implements DataProviderComponent {
         configs.forEach((id, config) -> {
             if (!isDefault(config.getLabel().asString())) configTag.putString(id.toString(), config.getLabel().asString());
         });
-        /*
-        if (configItem.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") tag.putString("ItemConfig", configItem.getLabel().asString());
-        if (configFluid.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") tag.putString("FluidConfig", configFluid.getLabel().asString());
-        if (configPower.getLabel().asString() != "xxxxxxxxxxxxxxxxxxxxxxxx") tag.putString("PowerConfig", configPower.getLabel().asString());
-        */
         tag.put("Config", configTag);
         return tag;
     }
 
     public boolean allowsConfig(Identifier id, ConfigBehavior behavior, Direction dir) {
-        return Boolean.TRUE.equals(getConfig(type, behavior, dir));
+        return ConfigState.AVAILABLE_TRUE.equals(getConfig(id, behavior, dir));
     }
 
     public void changeConfig(Identifier id, ConfigBehavior behavior, Direction dir) {
-        Boolean bl = getConfig(type, behavior, dir);
-        if (bl != null) setConfig(type, behavior, dir, !bl);
+        ConfigState temp = getConfig(id, behavior, dir);
+        if (ConfigState.AVAILABLE_TRUE.equals(temp)) temp = ConfigState.AVAILABLE_FALSE;
+        else if (ConfigState.AVAILABLE_FALSE.equals(temp)) temp = ConfigState.AVAILABLE_TRUE;
+        else MooshroomLib.LOGGER.smallBug(new UnsupportedOperationException("The Config" + id + "probably is not available and couldn't be changed."));
+        setConfig(id, behavior, dir, temp);
     }
 
     //intersection mode
-    public void setConfigAvailabilityIntersecting(Identifier[] ids, ConfigBehavior[] behaviors, Direction[] dirs, boolean available) {
+    public void setConfigAvailability(Identifier[] ids, ConfigBehavior[] behaviors, Direction[] dirs, boolean available) {
         if (ids == null) ids = configs.keySet().toArray(new Identifier[configs.size()]);
         if (behaviors == null) behaviors = ConfigBehavior.values();
         if (dirs == null) dirs = Direction.values();
-        for (Identifier cId : ids) for (ConfigBehavior cBehavior : behaviors) for (Direction cDir : dirs) {
-
-            setConfig(cId, cBehavior, cDir, Character.toLowerCase(cBehavior.getForChar(getConfig(cId, cBehavior, cDir).c)));
+        for (Identifier id : ids) for (ConfigBehavior behavior : behaviors) for (Direction dir : dirs) {
+            setConfig(id, behavior, dir, getConfig(id, behavior, dir).setAvailability(available));
         }
-    }
-
-    protected void setConfigAvailability(Identifier id, ConfigBehavior behavior, Direction dir, boolean available) {
-        if (available) getConfig(id, behavior, dir).c
     }
 
     public ConfigState getConfig(Identifier id, ConfigBehavior behavior, Direction dir) {
@@ -110,23 +95,19 @@ public class ConfigDataComponent implements DataProviderComponent {
 
     protected static boolean isDefault(String str) {
         boolean ret = true;
-        iterateConfig((dir, behavior) -> {
+        for (Direction dir : Direction.values()) for (ConfigBehavior behavior : ConfigBehavior.values()) {
             int index = getIndex(behavior, dir);
             if (str.length() <= index || !behavior.isDefaultChar(str.charAt(index))) ret = false;
-        });
+        }
         return ret;
     }
 
     protected static String getDefault() {
         StringBuilder sb = new StringBuilder();
-        iterateConfig((dir, behavior) -> {
+        for (@SuppressWarnings("unused") Direction dir : Direction.values()) for (ConfigBehavior behavior : ConfigBehavior.values()) {
             sb.append(behavior.getDefaultChar());
-        });
+        }
         return sb.toString();
-    }
-
-    protected static void iterateConfig(BiConsumer<Direction, ConfigBehavior> consumer) {
-        for (Direction dir : Direction.values()) for (ConfigBehavior behavior : ConfigBehavior.values()) consumer.accept(dir, behavior);
     }
 
     public static enum ConfigBehavior {
@@ -173,8 +154,11 @@ public class ConfigDataComponent implements DataProviderComponent {
             this.c = c;
         }
 
-        public static ConfigState setAvailability(ConfigState state, boolean available) {
-
+        public ConfigState setAvailability(boolean available) {
+            char cTemp = available ? Character.toLowerCase(c) : Character.toUpperCase(c);
+            for (ConfigState state : ConfigState.values()) if (cTemp == state.c) return state;
+            MooshroomLib.LOGGER.smallBug(new EnumConstantNotPresentException(ConfigState.class, Character.toString(cTemp)));
+            return this;
         }
     }
 }
