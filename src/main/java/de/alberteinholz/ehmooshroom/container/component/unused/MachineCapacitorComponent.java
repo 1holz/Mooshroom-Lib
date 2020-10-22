@@ -1,4 +1,4 @@
-package de.alberteinholz.ehtech.blocks.components.container.machine;
+package de.alberteinholz.ehmooshroom.container.component.unused;
 
 import de.alberteinholz.ehtech.TechMod;
 import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;

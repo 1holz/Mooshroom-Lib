@@ -5,13 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import de.alberteinholz.ehtech.TechMod;
-import de.alberteinholz.ehtech.blocks.components.container.ContainerInventoryComponent.Slot.Type;
-import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent;
-import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigBehavior;
-import de.alberteinholz.ehtech.blocks.components.container.machine.MachineDataProviderComponent.ConfigType;
-import de.alberteinholz.ehtech.blocks.recipes.Input.ItemIngredient;
-import de.alberteinholz.ehtech.util.Helper;
+import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.ContainerInventoryComponent.Slot.Type;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
 import net.minecraft.inventory.Inventory;
@@ -134,7 +129,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
                     //XXX: Update on UC update
                     int extractionCount = fromComponent != null ? fromComponent.takeStack(idFrom, insertionCount, action).getCount() : action.shouldPerform() ? from.removeStack(idFrom, insertionCount).getCount() : extractionTest.getCount();
                     transfer += extractionCount;
-                    if (insertionCount != extractionCount) TechMod.LOGGER.smallBug(new IllegalStateException("Item moving wasn't performed correctly. This could lead to item deletion.")); 
+                    if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Item moving wasn't performed correctly. This could lead to item deletion.")); 
                     if (transfer >= maxTransfer) break;
                 }
             }
@@ -257,6 +252,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return true;
     }
     
+    //currently not available will change back later
+    /*
     public boolean containsInput(ItemIngredient ingredient) {
         int amount = 0;
         for (Slot slot : slots) {
@@ -265,6 +262,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
         return false;
     }
+    */
 
     @Override
     public Inventory asInventory() {
