@@ -1,11 +1,15 @@
 package de.alberteinholz.ehmooshroom.container.blockentity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
+import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.ConfigDataComponent;
+import de.alberteinholz.ehmooshroom.container.component.ContainerInventoryComponent;
+import de.alberteinholz.ehmooshroom.container.component.NameDataComponent;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
+import de.alberteinholz.ehmooshroom.util.Helper;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
@@ -32,40 +36,39 @@ public abstract class AdvancedContainer extends BlockEntity implements BlockEnti
     public AdvancedContainer(RegistryEntry registryEntry) {
         super(registryEntry.blockEntityType);
         this.registryEntry = registryEntry;
+        comps.put(Helper.makeId("name"), new NameDataComponent("name"));
+        comps.put(Helper.makeId("config"), new ConfigDataComponent());
         comps.forEach((id, comp) -> {
-            if (comp instanceof ContainerInventoryComponent) comp.setDataProvider(data)
+            if (comp instanceof ContainerInventoryComponent) ((ContainerInventoryComponent) comp).setConfig((ConfigDataComponent) comps.get(Helper.makeId("config")));
         });
-        inventory.setDataProvider(data);
     }
 
+    //you have to add all needed components first
     @Override
     public void fromTag(BlockState state, CompoundTag tag) {
         super.fromTag(state, tag);
-        if (world != null) {
-            if (tag.contains("Inventory", NbtType.COMPOUND)) {
-                inventory.fromTag(tag.getCompound("Inventory"));
+        if (world == null) return;
+        for (String key : tag.getKeys()) {
+            Identifier id = new Identifier(key);
+            if (!tag.contains(key, NbtType.COMPOUND) || tag.getCompound(key).isEmpty()) continue;
+            if (!comps.containsKey(id)) {
+                MooshroomLib.LOGGER.smallBug(new NoSuchElementException("There is no component with the id " + key + " in the AdvancedContainer" + getDisplayName().getString()));
+                continue;
             }
-            if (tag.contains("Data", NbtType.COMPOUND)) {
-                data.fromTag(tag.getCompound("Data"));
-            }
+            CompoundTag compTag = tag.getCompound(key);
+            comps.get(id).fromTag(compTag);
         }
     }
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
-        if (world != null) {
-            CompoundTag inventoryTag = new CompoundTag();
-            inventory.toTag(inventoryTag);
-            if (!inventoryTag.isEmpty()) {
-                tag.put("Inventory", inventoryTag);
-            }
-            CompoundTag dataTag = new CompoundTag();
-            data.toTag(dataTag);
-            if (!dataTag.isEmpty()) {
-                tag.put("Data", dataTag);
-            }
-        }
+        if (world == null) return tag;
+        comps.forEach((id, comp) -> {
+            CompoundTag compTag = new CompoundTag();
+            comp.toTag(compTag);
+            if (!compTag.isEmpty()) tag.put(id.toString(), compTag);
+        });
         return tag;
     }
     
@@ -83,7 +86,7 @@ public abstract class AdvancedContainer extends BlockEntity implements BlockEnti
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText(data.containerName.getLabel().asString());
+        return new TranslatableText(((NameDataComponent) comps.get(Helper.makeId("name"))).containerName.getLabel().asString());
     }
 
     @Override

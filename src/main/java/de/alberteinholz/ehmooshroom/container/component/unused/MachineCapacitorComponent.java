@@ -1,3 +1,4 @@
+/*
 package de.alberteinholz.ehmooshroom.container.component.unused;
 
 import de.alberteinholz.ehtech.TechMod;
@@ -82,3 +83,4 @@ public class MachineCapacitorComponent extends SimpleCapacitorComponent {
         return tag;
     }
 }
+*/

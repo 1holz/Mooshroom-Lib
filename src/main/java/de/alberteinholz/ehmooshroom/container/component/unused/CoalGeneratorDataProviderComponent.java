@@ -1,3 +1,4 @@
+/*
 package de.alberteinholz.ehmooshroom.container.component.unused;
 
 import java.util.List;
@@ -65,3 +66,4 @@ public class CoalGeneratorDataProviderComponent extends ProcessingDataComponent 
         return tag;
     }
 }
+*/

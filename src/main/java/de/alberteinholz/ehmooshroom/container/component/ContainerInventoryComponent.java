@@ -6,27 +6,33 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.ConfigDataComponent.ConfigBehavior;
 import de.alberteinholz.ehmooshroom.container.component.ContainerInventoryComponent.Slot.Type;
+import de.alberteinholz.ehmooshroom.util.Helper;
 import io.github.cottonmc.component.api.ActionType;
+import io.github.cottonmc.component.compat.vanilla.InventoryWrapper;
+import io.github.cottonmc.component.compat.vanilla.SidedInventoryWrapper;
 import io.github.cottonmc.component.item.InventoryComponent;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
 public class ContainerInventoryComponent implements InventoryComponent {
-    protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
+    protected Identifier id;
+    //protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     protected DefaultedList<Slot> slots;
     protected final List<Runnable> listeners = new ArrayList<>();
-    protected NameDataComponent data;
+    protected ConfigDataComponent config;
 
     //null id for no id
     //types determine size
-    public ContainerInventoryComponent(Type[] types, String[] ids) {
+    public ContainerInventoryComponent(Identifier id, Type[] types, String[] ids) {
+        this.id = id;
         slots = DefaultedList.ofSize(types.length, new Slot());
         for (int i = 0; i < types.length; i++) {
             if (!types[i].equals(Type.STORAGE) && types[i] != null) slots.get(i).type = types[i];
@@ -47,8 +53,8 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return listeners;
     }
 
-    public void setDataProvider(NameDataComponent data) {
-        this.data = data;
+    public void setConfig(ConfigDataComponent config) {
+        this.config = config;
     }
 
     //XXX: Remove on UC update
@@ -108,9 +114,9 @@ public class ContainerInventoryComponent implements InventoryComponent {
     //check ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, configBehavior, dir) first
     public static int move(Inventory from, Inventory to, int maxTransfer, Direction dir, ActionType action) {
         int transfer = 0;
-        InventoryComponent fromComponent = from instanceof InventoryWrapper && ((InventoryWrapper) from).component != null ? ((InventoryWrapper) from).component : null;
+        InventoryComponent fromComponent = from instanceof InventoryWrapper && ((InventoryWrapper) from).getComponent() != null ? ((InventoryWrapper) from).getComponent() : null;
         ContainerInventoryComponent fromContainerComponent = fromComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) fromComponent : null;
-        InventoryComponent toComponent = to instanceof InventoryWrapper && ((InventoryWrapper) to).component != null ? ((InventoryWrapper) to).component : null;
+        InventoryComponent toComponent = to instanceof InventoryWrapper && ((InventoryWrapper) to).getComponent() != null ? ((InventoryWrapper) to).getComponent() : null;
         ContainerInventoryComponent toContainerComponent = toComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) toComponent : null;
         for (int idFrom : fromContainerComponent != null ? (Integer[]) fromContainerComponent.getExtractable().toArray() : ArrayUtils.toObject(Helper.countingArray(from.size()))) {
             if (fromContainerComponent != null ? fromContainerComponent.canExtract(idFrom, dir) : fromComponent != null ? fromComponent.canExtract(idFrom) : true) {
@@ -173,8 +179,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
 
     public boolean canInsert(int slot, Direction dir) {
         if (!canInsert(slot)) return false;
-        else if (data instanceof ConfigDataComponent) return ((ConfigDataComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_INPUT, dir);
-        else return true;
+        else  return ((ConfigDataComponent) config).allowsConfig(id, ConfigBehavior.FOREIGN_INPUT, dir);
     }
 
 	@Override
@@ -184,8 +189,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
 
     public boolean canExtract(int slot, Direction dir) {
         if (!canExtract(slot)) return false;
-        else if (data instanceof ConfigDataComponent) return ((ConfigDataComponent) data).allowsConfig(ConfigType.ITEM, ConfigBehavior.FOREIGN_OUTPUT, dir);
-        else return true;
+        else return ((ConfigDataComponent) config).allowsConfig(id, ConfigBehavior.FOREIGN_OUTPUT, dir);
     }
 
 	@Override
@@ -264,14 +268,18 @@ public class ContainerInventoryComponent implements InventoryComponent {
     }
     */
 
+    //XXX: TEMP
     @Override
     public Inventory asInventory() {
-        return inventoryWrapper;
+        return InventoryWrapper.of(this);
     }
 
+    //XXX: TEMP
     @Override
     public SidedInventory asLocalInventory(WorldAccess world, BlockPos pos) {
-        return inventoryWrapper;
+        return SidedInventoryWrapper.of(dir -> {
+            return this;
+        });
     }
 
     public boolean isSlotAvailable(int slot, Direction side) {

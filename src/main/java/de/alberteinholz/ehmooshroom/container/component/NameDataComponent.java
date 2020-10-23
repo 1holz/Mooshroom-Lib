@@ -11,11 +11,11 @@ import net.minecraft.nbt.CompoundTag;
 
 public class NameDataComponent implements DataProviderComponent {
     public SimpleDataElement containerName = new SimpleDataElement();
-    protected final String DEFAULT_NAME;
+    protected final String defaultName;
     
     public NameDataComponent(String name) {
         setName(name);
-        DEFAULT_NAME = name;
+        defaultName = name;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class NameDataComponent implements DataProviderComponent {
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        if (getContainerName() != DEFAULT_NAME) tag.putString("Name", getContainerName());
+        if (getContainerName() != defaultName) tag.putString("Name", getContainerName());
         return tag;
     }
 
