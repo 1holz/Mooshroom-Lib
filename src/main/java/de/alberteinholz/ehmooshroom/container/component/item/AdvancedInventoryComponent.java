@@ -8,7 +8,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import de.alberteinholz.ehmooshroom.MooshroomLib;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
-import de.alberteinholz.ehmooshroom.container.component.item.ContainerInventoryComponent.Slot.Type;
+import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
 import de.alberteinholz.ehmooshroom.util.Helper;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.compat.vanilla.InventoryWrapper;
@@ -23,16 +23,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-public class ContainerInventoryComponent implements InventoryComponent {
+public class AdvancedInventoryComponent implements InventoryComponent {
     protected Identifier id;
     //protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     protected DefaultedList<Slot> slots;
     protected final List<Runnable> listeners = new ArrayList<>();
     protected ConfigDataComponent config;
 
+    public AdvancedInventoryComponent(Identifier id, Type[] types, String defaultNamespace, String[] paths) {
+        this(id, types, defaultIds(defaultNamespace, paths));
+    }
+
     //null id for no id
     //types determine size
-    public ContainerInventoryComponent(Identifier id, Type[] types, String[] ids) {
+    public AdvancedInventoryComponent(Identifier id, Type[] types, Identifier[] ids) {
         this.id = id;
         slots = DefaultedList.ofSize(types.length, new Slot());
         for (int i = 0; i < types.length; i++) {
@@ -41,12 +45,22 @@ public class ContainerInventoryComponent implements InventoryComponent {
         }
     }
 
+    public void addSlots(Type[] types, String defaultNamespace, String[] paths) {
+        addSlots(types, defaultIds(defaultNamespace, paths));
+    }
+
     //null id for no id
     //types determine size
-    public void addSlots(Type[] types, String[] ids) {
+    public void addSlots(Type[] types, Identifier[] ids) {
         for (int i = 0; i < types.length; i++) {
             slots.add(new Slot(types[i], ids[i]));
         }
+    }
+
+    protected static Identifier[] defaultIds(String defaultNamespace, String[] paths) {
+        Identifier[] ids = new Identifier[paths.length];
+        for (int i = 0; i < paths.length; i++) ids[i] = new Identifier(defaultNamespace, paths[i]);
+        return ids;
     }
 
     @Override
@@ -116,9 +130,9 @@ public class ContainerInventoryComponent implements InventoryComponent {
     public static int move(Inventory from, Inventory to, int maxTransfer, Direction dir, ActionType action) {
         int transfer = 0;
         InventoryComponent fromComponent = from instanceof InventoryWrapper && ((InventoryWrapper) from).getComponent() != null ? ((InventoryWrapper) from).getComponent() : null;
-        ContainerInventoryComponent fromContainerComponent = fromComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) fromComponent : null;
+        AdvancedInventoryComponent fromContainerComponent = fromComponent instanceof AdvancedInventoryComponent ? (AdvancedInventoryComponent) fromComponent : null;
         InventoryComponent toComponent = to instanceof InventoryWrapper && ((InventoryWrapper) to).getComponent() != null ? ((InventoryWrapper) to).getComponent() : null;
-        ContainerInventoryComponent toContainerComponent = toComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) toComponent : null;
+        AdvancedInventoryComponent toContainerComponent = toComponent instanceof AdvancedInventoryComponent ? (AdvancedInventoryComponent) toComponent : null;
         for (int idFrom : fromContainerComponent != null ? (Integer[]) fromContainerComponent.getExtractable().toArray() : ArrayUtils.toObject(Helper.countingArray(from.size()))) {
             if (fromContainerComponent != null ? fromContainerComponent.canExtract(idFrom, dir) : fromComponent != null ? fromComponent.canExtract(idFrom) : true) {
                 //XXX: Update on UC update
@@ -257,7 +271,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
         return true;
     }
     
-    //currently not available will change back later
+    //XXX:currently not available will change back later
     /*
     public boolean containsInput(ItemIngredient ingredient) {
         int amount = 0;
@@ -289,7 +303,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
 
     public static class Slot {
         public Type type;
-        public String id;
+        public Identifier id;
         public ItemStack stack = ItemStack.EMPTY;
 
         public Slot() {
@@ -300,7 +314,7 @@ public class ContainerInventoryComponent implements InventoryComponent {
             this(type, null);
         }
 
-        public Slot(Type type, String id) {
+        public Slot(Type type, Identifier id) {
             this.type = type;
             this.id = id;
         }

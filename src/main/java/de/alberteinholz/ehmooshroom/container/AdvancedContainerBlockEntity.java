@@ -1,13 +1,13 @@
-package de.alberteinholz.ehmooshroom.container.blockentity;
+package de.alberteinholz.ehmooshroom.container;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
-import de.alberteinholz.ehmooshroom.container.component.item.ContainerInventoryComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
+import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.component.Component;
@@ -28,18 +28,22 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
-public abstract class AdvancedContainer extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
+public abstract class AdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     protected final RegistryEntry registryEntry;
     public Map<Identifier, Component> comps = new HashMap<>();
 
-    public AdvancedContainer(RegistryEntry registryEntry) {
+    public AdvancedContainerBlockEntity(RegistryEntry registryEntry) {
         super(registryEntry.blockEntityType);
         this.registryEntry = registryEntry;
         comps.put(MooshroomLib.HELPER.makeId("name"), new NameDataComponent("name"));
         comps.put(MooshroomLib.HELPER.makeId("config"), new ConfigDataComponent());
         comps.forEach((id, comp) -> {
-            if (comp instanceof ContainerInventoryComponent) ((ContainerInventoryComponent) comp).setConfig((ConfigDataComponent) comps.get(MooshroomLib.HELPER.makeId("config")));
+            if (comp instanceof AdvancedInventoryComponent) ((AdvancedInventoryComponent) comp).setConfig((ConfigDataComponent) comps.get(MooshroomLib.HELPER.makeId("config")));
         });
+    }
+
+    public void addComponent(Component comp) {
+        //TODO
     }
 
     //you have to add all needed components first
