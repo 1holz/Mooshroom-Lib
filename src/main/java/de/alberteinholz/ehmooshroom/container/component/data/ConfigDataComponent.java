@@ -1,4 +1,4 @@
-package de.alberteinholz.ehmooshroom.container.component;
+package de.alberteinholz.ehmooshroom.container.component.data;
 
 import java.util.HashMap;
 import java.util.List;

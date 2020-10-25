@@ -5,11 +5,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
-import de.alberteinholz.ehmooshroom.container.component.ConfigDataComponent;
-import de.alberteinholz.ehmooshroom.container.component.ContainerInventoryComponent;
-import de.alberteinholz.ehmooshroom.container.component.NameDataComponent;
+import de.alberteinholz.ehmooshroom.container.component.item.ContainerInventoryComponent;
+import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
+import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
-import de.alberteinholz.ehmooshroom.util.Helper;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
@@ -36,10 +35,10 @@ public abstract class AdvancedContainer extends BlockEntity implements BlockEnti
     public AdvancedContainer(RegistryEntry registryEntry) {
         super(registryEntry.blockEntityType);
         this.registryEntry = registryEntry;
-        comps.put(Helper.makeId("name"), new NameDataComponent("name"));
-        comps.put(Helper.makeId("config"), new ConfigDataComponent());
+        comps.put(MooshroomLib.HELPER.makeId("name"), new NameDataComponent("name"));
+        comps.put(MooshroomLib.HELPER.makeId("config"), new ConfigDataComponent());
         comps.forEach((id, comp) -> {
-            if (comp instanceof ContainerInventoryComponent) ((ContainerInventoryComponent) comp).setConfig((ConfigDataComponent) comps.get(Helper.makeId("config")));
+            if (comp instanceof ContainerInventoryComponent) ((ContainerInventoryComponent) comp).setConfig((ConfigDataComponent) comps.get(MooshroomLib.HELPER.makeId("config")));
         });
     }
 
@@ -86,7 +85,7 @@ public abstract class AdvancedContainer extends BlockEntity implements BlockEnti
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText(((NameDataComponent) comps.get(Helper.makeId("name"))).containerName.getLabel().asString());
+        return new TranslatableText(((NameDataComponent) comps.get(MooshroomLib.HELPER.makeId("name"))).containerName.getLabel().asString());
     }
 
     @Override

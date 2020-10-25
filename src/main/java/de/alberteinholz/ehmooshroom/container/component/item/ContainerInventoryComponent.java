@@ -1,4 +1,4 @@
-package de.alberteinholz.ehmooshroom.container.component;
+package de.alberteinholz.ehmooshroom.container.component.item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,9 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
-import de.alberteinholz.ehmooshroom.container.component.ConfigDataComponent.ConfigBehavior;
-import de.alberteinholz.ehmooshroom.container.component.ContainerInventoryComponent.Slot.Type;
+import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
+import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
+import de.alberteinholz.ehmooshroom.container.component.item.ContainerInventoryComponent.Slot.Type;
 import de.alberteinholz.ehmooshroom.util.Helper;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.compat.vanilla.InventoryWrapper;
