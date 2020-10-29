@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
 import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
@@ -23,7 +24,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-public class AdvancedInventoryComponent implements InventoryComponent {
+public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent {
     protected Identifier id;
     //protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     protected DefaultedList<Slot> slots;
@@ -68,6 +69,7 @@ public class AdvancedInventoryComponent implements InventoryComponent {
         return listeners;
     }
 
+    @Override
     public void setConfig(ConfigDataComponent config) {
         this.config = config;
     }

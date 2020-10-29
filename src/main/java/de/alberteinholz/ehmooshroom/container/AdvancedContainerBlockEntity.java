@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
-import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.component.Component;
@@ -30,20 +30,27 @@ import net.minecraft.util.Identifier;
 
 public abstract class AdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     protected final RegistryEntry registryEntry;
-    public Map<Identifier, Component> comps = new HashMap<>();
+    protected Map<Identifier, Component> comps = new HashMap<>();
+    //for convenience access to some comps
+    public NameDataComponent name;
+    public ConfigDataComponent config;
 
-    public AdvancedContainerBlockEntity(RegistryEntry registryEntry) {
+    public AdvancedContainerBlockEntity(String titelTranslationKey, RegistryEntry registryEntry) {
         super(registryEntry.blockEntityType);
         this.registryEntry = registryEntry;
-        comps.put(MooshroomLib.HELPER.makeId("name"), new NameDataComponent("name"));
-        comps.put(MooshroomLib.HELPER.makeId("config"), new ConfigDataComponent());
-        comps.forEach((id, comp) -> {
-            if (comp instanceof AdvancedInventoryComponent) ((AdvancedInventoryComponent) comp).setConfig((ConfigDataComponent) comps.get(MooshroomLib.HELPER.makeId("config")));
-        });
+        name = new NameDataComponent(titelTranslationKey);
+        addComponent(MooshroomLib.HELPER.makeId("name"), name);
+        config = new ConfigDataComponent();
+        addComponent(MooshroomLib.HELPER.makeId("config"), config);
     }
 
-    public void addComponent(Component comp) {
-        //TODO
+    public void addComponent(Identifier id, Component comp) {
+        comps.put(id, comp);
+        if (comp instanceof TransportingComponent) ((TransportingComponent) comp).setConfig(config);
+    }
+
+    public Map<Identifier, Component> getImmutableComps() {
+        return new HashMap<>(comps);
     }
 
     //you have to add all needed components first
@@ -54,12 +61,12 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
         for (String key : tag.getKeys()) {
             Identifier id = new Identifier(key);
             if (!tag.contains(key, NbtType.COMPOUND) || tag.getCompound(key).isEmpty()) continue;
-            if (!comps.containsKey(id)) {
+            if (!getImmutableComps().containsKey(id)) {
                 MooshroomLib.LOGGER.smallBug(new NoSuchElementException("There is no component with the id " + key + " in the AdvancedContainer" + getDisplayName().getString()));
                 continue;
             }
             CompoundTag compTag = tag.getCompound(key);
-            comps.get(id).fromTag(compTag);
+            getImmutableComps().get(id).fromTag(compTag);
         }
     }
 
@@ -67,7 +74,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
     public CompoundTag toTag(CompoundTag tag) {
         super.toTag(tag);
         if (world == null) return tag;
-        comps.forEach((id, comp) -> {
+        getImmutableComps().forEach((id, comp) -> {
             CompoundTag compTag = new CompoundTag();
             comp.toTag(compTag);
             if (!compTag.isEmpty()) tag.put(id.toString(), compTag);
@@ -89,7 +96,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText(((NameDataComponent) comps.get(MooshroomLib.HELPER.makeId("name"))).containerName.getLabel().asString());
+        return new TranslatableText(name.containerName.getLabel().asString());
     }
 
     @Override

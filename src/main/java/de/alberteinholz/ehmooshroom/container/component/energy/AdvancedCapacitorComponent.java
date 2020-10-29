@@ -1,6 +1,7 @@
 package de.alberteinholz.ehmooshroom.container.component.energy;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
 import io.github.cottonmc.component.UniversalComponents;
@@ -14,15 +15,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public class AdvancedCapacitorComponent extends SimpleCapacitorComponent {
+public class AdvancedCapacitorComponent extends SimpleCapacitorComponent implements TransportingComponent {
+    protected Identifier id;
     protected ConfigDataComponent config;
 
-    public AdvancedCapacitorComponent(EnergyType type) {
-        this(getDefaultMaxFromType(type), type);
+    public AdvancedCapacitorComponent(Identifier id, EnergyType type) {
+        this(id, getDefaultMaxFromType(type), type);
     }
 
-    public AdvancedCapacitorComponent(int max, EnergyType type) {
+    public AdvancedCapacitorComponent(Identifier id, int max, EnergyType type) {
         super(max, type);
+        this.id = id;
     }
 
     protected static int getDefaultMaxFromType(EnergyType type) {
@@ -39,6 +42,7 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent {
         energyType = type;
     }
 
+    @Override
     public void setConfig(ConfigDataComponent config) {
         this.config = config;
     }
@@ -58,11 +62,11 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent {
     }
 
     public boolean canInsert(Direction dir) {
-        return config.allowsConfig(MooshroomLib.HELPER.makeId("power_1"), ConfigBehavior.FOREIGN_INPUT, dir);
+        return config.allowsConfig(id, ConfigBehavior.FOREIGN_INPUT, dir);
     }
 
     public boolean canExtract(Direction dir) {
-        return config.allowsConfig(MooshroomLib.HELPER.makeId("power_1"), ConfigBehavior.FOREIGN_OUTPUT, dir);
+        return config.allowsConfig(id, ConfigBehavior.FOREIGN_OUTPUT, dir);
     }
 
     @Override
