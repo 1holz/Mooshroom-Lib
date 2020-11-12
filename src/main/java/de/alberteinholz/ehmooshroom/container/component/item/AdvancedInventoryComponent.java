@@ -24,21 +24,31 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
-public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent {
+public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent<InventoryComponent> {
     protected Identifier id;
     //protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     protected DefaultedList<Slot> slots;
+    protected int maxTransfer;
     protected final List<Runnable> listeners = new ArrayList<>();
     protected ConfigDataComponent config;
 
     public AdvancedInventoryComponent(Identifier id, Type[] types, String defaultNamespace, String[] paths) {
-        this(id, types, defaultIds(defaultNamespace, paths));
+        this(1, id, types, defaultIds(defaultNamespace, paths));
+    }
+
+    public AdvancedInventoryComponent(int maxTransfer, Identifier id, Type[] types, String defaultNamespace, String[] paths) {
+        this(maxTransfer, id, types, defaultIds(defaultNamespace, paths));
+    }
+
+    public AdvancedInventoryComponent(Identifier id, Type[] types, Identifier[] ids) {
+        this(1, id, types, ids);
     }
 
     //null id for no id
     //types determine size
-    public AdvancedInventoryComponent(Identifier id, Type[] types, Identifier[] ids) {
+    public AdvancedInventoryComponent(int maxTransfer, Identifier id, Type[] types, Identifier[] ids) {
         this.id = id;
+        this.maxTransfer = maxTransfer;
         slots = DefaultedList.ofSize(types.length, new Slot());
         for (int i = 0; i < types.length; i++) {
             if (!types[i].equals(Type.STORAGE) && types[i] != null) slots.get(i).type = types[i];
@@ -111,15 +121,15 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         return list;
     }
     
-    public List<Slot> getInsertable() {
-		List<Slot> list = new ArrayList<>();
-		for (Slot slot : slots) if (slot.type.insert) list.add(slot);
+    public List<Integer> getInsertable() {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < slots.size(); i++) if (slots.get(i).type.insert) list.add(i);
         return list;
     }
     
-    public List<Slot> getExtractable() {
-		List<Slot> list = new ArrayList<>();
-		for (Slot slot : slots) if (slot.type.extract) list.add(slot);
+    public List<Integer> getExtractable() {
+		List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < slots.size(); i++) if (slots.get(i).type.extract) list.add(i);
         return list;
     }
 
@@ -127,8 +137,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         return slots.get(slot).type;
     }
 
-    //for using InventoryComponents wrap them in an InventoryWrapper
-    //check ((MachineDataProviderComponent) data).allowsConfig(ConfigType.ITEM, configBehavior, dir) first
+    /*
     public static int move(Inventory from, Inventory to, int maxTransfer, Direction dir, ActionType action) {
         int transfer = 0;
         InventoryComponent fromComponent = from instanceof InventoryWrapper && ((InventoryWrapper) from).getComponent() != null ? ((InventoryWrapper) from).getComponent() : null;
@@ -155,6 +164,49 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
                     if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Item moving wasn't performed correctly. This could lead to item deletion.")); 
                     if (transfer >= maxTransfer) break;
                 }
+            }
+            if (transfer >= maxTransfer) break;
+        }
+        return transfer;
+    }
+    */
+
+    @Override
+    public Number pull(InventoryComponent from, Direction dir, ActionType action) {
+        int transfer = 0;
+        for (int fromSlot : from instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) from).getExtractable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(from.getSize()))) {
+            if ((from instanceof AdvancedInventoryComponent && !((AdvancedInventoryComponent) from).canExtract(fromSlot, dir.getOpposite())) || !from.canExtract(fromSlot)) continue;
+            ItemStack extractionTest = from.takeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
+            if (extractionTest.isEmpty()) continue;
+            if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
+            for (int toSlot : getInsertable().toArray(new Integer[0])) {
+                int insertionCount = extractionTest.getCount() - (insertStack(toSlot, extractionTest, action).getCount());
+                if (insertionCount <= 0) continue;
+                int extractionCount = from.takeStack(fromSlot, insertionCount, action).getCount();
+                transfer += extractionCount;
+                if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
+                if (transfer >= maxTransfer) break;
+            }
+            if (transfer >= maxTransfer) break;
+        }
+        return transfer;
+    }
+
+    @Override
+    public Number push(InventoryComponent to, Direction dir, ActionType action) {
+        int transfer = 0;
+        for (int fromSlot : getExtractable().toArray(new Integer[0])) {
+            if (!canExtract(fromSlot, dir.getOpposite()) || !canExtract(fromSlot)) continue;
+            ItemStack extractionTest = takeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
+            if (extractionTest.isEmpty()) continue;
+            if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
+            for (int toSlot : to instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) to).getInsertable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(to.getSize()))) {
+                int insertionCount = extractionTest.getCount() - (to.insertStack(toSlot, extractionTest, action).getCount());
+                if (insertionCount <= 0) continue;
+                int extractionCount = takeStack(fromSlot, insertionCount, action).getCount();
+                transfer += extractionCount;
+                if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
+                if (transfer >= maxTransfer) break;
             }
             if (transfer >= maxTransfer) break;
         }

@@ -31,26 +31,31 @@ import net.minecraft.util.Identifier;
 public abstract class AdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     protected final RegistryEntry registryEntry;
     protected Map<Identifier, Component> comps = new HashMap<>();
-    //for convenience access to some comps
-    public NameDataComponent name;
-    public ConfigDataComponent config;
 
     public AdvancedContainerBlockEntity(String titelTranslationKey, RegistryEntry registryEntry) {
         super(registryEntry.blockEntityType);
         this.registryEntry = registryEntry;
-        name = new NameDataComponent(titelTranslationKey);
-        addComponent(MooshroomLib.HELPER.makeId("name"), name);
-        config = new ConfigDataComponent();
-        addComponent(MooshroomLib.HELPER.makeId("config"), config);
+        addComponent(MooshroomLib.HELPER.makeId("name"), new NameDataComponent(titelTranslationKey));
+        addComponent(MooshroomLib.HELPER.makeId("config"), new ConfigDataComponent());
     }
 
+    @SuppressWarnings("unchecked")
     public void addComponent(Identifier id, Component comp) {
         comps.put(id, comp);
-        if (comp instanceof TransportingComponent) ((TransportingComponent) comp).setConfig(config);
+        if (comp instanceof TransportingComponent) ((TransportingComponent<Component>) comp).setConfig(getConfigComp());
     }
 
     public Map<Identifier, Component> getImmutableComps() {
         return new HashMap<>(comps);
+    }
+
+    //convenience access to some comps
+    public NameDataComponent getNameComp() {
+        return (NameDataComponent) getImmutableComps().get(MooshroomLib.HELPER.makeId("name"));
+    }
+    
+    public ConfigDataComponent getConfigComp() {
+        return (ConfigDataComponent) getImmutableComps().get(MooshroomLib.HELPER.makeId("config"));
     }
 
     //you have to add all needed components first
@@ -96,7 +101,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText(name.containerName.getLabel().asString());
+        return new TranslatableText(getNameComp().containerName.getLabel().asString());
     }
 
     @Override

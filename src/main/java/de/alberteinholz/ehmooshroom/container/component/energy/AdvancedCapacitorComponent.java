@@ -15,7 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public class AdvancedCapacitorComponent extends SimpleCapacitorComponent implements TransportingComponent {
+public class AdvancedCapacitorComponent extends SimpleCapacitorComponent implements TransportingComponent<CapacitorComponent> {
     protected Identifier id;
     protected ConfigDataComponent config;
 
@@ -47,17 +47,27 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent impleme
         this.config = config;
     }
 
-    //TODO: check wether this has to be optimized/rewritten
-    //check ((ConfigDataComponent) data).allowsConfig(MooshroomLib.HELPER.makeId("power_1"), configBehavior, dir) first
-    public static int move(CapacitorComponent from, CapacitorComponent to, EnergyType type, Direction dir, ActionType action) {
+    @Override
+    public Number pull(CapacitorComponent from, Direction dir, ActionType action) {
         int transfer = 0;
-        if (from.canExtractEnergy() && !(from instanceof AdvancedCapacitorComponent && !((AdvancedCapacitorComponent) from).canExtract(dir)) && to.canInsertEnergy() && !(to instanceof AdvancedCapacitorComponent && !((AdvancedCapacitorComponent) to).canInsert(dir))) {
-            int extractionTest = from.extractEnergy(type, type.getMaximumTransferSize(), ActionType.TEST);
-            int insertionCount = extractionTest - to.insertEnergy(type, extractionTest, action);
-            int extractionCount = from.extractEnergy(type, insertionCount, action);
-            transfer += extractionTest;
-            if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Power moving wasn't performed correctly. This could lead to power deletion."));
-        }
+        if (!canInsertEnergy() && !canInsert(dir) && !from.canExtractEnergy() && (!(from instanceof AdvancedCapacitorComponent) || ((AdvancedCapacitorComponent) from).canExtract(dir.getOpposite()))) return transfer;
+        int extractionTest = from.extractEnergy(energyType, energyType.getMaximumTransferSize(), ActionType.TEST);
+        int insertionCount = extractionTest - insertEnergy(energyType, extractionTest, action);
+        int extractionCount = from.extractEnergy(energyType, insertionCount, action);
+        transfer += extractionTest;
+        if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Power pulling wasn't performed correctly. This could lead to power deletion."));
+        return transfer;
+    }
+
+    @Override
+    public Number push(CapacitorComponent to, Direction dir, ActionType action) {
+        int transfer = 0;
+        if (!canExtractEnergy() && !canExtract(dir) && !to.canInsertEnergy() && (!(to instanceof AdvancedCapacitorComponent) || ((AdvancedCapacitorComponent) to).canInsert(dir.getOpposite()))) return transfer;
+        int extractionTest = extractEnergy(energyType, energyType.getMaximumTransferSize(), ActionType.TEST);
+        int insertionCount = extractionTest - to.insertEnergy(energyType, extractionTest, action);
+        int extractionCount = extractEnergy(energyType, insertionCount, action);
+        transfer += extractionTest;
+        if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Power pushing wasn't performed correctly. This could lead to power deletion."));
         return transfer;
     }
 
