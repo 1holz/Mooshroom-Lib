@@ -45,12 +45,14 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
 
     //null id for no id
+    //futher aperance of duplicate id will repleced with null
     //types determine size
     public AdvancedInventoryComponent(int maxTransfer, Identifier id, Type[] types, Identifier[] ids) {
         this.id = id;
         this.maxTransfer = maxTransfer;
         slots = DefaultedList.ofSize(types.length, new Slot());
         for (int i = 0; i < types.length; i++) {
+            if (isIdPresent(ids[i])) warnDuplicteId(ids[i]);
             if (!types[i].equals(Type.STORAGE) && types[i] != null) slots.get(i).type = types[i];
             if (ids[i] != null) slots.get(i).id = ids[i];
         }
@@ -64,8 +66,19 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     //types determine size
     public void addSlots(Type[] types, Identifier[] ids) {
         for (int i = 0; i < types.length; i++) {
+            if (isIdPresent(ids[i])) warnDuplicteId(ids[i]);
             slots.add(new Slot(types[i], ids[i]));
         }
+    }
+
+    protected void warnDuplicteId(Identifier id) {
+        MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("There mustn't be duplicate ids. " + id + " will be repleced will null."));
+        id = null;
+    }
+
+    public boolean isIdPresent(Identifier id) {
+        for (Slot slot : slots) if (slot.id.equals(id)) return true;
+        return false;
     }
 
     protected static Identifier[] defaultIds(String defaultNamespace, String[] paths) {
@@ -108,7 +121,13 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 		DefaultedList<ItemStack> list = DefaultedList.ofSize(slots.size(), ItemStack.EMPTY);
 		for (Slot slot : slots) list.add(slot.stack);
 		return list;
-	}
+    }
+    
+    //returns -1 if id is not present
+    public int getIntFromId(Identifier id) {
+        for (int i = 0; i < slots.size(); i++) if (slots.get(i).id.equals(id)) return i;
+        return -1;
+    }
 
 	@Override
 	public ItemStack getStack(int slot) {

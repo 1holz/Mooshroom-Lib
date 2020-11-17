@@ -3,12 +3,19 @@ package de.alberteinholz.ehmooshroom.container;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
 import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
+import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
+import io.github.cottonmc.component.api.ActionType;
+import io.github.cottonmc.component.compat.core.BlockComponentHook;
+import io.github.cottonmc.component.energy.CapacitorComponent;
+import io.github.cottonmc.component.fluid.TankComponent;
+import io.github.cottonmc.component.item.InventoryComponent;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
@@ -27,6 +34,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 
 public abstract class AdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     protected final RegistryEntry registryEntry;
@@ -56,6 +65,31 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
     
     public ConfigDataComponent getConfigComp() {
         return (ConfigDataComponent) getImmutableComps().get(MooshroomLib.HELPER.makeId("config"));
+    }
+
+    //for TransportingComponents that aren't UniversalComponents.INVENTORY_COMPONENT, UniversalComponents.TANK_COMPONENT or UniversalComponents.CAPACITOR_COMPONENT you have to write the implementation yourself
+    public void transfer() {
+        for (Direction dir : Direction.values()) {
+            BlockPos targetPos = pos.offset(dir);
+            Direction targetDir = dir.getOpposite();
+            for (Entry<Identifier, Component> entry : comps.entrySet()) {
+                if (!(entry.getValue() instanceof TransportingComponent)) continue;
+                Identifier id = entry.getKey();
+                @SuppressWarnings("unchecked")
+                TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
+                BlockComponentHook hook = BlockComponentHook.INSTANCE;
+                if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_INPUT, dir)) {
+                    if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, ActionType.PERFORM);
+                    if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, ActionType.PERFORM);
+                    if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, ActionType.PERFORM);
+                }
+                if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_OUTPUT, dir)) {
+                    if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, ActionType.PERFORM);
+                    if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, ActionType.PERFORM);
+                    if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, ActionType.PERFORM);
+                }
+            }
+        }
     }
 
     //you have to add all needed components first
