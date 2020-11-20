@@ -81,19 +81,23 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent impleme
 
     @Override
     public void fromTag(CompoundTag tag) {
-        if (tag.contains("EnergyType", NbtType.STRING)) energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(tag.getString("EnergyType")));
-        if (tag.contains("Energy", NbtType.NUMBER)) currentEnergy = tag.getInt("Energy");
-        if (tag.contains("MaxEnergy", NbtType.NUMBER)) maxEnergy = tag.getInt("MaxEnergy");
+        if (!tag.contains("Capacitor", NbtType.COMPOUND)) return;
+        CompoundTag fromTag = tag.getCompound("Capacitor");
+        if (fromTag.contains("EnergyType", NbtType.STRING)) energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(fromTag.getString("EnergyType")));
+        if (fromTag.contains("Energy", NbtType.NUMBER)) currentEnergy = fromTag.getInt("Energy");
+        if (fromTag.contains("MaxEnergy", NbtType.NUMBER)) maxEnergy = fromTag.getInt("MaxEnergy");
         else maxEnergy = getDefaultMaxFromType(energyType);
-        if (tag.contains("Harm", NbtType.NUMBER)) harm = tag.getInt("Harm");
+        if (fromTag.contains("Harm", NbtType.NUMBER)) harm = fromTag.getInt("Harm");
     }
     
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) tag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
-        if (currentEnergy > 0) tag.putInt("Energy", currentEnergy);
-        if (maxEnergy != getDefaultMaxFromType(energyType)) tag.putInt("MaxEnergy", maxEnergy);
-        if (harm != 0) tag.putInt("Harm", harm);
+        CompoundTag toTag = new CompoundTag();
+        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) toTag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
+        if (currentEnergy > 0) toTag.putInt("Energy", currentEnergy);
+        if (maxEnergy != getDefaultMaxFromType(energyType)) toTag.putInt("MaxEnergy", maxEnergy);
+        if (harm != 0) toTag.putInt("Harm", harm);
+        if (!toTag.isEmpty()) tag.put("Capacitor", toTag);
         return tag;
     }
 }

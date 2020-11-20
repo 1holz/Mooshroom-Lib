@@ -38,6 +38,7 @@ public class ConfigDataComponent implements DataProviderComponent {
     //it's recommended to add all needed configs befor
     @Override
     public void fromTag(CompoundTag tag) {
+        if (!tag.contains("Config", NbtType.COMPOUND)) return;
         for (String sId : tag.getCompound("Config").getKeys()) {
             if (!tag.contains(sId, NbtType.STRING) || !tag.getString(sId).matches("^[tfTF]{24}$")) continue;
             Identifier id = new Identifier(sId);

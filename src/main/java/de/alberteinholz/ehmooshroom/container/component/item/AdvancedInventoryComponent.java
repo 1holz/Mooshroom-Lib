@@ -343,6 +343,8 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     public boolean isAcceptableStack(int slot, ItemStack stack) {
         return true;
     }
+
+    //TODO: make custom toTag & fromTag for not adding empty tags
     
     //XXX:currently not available will change back later
     /*
