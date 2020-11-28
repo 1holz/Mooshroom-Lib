@@ -8,10 +8,15 @@ import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.impl.SimpleDataElement;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Identifier;
 
 public class NameDataComponent implements DataProviderComponent {
-    public SimpleDataElement containerName = new SimpleDataElement();
+    protected SimpleDataElement containerName = new SimpleDataElement();
     protected final String defaultName;
+    
+    public NameDataComponent(Identifier id) {
+        this(id.toString());
+    }
     
     public NameDataComponent(String name) {
         setName(name);
@@ -35,12 +40,17 @@ public class NameDataComponent implements DataProviderComponent {
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        if (getContainerName() != defaultName) tag.putString("Name", getContainerName());
+        if (getName() != defaultName) tag.putString("Name", getName());
         return tag;
     }
 
-    public String getContainerName() {
-        return containerName.getLabel().asString();
+    public String getName() {
+        Identifier id = new Identifier(getName());
+        return "block." + id.getNamespace() + "." + id.getPath();
+    }
+
+    public void setName(Identifier id) {
+        setName(id.toString());
     }
 
     public void setName(String name) {

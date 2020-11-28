@@ -17,8 +17,8 @@ import net.minecraft.util.math.Direction;
 public class ConfigDataComponent implements DataProviderComponent {
     protected final Map<Identifier, SimpleDataElement> configs = new HashMap<>();
 
-    public void addConfig(Identifier... ids) {
-        for (Identifier id : ids) configs.put(id, new SimpleDataElement(getDefault()));
+    public void addConfig(Identifier id) {
+        configs.put(id, new SimpleDataElement(getDefault()));
     }
 
     public void removeConfig(Identifier id) {

@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.NamedComponent;
 import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
@@ -22,9 +23,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.CompoundTag;
@@ -38,20 +41,27 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 public abstract class AdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
-    protected final RegistryEntry registryEntry;
+    protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     protected Map<Identifier, Component> comps = new HashMap<>();
 
-    public AdvancedContainerBlockEntity(String titelTranslationKey, RegistryEntry registryEntry) {
-        super(registryEntry.blockEntityType);
-        this.registryEntry = registryEntry;
+    public AdvancedContainerBlockEntity(RegistryEntry registryEntry) {
+        this(registryEntry.id, registryEntry.clientHandlerFactory, registryEntry.blockEntityType);
+    }
+
+    public AdvancedContainerBlockEntity(Identifier titelTranslationKey, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, BlockEntityType<? extends BlockEntity> blockEntityType) {
+        super(blockEntityType);
+        this.clientHandlerFactory = clientHandlerFactory;
         addComponent(MooshroomLib.HELPER.makeId("name"), new NameDataComponent(titelTranslationKey));
         addComponent(MooshroomLib.HELPER.makeId("config"), new ConfigDataComponent());
     }
 
     @SuppressWarnings("unchecked")
-    public void addComponent(Identifier id, Component comp) {
+    protected void addComponent(Identifier id, Component comp) {
+        if (comp instanceof NamedComponent) ((NamedComponent) comp).setId(id);
         comps.put(id, comp);
-        if (comp instanceof TransportingComponent) ((TransportingComponent<Component>) comp).setConfig(getConfigComp());
+        if (!(comp instanceof TransportingComponent)) return;
+        getConfigComp().addConfig(id);
+        ((TransportingComponent<Component>) comp).setConfig(getConfigComp());
     }
 
     public Map<Identifier, Component> getImmutableComps() {
@@ -135,14 +145,14 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText(getNameComp().containerName.getLabel().asString());
+        return new TranslatableText(getNameComp().getName());
     }
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInv, PlayerEntity player) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         writeScreenOpeningData((ServerPlayerEntity) player, buf);
-        return registryEntry.clientHandlerFactory.create(syncId, playerInv, buf);
+        return clientHandlerFactory.create(syncId, playerInv, buf);
     }
 
     @Override

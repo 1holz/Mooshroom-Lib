@@ -16,16 +16,25 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 public class AdvancedCapacitorComponent extends SimpleCapacitorComponent implements TransportingComponent<CapacitorComponent> {
-    protected Identifier id;
+    private Identifier id;
     protected ConfigDataComponent config;
 
-    public AdvancedCapacitorComponent(Identifier id, EnergyType type) {
-        this(id, getDefaultMaxFromType(type), type);
+    public AdvancedCapacitorComponent(EnergyType type) {
+        this(getDefaultMaxFromType(type), type);
     }
 
-    public AdvancedCapacitorComponent(Identifier id, int max, EnergyType type) {
+    public AdvancedCapacitorComponent(int max, EnergyType type) {
         super(max, type);
+    }
+
+    @Override
+    public void setId(Identifier id) {
         this.id = id;
+    }
+
+    @Override
+    public Identifier getId() {
+        return id;
     }
 
     protected static int getDefaultMaxFromType(EnergyType type) {

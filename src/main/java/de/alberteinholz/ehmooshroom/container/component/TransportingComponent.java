@@ -5,7 +5,7 @@ import io.github.cottonmc.component.api.ActionType;
 import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.util.math.Direction;
 
-public interface TransportingComponent<C extends Component> {
+public interface TransportingComponent<C extends Component> extends NamedComponent {
     void setConfig(ConfigDataComponent config);
     //should make use of config for transporting
 

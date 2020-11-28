@@ -25,30 +25,29 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
 public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent<InventoryComponent> {
-    protected Identifier id;
+    private Identifier id;
     //protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     protected DefaultedList<Slot> slots;
     protected int maxTransfer;
     protected final List<Runnable> listeners = new ArrayList<>();
     protected ConfigDataComponent config;
 
-    public AdvancedInventoryComponent(Identifier id, Type[] types, String defaultNamespace, String[] paths) {
-        this(1, id, types, defaultIds(defaultNamespace, paths));
+    public AdvancedInventoryComponent(Type[] types, String defaultNamespace, String[] paths) {
+        this(1, types, defaultIds(defaultNamespace, paths));
     }
 
-    public AdvancedInventoryComponent(int maxTransfer, Identifier id, Type[] types, String defaultNamespace, String[] paths) {
-        this(maxTransfer, id, types, defaultIds(defaultNamespace, paths));
+    public AdvancedInventoryComponent(int maxTransfer, Type[] types, String defaultNamespace, String[] paths) {
+        this(maxTransfer, types, defaultIds(defaultNamespace, paths));
     }
 
-    public AdvancedInventoryComponent(Identifier id, Type[] types, Identifier[] ids) {
-        this(1, id, types, ids);
+    public AdvancedInventoryComponent(Type[] types, Identifier[] ids) {
+        this(1, types, ids);
     }
 
     //null id for no id
     //futher aperance of duplicate id will repleced with null
     //types determine size
-    public AdvancedInventoryComponent(int maxTransfer, Identifier id, Type[] types, Identifier[] ids) {
-        this.id = id;
+    public AdvancedInventoryComponent(int maxTransfer,  Type[] types, Identifier[] ids) {
         this.maxTransfer = maxTransfer;
         slots = DefaultedList.ofSize(types.length, new Slot());
         for (int i = 0; i < types.length; i++) {
@@ -56,6 +55,16 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
             if (!types[i].equals(Type.STORAGE) && types[i] != null) slots.get(i).type = types[i];
             if (ids[i] != null) slots.get(i).id = ids[i];
         }
+    }
+
+    @Override
+    public void setId(Identifier id) {
+        this.id = id;
+    }
+
+    @Override
+    public Identifier getId() {
+        return id;
     }
 
     public void addSlots(Type[] types, String defaultNamespace, String[] paths) {
