@@ -143,9 +143,10 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 		return slots.get(slot).stack.copy();
     }
     
+    //null for all types
     public List<Slot> getSlots(Type type) {
 		List<Slot> list = new ArrayList<>();
-		for (Slot slot : slots) if (slot.type.equals(type)) list.add(slot);
+		for (Slot slot : slots) if (type == null || slot.type.equals(type)) list.add(slot);
         return list;
     }
     
