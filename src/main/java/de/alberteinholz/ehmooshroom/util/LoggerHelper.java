@@ -16,37 +16,38 @@ public class LoggerHelper {
         this.bugTracker = bugTracker;
     }
 
-    public void trace(String message) {
-        logger.trace(message);
+    public void trace(String msg) {
+        logger.trace(msg);
     }
 
-    public void debug(String message) {
-        logger.debug(message);
+    public void debug(String msg) {
+        logger.debug(msg);
     }
 
-    public void info(String message) {
-        logger.info(message);
+    public void info(String msg) {
+        logger.info(msg);
     }
 
-    public void warn(String message) {
-        logger.warn(message);
+    public void warn(String msg) {
+        logger.warn(msg);
     }
 
-    public void error(String message) {
-        logger.error(message);
+    public void error(String msg) {
+        logger.error(msg);
     }
 
-    public void fatal(String message) {
-        logger.fatal(message);
+    public void fatal(String msg) {
+        logger.fatal(msg);
     }
 
     public void smallBug() {
         this.warn("If you see this please report this as a bug at: " + bugTracker);
     }
 
-    public void smallBug(Throwable exception) {
+    public Throwable smallBug(Throwable e) {
         smallBug();
-        logger.warn("Post this error there:", exception);
+        logger.warn("Post this error there:", e);
+        return e;
     }
 
     public void bigBug() {
@@ -54,14 +55,15 @@ public class LoggerHelper {
         this.error("Please report this as a bug at: " + bugTracker);
     }
 
-    public void bigBug(Throwable exception) {
+    public Throwable bigBug(Throwable e) {
         bigBug();
-        logger.error("Post this error there:", exception);
+        logger.error("Post this error there:", e);
+        return e;
     }
 
-    public void test(String message) {
+    public void test(String msg) {
         warn("This is a message from the developer for testing. This shouldn't be in a release version.");
-        fatal(message);
+        fatal(msg);
         info("at: "+ new Throwable().getStackTrace()[1]);
         smallBug();
     }
