@@ -106,13 +106,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         this.config = config;
     }
 
-    //XXX: Remove on UC update
-    @Deprecated
     @Override
-	public int getSize() {
-		return size();
-    }
-
 	public int size() {
 		return slots.size();
     }
@@ -203,15 +197,15 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     @Override
     public Number pull(InventoryComponent from, Direction dir, ActionType action) {
         int transfer = 0;
-        for (int fromSlot : from instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) from).getExtractable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(from.getSize()))) {
+        for (int fromSlot : from instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) from).getExtractable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(from.size()))) {
             if ((from instanceof AdvancedInventoryComponent && !((AdvancedInventoryComponent) from).canExtract(fromSlot, dir.getOpposite())) || !from.canExtract(fromSlot)) continue;
-            ItemStack extractionTest = from.takeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
+            ItemStack extractionTest = from.removeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
             if (extractionTest.isEmpty()) continue;
             if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
             for (int toSlot : getInsertable().toArray(new Integer[0])) {
                 int insertionCount = extractionTest.getCount() - (insertStack(toSlot, extractionTest, action).getCount());
                 if (insertionCount <= 0) continue;
-                int extractionCount = from.takeStack(fromSlot, insertionCount, action).getCount();
+                int extractionCount = from.removeStack(fromSlot, insertionCount, action).getCount();
                 transfer += extractionCount;
                 if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Item pulling wasn't performed correctly. This could lead to item deletion.")); 
                 if (transfer >= maxTransfer) break;
@@ -226,13 +220,13 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         int transfer = 0;
         for (int fromSlot : getExtractable().toArray(new Integer[0])) {
             if (!canExtract(fromSlot, dir.getOpposite()) || !canExtract(fromSlot)) continue;
-            ItemStack extractionTest = takeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
+            ItemStack extractionTest = removeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
             if (extractionTest.isEmpty()) continue;
             if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
-            for (int toSlot : to instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) to).getInsertable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(to.getSize()))) {
+            for (int toSlot : to instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) to).getInsertable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(to.size()))) {
                 int insertionCount = extractionTest.getCount() - (to.insertStack(toSlot, extractionTest, action).getCount());
                 if (insertionCount <= 0) continue;
-                int extractionCount = takeStack(fromSlot, insertionCount, action).getCount();
+                int extractionCount = removeStack(fromSlot, insertionCount, action).getCount();
                 transfer += extractionCount;
                 if (insertionCount != extractionCount) MooshroomLib.LOGGER.smallBug(new IllegalStateException("Item pushing wasn't performed correctly. This could lead to item deletion.")); 
                 if (transfer >= maxTransfer) break;
@@ -294,13 +288,6 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 	public boolean canExtract(int slot) {
 		return getType(slot).extract;
 	}
-
-    //XXX: Remove on UC update
-    @Deprecated
-    @Override
-    public ItemStack takeStack(int slot, int amount, ActionType action) {
-		return removeStack(slot, amount, action);
-    }
 
     public ItemStack removeStack(int slot, int amount, ActionType action) {
 		ItemStack stack = getStack(slot);

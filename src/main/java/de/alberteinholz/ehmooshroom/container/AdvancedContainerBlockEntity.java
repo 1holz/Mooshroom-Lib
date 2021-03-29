@@ -1,6 +1,7 @@
 package de.alberteinholz.ehmooshroom.container;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
 import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent;
-import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot;
+import de.alberteinholz.ehmooshroom.container.component.item.CombinedInventoryComponent;
 import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
 import io.github.cottonmc.component.api.ActionType;
@@ -74,15 +75,25 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
     }
 
     //convenience access to some comps
-    public AdvancedInventoryComponent getCombinedInvComp() {
-        List<Slot> slots = new ArrayList<>();
-        AdvancedInventoryComponent combinedInvComp = new AdvancedInventoryComponent(new Type[0], new Identifier[0]);
-        for (Component comp : getImmutableComps().values()) if (comp instanceof AdvancedInventoryComponent) slots.addAll(((AdvancedInventoryComponent) comp).getSlots(null));
-        for (int i = 0; i < slots.size(); i++) {
-            combinedInvComp.addSlots(new Type[]{slots.get(i).type}, new Identifier[]{slots.get(i).id});
-            combinedInvComp.setStack(i, slots.get(i).stack);
+    public CombinedInventoryComponent getCombinedInvComp() {
+        List<InventoryComponent> list = new ArrayList<>();
+        Collection<Component> comps = getImmutableComps().values();
+        for (Component comp : comps) if (comp instanceof AdvancedInventoryComponent && ((AdvancedInventoryComponent) comp).getSlots(Type.STORAGE).size() > 0) {
+            list.add((InventoryComponent) comp);
+            comps.remove(comp);
         }
-        return combinedInvComp;
+        for (Component comp : comps) if (comp instanceof AdvancedInventoryComponent && (((AdvancedInventoryComponent) comp).getInsertable().size() > 0 || ((AdvancedInventoryComponent) comp).getExtractable().size() > 0)) {
+            list.add((InventoryComponent) comp);
+            comps.remove(comp);
+        }
+        for (Component comp : comps) if (comp instanceof AdvancedInventoryComponent) {
+            list.add((InventoryComponent) comp);
+            comps.remove(comp);
+        }
+        for (Component comp : comps) if (comp instanceof InventoryComponent) {
+            list.add((InventoryComponent) comp);
+        }
+        return new CombinedInventoryComponent(list.toArray(new InventoryComponent[0]));
     }
 
     public NameDataComponent getNameComp() {
