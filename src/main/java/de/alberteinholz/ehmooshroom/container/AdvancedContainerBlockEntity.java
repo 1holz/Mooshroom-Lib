@@ -1,9 +1,6 @@
 package de.alberteinholz.ehmooshroom.container;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
@@ -14,9 +11,7 @@ import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
-import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent;
 import de.alberteinholz.ehmooshroom.container.component.item.CombinedInventoryComponent;
-import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.compat.core.BlockComponentHook;
@@ -76,24 +71,9 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
 
     //convenience access to some comps
     public CombinedInventoryComponent getCombinedInvComp() {
-        List<InventoryComponent> list = new ArrayList<>();
-        Collection<Component> comps = getImmutableComps().values();
-        for (Component comp : comps) if (comp instanceof AdvancedInventoryComponent && ((AdvancedInventoryComponent) comp).getSlots(Type.STORAGE).size() > 0) {
-            list.add((InventoryComponent) comp);
-            comps.remove(comp);
-        }
-        for (Component comp : comps) if (comp instanceof AdvancedInventoryComponent && (((AdvancedInventoryComponent) comp).getInsertable().size() > 0 || ((AdvancedInventoryComponent) comp).getExtractable().size() > 0)) {
-            list.add((InventoryComponent) comp);
-            comps.remove(comp);
-        }
-        for (Component comp : comps) if (comp instanceof AdvancedInventoryComponent) {
-            list.add((InventoryComponent) comp);
-            comps.remove(comp);
-        }
-        for (Component comp : comps) if (comp instanceof InventoryComponent) {
-            list.add((InventoryComponent) comp);
-        }
-        return new CombinedInventoryComponent(list.toArray(new InventoryComponent[0]));
+        Map<Identifier, InventoryComponent> map = new HashMap<>();
+        for (Map.Entry<Identifier, Component> entry : comps.entrySet()) if (entry.getValue() instanceof InventoryComponent) map.put(entry.getKey(), (InventoryComponent) entry.getValue());
+        return new CombinedInventoryComponent(map);
     }
 
     public NameDataComponent getNameComp() {
@@ -138,7 +118,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
             Identifier id = new Identifier(key);
             if (!tag.contains(key, NbtType.COMPOUND) || tag.getCompound(key).isEmpty()) continue;
             if (!getImmutableComps().containsKey(id)) {
-                MooshroomLib.LOGGER.smallBug(new NoSuchElementException("There is no component with the id " + key + " in the AdvancedContainer" + getDisplayName().getString()));
+                MooshroomLib.LOGGER.smallBug(new NoSuchElementException("There is no Component with the id " + key + " in the AdvancedContainer" + getDisplayName().getString()));
                 continue;
             }
             CompoundTag compTag = tag.getCompound(key);

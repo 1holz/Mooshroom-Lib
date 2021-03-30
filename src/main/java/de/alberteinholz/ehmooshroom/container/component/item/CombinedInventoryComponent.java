@@ -2,28 +2,28 @@ package de.alberteinholz.ehmooshroom.container.component.item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import de.alberteinholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
-import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldAccess;
 
-public class CombinedInventoryComponent implements InventoryComponent {
+public class CombinedInventoryComponent extends CombinedComponent<InventoryComponent> implements InventoryComponent {
     protected final List<Runnable> listeners = new ArrayList<>();
-    protected final InventoryComponent[] childComps;
     protected int tempSlot = 0;
 
-    public CombinedInventoryComponent(InventoryComponent... comps) {
-        childComps = comps;
+    public CombinedInventoryComponent(Map<Identifier, InventoryComponent> childComps) {
+        super(childComps);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class CombinedInventoryComponent implements InventoryComponent {
     public DefaultedList<ItemStack> getMutableStacks() {
 		DefaultedList<ItemStack> ret = DefaultedList.ofSize(size(), ItemStack.EMPTY);
         int i = 0;
-        for (InventoryComponent comp : childComps) for (ItemStack stack : comp.getMutableStacks()) {
+        for (InventoryComponent comp : childComps.values()) for (ItemStack stack : comp.getMutableStacks()) {
             ret.set(i, stack);
             i++;
         }
@@ -57,7 +57,7 @@ public class CombinedInventoryComponent implements InventoryComponent {
     @Override
     public int size() {
         int slots = 0;
-        for (InventoryComponent comp : childComps) slots += comp.size();
+        for (InventoryComponent comp : childComps.values()) slots += comp.size();
         return slots;
     }
 
@@ -70,13 +70,13 @@ public class CombinedInventoryComponent implements InventoryComponent {
     @Override
     public List<ItemStack> getStacks() {
 		List<ItemStack> ret = new ArrayList<>();
-        for (InventoryComponent comp : childComps) ret.addAll(comp.getStacks());
+        for (InventoryComponent comp : childComps.values()) ret.addAll(comp.getStacks());
         return ret;
     }
 
     @Override
     public ItemStack insertStack(ItemStack stack, ActionType action) {
-        for (InventoryComponent comp : childComps) stack = comp.insertStack(stack, action);
+        for (InventoryComponent comp : childComps.values()) stack = comp.insertStack(stack, action);
         return stack;
     }
 
@@ -107,7 +107,7 @@ public class CombinedInventoryComponent implements InventoryComponent {
 
 	@Override
 	public void clear() {
-		for (InventoryComponent comp : childComps) comp.clear();
+		for (InventoryComponent comp : childComps.values()) comp.clear();
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class CombinedInventoryComponent implements InventoryComponent {
 	@Override
 	public int amountOf(Set<Item> items) {
 		int amount = 0;
-        for (InventoryComponent comp : childComps) amount += comp.amountOf(items);
+        for (InventoryComponent comp : childComps.values()) amount += comp.amountOf(items);
 		return amount;
 	}
 
@@ -142,23 +142,16 @@ public class CombinedInventoryComponent implements InventoryComponent {
 
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
-		ListTag compTag = new ListTag();
-		for (InventoryComponent comp : childComps) compTag.add(comp.toTag(new CompoundTag()));
-        tag.put("InventoryComponents", compTag);
-        return tag;
+        return CombinedComponent.toTag(tag, "CombinedInventoryComponent", childComps);
 	}
     
     @Override
 	public void fromTag(CompoundTag tag) {
-        ListTag compTag = tag.getList("InventoryComponents", NbtType.LIST);
-        for (int i = 0; i < childComps.length; i++) {
-            CompoundTag invTag = compTag.getCompound(i);
-            childComps[i].fromTag(invTag);
-        }
+        CombinedComponent.fromTag(tag, "CombinedInventoryComponent", childComps);
 	}
 
     protected InventoryComponent getCompFromSlot(int slot) {
-        for (InventoryComponent comp : childComps) if (comp.size() <= slot) slot -= comp.size() - 1;
+        for (InventoryComponent comp : childComps.values()) if (comp.size() <= slot) slot -= comp.size() - 1;
         else {
             tempSlot = slot;
             return comp;
