@@ -11,13 +11,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 
 public class CombinedDataComponent extends CombinedComponent<DataProviderComponent> implements DataProviderComponent {
-    public CombinedDataComponent(Map<Identifier, DataProviderComponent> childComps) {
-        super(childComps);
+    @Override
+    public CombinedDataComponent of(Map<Identifier, DataProviderComponent> childComps) {
+        return (CombinedDataComponent) super.of(childComps);
     }
-
+    
     @Override
     public DataElement getElementFor(Unit unit) {
-        for (DataProviderComponent comp : childComps.values()) {
+        for (DataProviderComponent comp : getComps().values()) {
             DataElement element = comp.getElementFor(unit);
             if (!unit.equals(null)) return element;
         }
@@ -27,16 +28,16 @@ public class CombinedDataComponent extends CombinedComponent<DataProviderCompone
     //XXX: what if one comp clears the list?
     @Override
     public void provideData(List<DataElement> data) {
-        for (DataProviderComponent comp : childComps.values()) comp.provideData(data);
+        for (DataProviderComponent comp : getComps().values()) comp.provideData(data);
     }
 
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedDataComponent", childComps);
+        return CombinedComponent.toTag(tag, "CombinedDataComponent", getComps());
 	}
 
 	@Override
 	public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedDataComponent", childComps);
+        CombinedComponent.fromTag(tag, "CombinedDataComponent", getComps());
     }
 }

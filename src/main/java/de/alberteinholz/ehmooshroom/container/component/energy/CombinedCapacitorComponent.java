@@ -16,8 +16,9 @@ import net.minecraft.world.World;
 public class CombinedCapacitorComponent extends CombinedComponent<CapacitorComponent> implements CapacitorComponent {
     protected final List<Runnable> listeners = new ArrayList<>();
 
-    public CombinedCapacitorComponent(Map<Identifier, CapacitorComponent> childComps) {
-        super(childComps);
+    @Override
+    public CombinedCapacitorComponent of(Map<Identifier, CapacitorComponent> childComps) {
+        return (CombinedCapacitorComponent) super.of(childComps);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
     //XXX: is this actually needed?
 	@Override
     public int generateEnergy(World world, BlockPos pos, int amount) {
-        for (CapacitorComponent comp : childComps.values()) {
+        for (CapacitorComponent comp : getComps().values()) {
             amount = comp.generateEnergy(world, pos, amount);
             if (amount <= 0) break;
         }
@@ -38,24 +39,24 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
     //FIXME: how to do this better?
 	@Override
     public void emp(int strength) {
-		childComps.values().iterator().next().emp(strength);
+		getComps().values().iterator().next().emp(strength);
 	}
 
     @Override
     public boolean canInsertEnergy() {
-        for (CapacitorComponent comp : childComps.values()) if (comp.canInsertEnergy()) return true;
+        for (CapacitorComponent comp : getComps().values()) if (comp.canInsertEnergy()) return true;
         return false;
     }
 
     @Override
     public boolean canExtractEnergy() {
-        for (CapacitorComponent comp : childComps.values()) if (comp.canExtractEnergy()) return true;
+        for (CapacitorComponent comp : getComps().values()) if (comp.canExtractEnergy()) return true;
         return false;
     }
 
     @Override
     public int insertEnergy(EnergyType type, int amount, ActionType action) {
-        for (CapacitorComponent comp : childComps.values()) {
+        for (CapacitorComponent comp : getComps().values()) {
             amount -= comp.insertEnergy(type, amount, action);
             if (amount <= 0) break;
         }
@@ -65,7 +66,7 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
     @Override
     public int extractEnergy(EnergyType type, int amount, ActionType action) {
         int ret = 0;
-        for (CapacitorComponent comp : childComps.values()) {
+        for (CapacitorComponent comp : getComps().values()) {
             int temp = comp.insertEnergy(type, amount, action);
             amount -= temp;
             ret += temp;
@@ -77,37 +78,37 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
     @Override
     public int getCurrentEnergy() {
         int amount = 0;
-        for (CapacitorComponent comp : childComps.values()) amount += comp.getCurrentEnergy();
+        for (CapacitorComponent comp : getComps().values()) amount += comp.getCurrentEnergy();
         return amount;
     }
 
     @Override
     public int getHarm() {
         int amount = 0;
-        for (CapacitorComponent comp : childComps.values()) amount += comp.getHarm();
+        for (CapacitorComponent comp : getComps().values()) amount += comp.getHarm();
         return amount;
     }
 
     @Override
     public int getMaxEnergy() {
         int amount = 0;
-        for (CapacitorComponent comp : childComps.values()) amount += comp.getMaxEnergy();
+        for (CapacitorComponent comp : getComps().values()) amount += comp.getMaxEnergy();
         return amount;
     }
 
     //FIXME: how to do this better?
     @Override
     public EnergyType getPreferredType() {
-        return childComps.values().iterator().next().getPreferredType();
+        return getComps().values().iterator().next().getPreferredType();
     }
 
     @Override
     public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedCapacitorComponent", childComps);
+        return CombinedComponent.toTag(tag, "CombinedCapacitorComponent", getComps());
     }
 
     @Override
     public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedCapacitorComponent", childComps);
+        CombinedComponent.fromTag(tag, "CombinedCapacitorComponent", getComps());
     }
 }

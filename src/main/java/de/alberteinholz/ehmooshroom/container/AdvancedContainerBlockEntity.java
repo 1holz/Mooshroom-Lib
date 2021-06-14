@@ -6,12 +6,12 @@ import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.MooshroomLib;
+import de.alberteinholz.ehmooshroom.container.component.CombinedComponent;
 import de.alberteinholz.ehmooshroom.container.component.NamedComponent;
 import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
-import de.alberteinholz.ehmooshroom.container.component.item.CombinedInventoryComponent;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.compat.core.BlockComponentHook;
@@ -70,10 +70,18 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
     }
 
     //convenience access to some comps
-    public CombinedInventoryComponent getCombinedInvComp() {
-        Map<Identifier, InventoryComponent> map = new HashMap<>();
-        for (Map.Entry<Identifier, Component> entry : comps.entrySet()) if (entry.getValue() instanceof InventoryComponent) map.put(entry.getKey(), (InventoryComponent) entry.getValue());
-        return new CombinedInventoryComponent(map);
+    @SuppressWarnings({"unchecked", "unused"})
+    public <T extends Component> CombinedComponent<T> getCombinedComp(CombinedComponent<T> combinedComponent) {
+        Map<Identifier, T> map = new HashMap<>();
+        for (Entry<Identifier, Component> entry : comps.entrySet()) {
+            try {
+                T value = (T) entry.getValue();
+            } catch (ClassCastException e) {
+                break;
+            }
+            map.put(entry.getKey(), (T) entry.getValue());
+        }
+        return combinedComponent.of(map);
     }
 
     public NameDataComponent getNameComp() {
@@ -84,7 +92,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
         return (ConfigDataComponent) getImmutableComps().get(MooshroomLib.HELPER.makeId("config"));
     }
 
-    //for TransportingComponents that aren't UniversalComponents.INVENTORY_COMPONENT, UniversalComponents.TANK_COMPONENT or UniversalComponents.CAPACITOR_COMPONENT you have to write the implementation yourself
+    //for TransportingComponents that aren't UniversalComponents.INVENTORY_COMPONENT, UniversalComponents.TANK_COMPONENT or UniversalComponents.CAPACITOR_COMPONENT you would have to write the implementation yourself
     public void transfer() {
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);

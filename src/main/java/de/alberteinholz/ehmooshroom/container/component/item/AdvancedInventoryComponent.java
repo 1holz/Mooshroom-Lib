@@ -197,7 +197,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     @Override
     public Number pull(InventoryComponent from, Direction dir, ActionType action) {
         int transfer = 0;
-        for (int fromSlot : from instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) from).getExtractable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(from.size()))) {
+        for (int fromSlot : from instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) from).getExtractable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.range(from.size()))) {
             if ((from instanceof AdvancedInventoryComponent && !((AdvancedInventoryComponent) from).canExtract(fromSlot, dir.getOpposite())) || !from.canExtract(fromSlot)) continue;
             ItemStack extractionTest = from.removeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
             if (extractionTest.isEmpty()) continue;
@@ -223,7 +223,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
             ItemStack extractionTest = removeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
             if (extractionTest.isEmpty()) continue;
             if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
-            for (int toSlot : to instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) to).getInsertable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.countingArray(to.size()))) {
+            for (int toSlot : to instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) to).getInsertable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.range(to.size()))) {
                 int insertionCount = extractionTest.getCount() - (to.insertStack(toSlot, extractionTest, action).getCount());
                 if (insertionCount <= 0) continue;
                 int extractionCount = removeStack(fromSlot, insertionCount, action).getCount();

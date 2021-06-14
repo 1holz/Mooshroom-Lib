@@ -22,8 +22,9 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     protected final List<Runnable> listeners = new ArrayList<>();
     protected int tempSlot = 0;
 
-    public CombinedInventoryComponent(Map<Identifier, InventoryComponent> childComps) {
-        super(childComps);
+    @Override
+    public CombinedInventoryComponent of(Map<Identifier, InventoryComponent> childComps) {
+        return (CombinedInventoryComponent) super.of(childComps);
     }
 
     @Override
@@ -47,7 +48,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     public DefaultedList<ItemStack> getMutableStacks() {
 		DefaultedList<ItemStack> ret = DefaultedList.ofSize(size(), ItemStack.EMPTY);
         int i = 0;
-        for (InventoryComponent comp : childComps.values()) for (ItemStack stack : comp.getMutableStacks()) {
+        for (InventoryComponent comp : getComps().values()) for (ItemStack stack : comp.getMutableStacks()) {
             ret.set(i, stack);
             i++;
         }
@@ -57,7 +58,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     @Override
     public int size() {
         int slots = 0;
-        for (InventoryComponent comp : childComps.values()) slots += comp.size();
+        for (InventoryComponent comp : getComps().values()) slots += comp.size();
         return slots;
     }
 
@@ -70,13 +71,13 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     @Override
     public List<ItemStack> getStacks() {
 		List<ItemStack> ret = new ArrayList<>();
-        for (InventoryComponent comp : childComps.values()) ret.addAll(comp.getStacks());
+        for (InventoryComponent comp : getComps().values()) ret.addAll(comp.getStacks());
         return ret;
     }
 
     @Override
     public ItemStack insertStack(ItemStack stack, ActionType action) {
-        for (InventoryComponent comp : childComps.values()) stack = comp.insertStack(stack, action);
+        for (InventoryComponent comp : getComps().values()) stack = comp.insertStack(stack, action);
         return stack;
     }
 
@@ -107,7 +108,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 
 	@Override
 	public void clear() {
-		for (InventoryComponent comp : childComps.values()) comp.clear();
+		for (InventoryComponent comp : getComps().values()) comp.clear();
 	}
 
 	@Override
@@ -125,7 +126,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 	@Override
 	public int amountOf(Set<Item> items) {
 		int amount = 0;
-        for (InventoryComponent comp : childComps.values()) amount += comp.amountOf(items);
+        for (InventoryComponent comp : getComps().values()) amount += comp.amountOf(items);
 		return amount;
 	}
 
@@ -142,16 +143,16 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedInventoryComponent", childComps);
+        return CombinedComponent.toTag(tag, "CombinedInventoryComponent", getComps());
 	}
     
     @Override
 	public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedInventoryComponent", childComps);
+        CombinedComponent.fromTag(tag, "CombinedInventoryComponent", getComps());
 	}
 
     protected InventoryComponent getCompFromSlot(int slot) {
-        for (InventoryComponent comp : childComps.values()) if (comp.size() <= slot) slot -= comp.size() - 1;
+        for (InventoryComponent comp : getComps().values()) if (comp.size() <= slot) slot -= comp.size() - 1;
         else {
             tempSlot = slot;
             return comp;

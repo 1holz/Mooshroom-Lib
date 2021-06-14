@@ -1,5 +1,6 @@
 package de.alberteinholz.ehmooshroom.container.component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -9,12 +10,12 @@ import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 
-//XXX: is this actually needed?
 public class CombinedComponent<T extends Component> {
-    protected final Map<Identifier, T> childComps;
+    private Map<Identifier, T> childComps = new HashMap<>();
 
-    public CombinedComponent(Map<Identifier, T> childComps) {
+    public CombinedComponent<T> of(Map<Identifier, T> childComps) {
         this.childComps = childComps;
+        return this;
     }
 
     public Map<Identifier, T> getComps() {

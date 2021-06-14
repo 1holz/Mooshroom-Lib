@@ -11,7 +11,7 @@ public class Helper {
         this.MOD_ID = MOD_ID;
     }
 
-    public static int[] countingArray(int size) {
+    public static int[] range(int size) {
         return IntStream.range(0, size).toArray();
     }
 

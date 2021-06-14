@@ -18,8 +18,9 @@ public class CombinedTankComponent extends CombinedComponent<TankComponent> impl
     protected final List<Runnable> listeners = new ArrayList<>();
     protected int tempTank = 0;
 
-    public CombinedTankComponent(Map<Identifier, TankComponent> childComps) {
-        super(childComps);
+    @Override
+    public CombinedTankComponent of(Map<Identifier, TankComponent> childComps) {
+        return (CombinedTankComponent) super.of(childComps);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class CombinedTankComponent extends CombinedComponent<TankComponent> impl
     @Override
     public List<FluidVolume> getAllContents() {
         List<FluidVolume> ret = new ArrayList<>();
-        for (TankComponent comp : childComps.values()) ret.addAll(comp.getAllContents());
+        for (TankComponent comp : getComps().values()) ret.addAll(comp.getAllContents());
         return ret;
     }
 
@@ -61,13 +62,13 @@ public class CombinedTankComponent extends CombinedComponent<TankComponent> impl
     @Override
     public int getTanks() {
         int tanks = 0;
-        for (TankComponent comp : childComps.values()) tanks += comp.getTanks();
+        for (TankComponent comp : getComps().values()) tanks += comp.getTanks();
         return tanks;
     }
 
     @Override
     public FluidVolume insertFluid(FluidVolume tank, ActionType action) {
-        for (TankComponent comp : childComps.values()) tank = comp.insertFluid(tank, action);
+        for (TankComponent comp : getComps().values()) tank = comp.insertFluid(tank, action);
         return tank;
     }
 
@@ -98,34 +99,34 @@ public class CombinedTankComponent extends CombinedComponent<TankComponent> impl
 
     @Override
 	public void clear() {
-		for (TankComponent comp : childComps.values()) comp.clear();
+		for (TankComponent comp : getComps().values()) comp.clear();
 	}
 
 	@Override
     public boolean isAcceptableFluid(int tank) {
-		for (TankComponent comp : childComps.values()) if (comp.isAcceptableFluid(tank)) return true;
+		for (TankComponent comp : getComps().values()) if (comp.isAcceptableFluid(tank)) return true;
         return false;
 	}
 
 	@Override
     public Fraction amountOf(Set<Fluid> fluids) {
 		Fraction amount = Fraction.ZERO;
-        for (TankComponent comp : childComps.values()) amount.add(comp.amountOf(fluids));
+        for (TankComponent comp : getComps().values()) amount.add(comp.amountOf(fluids));
 		return amount;
 	}
 
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedTankComponent", childComps);
+        return CombinedComponent.toTag(tag, "CombinedTankComponent", getComps());
 	}
     
     @Override
 	public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedTankComponent", childComps);
+        CombinedComponent.fromTag(tag, "CombinedTankComponent", getComps());
 	}
 
     protected TankComponent getCompFromTank(int tank) {
-        for (TankComponent comp : childComps.values()) if (comp.getTanks() <= tank) tank -= comp.getTanks() - 1;
+        for (TankComponent comp : getComps().values()) if (comp.getTanks() <= tank) tank -= comp.getTanks() - 1;
         else {
             tempTank = tank;
             return comp;
