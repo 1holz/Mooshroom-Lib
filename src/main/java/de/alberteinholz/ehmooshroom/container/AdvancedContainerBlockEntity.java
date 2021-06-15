@@ -49,6 +49,9 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
         this(registryEntry.id, registryEntry.clientHandlerFactory, registryEntry.blockEntityType);
     }
 
+    //TODO:
+    //maybe make them their own components?
+    //declare the ids at the beginning of the class so it is easier to know them
     public AdvancedContainerBlockEntity(Identifier titelTranslationKey, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, BlockEntityType<? extends BlockEntity> blockEntityType) {
         super(blockEntityType);
         this.clientHandlerFactory = clientHandlerFactory;

@@ -1,5 +1,6 @@
 package de.alberteinholz.ehmooshroom.container.component.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,10 @@ public class ConfigDataComponent implements DataProviderComponent {
         return tag;
     }
 
+    public List<Identifier> getIds() {
+        return new ArrayList<>(configs.keySet());
+    }
+
     public boolean allowsConfig(Identifier id, ConfigBehavior behavior, Direction dir) {
         return ConfigState.AVAILABLE_TRUE.equals(getConfig(id, behavior, dir));
     }
@@ -79,9 +84,21 @@ public class ConfigDataComponent implements DataProviderComponent {
         }
     }
 
+    protected char getRawConfig(Identifier id, ConfigBehavior behavior, Direction dir) {
+        return configs.get(id).getLabel().asString().charAt(getIndex(behavior, dir));
+    }
+
     public ConfigState getConfig(Identifier id, ConfigBehavior behavior, Direction dir) {
-        for (ConfigState state : ConfigState.values()) if (state.c == configs.get(id).getLabel().asString().charAt(getIndex(behavior, dir))) return state;
-        return behavior.DEF;
+        for (ConfigState state : ConfigState.values()) if (state.c == getRawConfig(id, behavior, dir)) return state;
+        return behavior.def;
+    }
+
+    public boolean isAvailable(Identifier id, ConfigBehavior behavior, Direction dir) {
+        return Character.isLowerCase(getRawConfig(id, behavior, dir));
+    }
+
+    public boolean isTrue(Identifier id, ConfigBehavior behavior, Direction dir) {
+        return Character.toLowerCase(getRawConfig(id, behavior, dir)) == 't';
     }
 
     protected void setConfig(Identifier id, ConfigBehavior behavior, Direction dir, ConfigState state) {
@@ -117,10 +134,10 @@ public class ConfigDataComponent implements DataProviderComponent {
         FOREIGN_INPUT(ConfigState.AVAILABLE_TRUE),
         FOREIGN_OUTPUT(ConfigState.AVAILABLE_TRUE);
 
-        public final ConfigState DEF;
+        public final ConfigState def;
 
-        private ConfigBehavior(ConfigState DEF) {
-            this.DEF = DEF;
+        private ConfigBehavior(ConfigState def) {
+            this.def = def;
         }
 
         //XXX: remove if this turns out to be unused
@@ -131,7 +148,7 @@ public class ConfigDataComponent implements DataProviderComponent {
 
         public ConfigState getForChar(char c) {
             for (ConfigState state : ConfigState.values()) if (c == state.c) return state;
-            return DEF;
+            return def;
         }
 
         public boolean isDefaultChar(char c) {
@@ -139,7 +156,7 @@ public class ConfigDataComponent implements DataProviderComponent {
         }
 
         public char getDefaultChar() {
-            return DEF.c;
+            return def.c;
         }
     }
 
