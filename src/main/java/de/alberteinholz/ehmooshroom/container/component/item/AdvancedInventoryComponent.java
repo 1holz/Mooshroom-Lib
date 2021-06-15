@@ -12,8 +12,6 @@ import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent
 import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
 import de.alberteinholz.ehmooshroom.util.Helper;
 import io.github.cottonmc.component.api.ActionType;
-import io.github.cottonmc.component.compat.vanilla.InventoryWrapper;
-import io.github.cottonmc.component.compat.vanilla.SidedInventoryWrapper;
 import io.github.cottonmc.component.item.InventoryComponent;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
@@ -26,7 +24,6 @@ import net.minecraft.world.WorldAccess;
 
 public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent<InventoryComponent> {
     private Identifier id;
-    //protected final InventoryWrapper inventoryWrapper = new InventoryWrapper(this);
     protected DefaultedList<Slot> slots;
     protected int maxTransfer;
     protected final List<Runnable> listeners = new ArrayList<>();
@@ -355,18 +352,16 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
     */
 
-    //XXX: TEMP
+    //XXX: temp?
     @Override
     public Inventory asInventory() {
-        return InventoryWrapper.of(this);
+        return new InventoryWrapperComp(this);
     }
 
-    //XXX: TEMP
+    //XXX: temp?
     @Override
     public SidedInventory asLocalInventory(WorldAccess world, BlockPos pos) {
-        return SidedInventoryWrapper.of(dir -> {
-            return this;
-        });
+        return (SidedInventory) asInventory();
     }
 
     public boolean isSlotAvailable(int slot, Direction side) {
