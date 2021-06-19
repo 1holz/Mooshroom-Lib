@@ -58,6 +58,11 @@ public class LoggerHelper {
     public Throwable bigBug(Throwable e) {
         bigBug();
         logger.error("Post this error there:", e);
+        try {
+            throw e;
+        } catch (Throwable e1) {
+            e1.printStackTrace();
+        }
         return e;
     }
 

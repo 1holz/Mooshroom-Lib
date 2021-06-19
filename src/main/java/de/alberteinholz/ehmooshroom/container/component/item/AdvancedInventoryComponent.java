@@ -24,7 +24,7 @@ import net.minecraft.world.WorldAccess;
 
 public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent<InventoryComponent> {
     private Identifier id;
-    protected DefaultedList<Slot> slots;
+    protected List<Slot> slots = new ArrayList<>();
     protected int maxTransfer;
     protected final List<Runnable> listeners = new ArrayList<>();
     protected ConfigDataComponent config;
@@ -41,16 +41,12 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         this(1, types, ids);
     }
 
-    //null id for no id
-    //futher aperance of duplicate id will repleced with null
-    //types determine size
     public AdvancedInventoryComponent(int maxTransfer,  Type[] types, Identifier[] ids) {
+        if (types.length != ids.length) MooshroomLib.LOGGER.bigBug(new IllegalArgumentException("types[] and ids[] must be of the same size"));
         this.maxTransfer = maxTransfer;
-        slots = DefaultedList.ofSize(types.length, new Slot());
         for (int i = 0; i < types.length; i++) {
             if (isIdPresent(ids[i])) warnDuplicteId(ids[i]);
-            if (!types[i].equals(Type.STORAGE) && types[i] != null) slots.get(i).type = types[i];
-            if (ids[i] != null) slots.get(i).id = ids[i];
+            slots.add(new Slot(types[i], ids[i]));
         }
     }
 
@@ -83,7 +79,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
 
     public boolean isIdPresent(Identifier id) {
-        for (Slot slot : slots) if (slot.id.equals(id)) return true;
+        for (Slot slot : slots) if (id.equals(slot.id)) return true;
         return false;
     }
 
@@ -125,7 +121,9 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     
     //returns -1 if id is not present
     public int getIntFromId(Identifier id) {
-        for (int i = 0; i < slots.size(); i++) if (slots.get(i).id.equals(id)) return i;
+        for (int i = 0; i < slots.size(); i++) {
+            if (slots.get(i).id.equals(id)) return i;
+        }
         return -1;
     }
 
@@ -372,14 +370,6 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         public Type type;
         public Identifier id;
         public ItemStack stack = ItemStack.EMPTY;
-
-        public Slot() {
-            this(Type.STORAGE, null);
-        }
-
-        public Slot(Type type) {
-            this(type, null);
-        }
 
         public Slot(Type type, Identifier id) {
             this.type = type;

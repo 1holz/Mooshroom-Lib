@@ -45,7 +45,7 @@ public class NameDataComponent implements DataProviderComponent {
     }
 
     public String getName() {
-        Identifier id = new Identifier(getName());
+        Identifier id = new Identifier(containerName.getLabel().asString());
         return "block." + id.getNamespace() + "." + id.getPath();
     }
 
