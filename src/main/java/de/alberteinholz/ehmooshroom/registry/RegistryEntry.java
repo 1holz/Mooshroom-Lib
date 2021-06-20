@@ -130,7 +130,7 @@ public class RegistryEntry {
         return this;
     }
 
-    //FIXME: IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!!!
+    //FIXME: IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!
     @SuppressWarnings({"rawtypes", "unchecked"})
     public RegistryEntry withScreenHacky(Factory screenFactory) {
         return withScreen(screenFactory);
@@ -143,7 +143,7 @@ public class RegistryEntry {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Gui before Screen for " + id.toString()));
             return this;
         }
-        if (this.screenHandlerType != null && this.screenFactory != null) ScreenRegistry.<ScreenHandler, HandledScreen<ScreenHandler>>register(this.screenHandlerType, this.screenFactory);
+        if (screenHandlerType != null && this.screenFactory != null) ScreenRegistry.<ScreenHandler, HandledScreen<ScreenHandler>>register(screenHandlerType, this.screenFactory);
         return this;
     }
 

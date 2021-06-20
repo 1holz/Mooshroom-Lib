@@ -88,6 +88,7 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent impleme
         return config.allowsConfig(id, ConfigBehavior.FOREIGN_OUTPUT, dir);
     }
 
+    //TODO: IMPORTANT!?! make fromTag and toTag for other comps???
     @Override
     public void fromTag(CompoundTag tag) {
         if (!tag.contains("Capacitor", NbtType.COMPOUND)) return;
