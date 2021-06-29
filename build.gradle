@@ -24,8 +24,8 @@ dependencies {
 
 	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}")//+${project.minecraft_version}")
 	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")
-	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-base:2.4.1")
-	//include modImplementation("io.github.onyxstudios.Cardinal-Components-API:cardinal-components-block:2.4.1")
+	//include modImplementation("io.github.onyxstudios:Cardinal-Components-API:cardinal-components-base:${project.cardinal_components_api_version}")
+	//include modImplementation("io.github.onyxstudios:Cardinal-Components-API:cardinal-components-block:${project.cardinal_components_api_version}")
     //include modImplementation("io.github.cottonmc:UniversalComponents:${project.universalcomponents_version}+${project.minecraft_version}")
 	compile files("libs/universalcomponents-${project.universalcomponents_version}+${project.minecraft_version}-dev.jar")
 	include files("libs/universalcomponents-${project.universalcomponents_version}+${project.minecraft_version}-dev.jar")
@@ -34,11 +34,11 @@ dependencies {
 repositories {
     maven {
         name = "CottonMC"
-        url = "http://server.bbkr.space/artifactory/libs-release"
+        url = "https://server.bbkr.space/artifactory/libs-release"
     }
     maven {
         name = "Ladysnake Libs"
-        url = "https://dl.bintray.com/ladysnake/libs"
+        url = "https://ladysnake.jfrog.io/artifactory/mods"
     }
     maven {
         name = "OnyxStudios"
