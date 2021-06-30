@@ -130,15 +130,14 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 		return amount;
 	}
 
-    //XXX: is this actually needed?
 	@Override
 	public Inventory asInventory() {
-		return null;
+		return new InventoryWrapperComp(this);
 	}
 
 	@Override
 	public SidedInventory asLocalInventory(WorldAccess world, BlockPos pos) {
-		return null;
+		return (SidedInventory) asInventory();
 	}
 
 	@Override
@@ -151,6 +150,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
         CombinedComponent.fromTag(tag, "CombinedInventoryComponent", getComps());
 	}
 
+    //TODO: GO ON HERE!!!
     protected InventoryComponent getCompFromSlot(int slot) {
         for (InventoryComponent comp : getComps().values()) if (comp.size() <= slot) slot -= comp.size() - 1;
         else {

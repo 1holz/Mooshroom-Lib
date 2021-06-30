@@ -350,7 +350,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
     */
 
-    //XXX: temp?
+    //XXX: temp? also for the combined version?
     @Override
     public Inventory asInventory() {
         return new InventoryWrapperComp(this);
