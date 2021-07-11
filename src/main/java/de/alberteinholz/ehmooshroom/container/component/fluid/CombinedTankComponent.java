@@ -1,9 +1,11 @@
 package de.alberteinholz.ehmooshroom.container.component.fluid;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.api.ActionType;
@@ -20,6 +22,8 @@ public class CombinedTankComponent extends CombinedComponent<TankComponent> impl
 
     @Override
     public CombinedTankComponent of(Map<Identifier, TankComponent> childComps) {
+        Iterator<TankComponent> iter = childComps.values().iterator();
+        while (iter.hasNext()) if (!(iter.next() instanceof TankComponent)) iter.remove();
         return (CombinedTankComponent) super.of(childComps);
     }
 

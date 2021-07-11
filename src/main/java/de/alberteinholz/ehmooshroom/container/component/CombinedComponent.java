@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 public class CombinedComponent<T extends Component> {
     private Map<Identifier, T> childComps = new HashMap<>();
 
+    //XXX: make sure the inputed list only contains objects of the right type
     public CombinedComponent<T> of(Map<Identifier, T> childComps) {
         this.childComps = childComps;
         return this;

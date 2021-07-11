@@ -1,8 +1,10 @@
 package de.alberteinholz.ehmooshroom.container.component.energy;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.api.ActionType;
@@ -18,6 +20,8 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
 
     @Override
     public CombinedCapacitorComponent of(Map<Identifier, CapacitorComponent> childComps) {
+        Iterator<CapacitorComponent> iter = childComps.values().iterator();
+        while (iter.hasNext()) if (!(iter.next() instanceof CapacitorComponent)) iter.remove();
         return (CombinedCapacitorComponent) super.of(childComps);
     }
 

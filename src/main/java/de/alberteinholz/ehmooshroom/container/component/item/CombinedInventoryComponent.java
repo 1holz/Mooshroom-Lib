@@ -1,9 +1,11 @@
 package de.alberteinholz.ehmooshroom.container.component.item;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.api.ActionType;
@@ -24,6 +26,8 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 
     @Override
     public CombinedInventoryComponent of(Map<Identifier, InventoryComponent> childComps) {
+        Iterator<InventoryComponent> iter = childComps.values().iterator();
+        while (iter.hasNext()) if (!(iter.next() instanceof InventoryComponent)) iter.remove();
         return (CombinedInventoryComponent) super.of(childComps);
     }
 
@@ -65,7 +69,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     @Override
     public ItemStack getStack(int slot) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return comp.equals(null) ? ItemStack.EMPTY : comp.getStack(tempSlot);
+        return comp == null ? ItemStack.EMPTY : comp.getStack(tempSlot);
     }
 
     @Override
@@ -103,7 +107,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     @Override
     public void setStack(int slot, ItemStack stack) {
         InventoryComponent comp = getCompFromSlot(slot);
-        if (!(comp.equals(null))) comp.setStack(tempSlot, stack);
+        if (comp != null) comp.setStack(tempSlot, stack);
     }
 
 	@Override
@@ -150,12 +154,13 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
         CombinedComponent.fromTag(tag, "CombinedInventoryComponent", getComps());
 	}
 
-    //TODO: GO ON HERE!!!
     protected InventoryComponent getCompFromSlot(int slot) {
-        for (InventoryComponent comp : getComps().values()) if (comp.size() <= slot) slot -= comp.size() - 1;
-        else {
-            tempSlot = slot;
-            return comp;
+        for (InventoryComponent comp : getComps().values()) {
+            if (comp.size() <= slot) slot -= comp.size() - 1;
+            else {
+                tempSlot = slot;
+                return comp;
+            }
         }
         return null;
     }

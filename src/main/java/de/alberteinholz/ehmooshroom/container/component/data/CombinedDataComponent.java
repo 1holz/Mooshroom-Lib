@@ -1,5 +1,6 @@
 package de.alberteinholz.ehmooshroom.container.component.data;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import net.minecraft.util.Identifier;
 public class CombinedDataComponent extends CombinedComponent<DataProviderComponent> implements DataProviderComponent {
     @Override
     public CombinedDataComponent of(Map<Identifier, DataProviderComponent> childComps) {
+        Iterator<DataProviderComponent> iter = childComps.values().iterator();
+        while (iter.hasNext()) if (!(iter.next() instanceof DataProviderComponent)) iter.remove();
         return (CombinedDataComponent) super.of(childComps);
     }
     
