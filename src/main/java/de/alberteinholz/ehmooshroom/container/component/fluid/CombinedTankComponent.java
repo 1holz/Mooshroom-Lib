@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import de.alberteinholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.api.ActionType;

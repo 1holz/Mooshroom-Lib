@@ -36,12 +36,15 @@ public class ConfigDataComponent implements DataProviderComponent {
         return null;
     }
 
-    //it's recommended to add all needed configs befor
+    //it's recommended to add all needed configs before
     @Override
     public void fromTag(CompoundTag tag) {
         if (!tag.contains("Config", NbtType.COMPOUND)) return;
         for (String sId : tag.getCompound("Config").getKeys()) {
-            if (!tag.contains(sId, NbtType.STRING) || !tag.getString(sId).matches("^[tfTF]{24}$")) continue;
+            if (!tag.contains(sId, NbtType.STRING) || !tag.getString(sId).matches("^[tfTF]{24}$")) {
+                MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("The config string for " + sId + " is malformated and will be ignored."));
+                continue;
+            }
             Identifier id = new Identifier(sId);
             if (!configs.containsKey(id)) addConfig(id);
             configs.get(id).withLabel(tag.getString(sId));
@@ -54,7 +57,7 @@ public class ConfigDataComponent implements DataProviderComponent {
         configs.forEach((id, config) -> {
             if (!isDefault(config.getLabel().asString())) configTag.putString(id.toString(), config.getLabel().asString());
         });
-        tag.put("Config", configTag);
+        if (!configTag.isEmpty()) tag.put("Config", configTag);
         return tag;
     }
 
