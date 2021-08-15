@@ -12,6 +12,15 @@ import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
+import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent;
+import de.alberteinholz.ehmooshroom.container.component.item.CombinedInventoryComponent;
+import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot;
+import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
+import de.alberteinholz.ehmooshroom.recipes.Input.BlockIngredient;
+import de.alberteinholz.ehmooshroom.recipes.Input.DataIngredient;
+import de.alberteinholz.ehmooshroom.recipes.Input.EntityIngredient;
+import de.alberteinholz.ehmooshroom.recipes.Input.FluidIngredient;
+import de.alberteinholz.ehmooshroom.recipes.Input.ItemIngredient;
 import de.alberteinholz.ehmooshroom.registry.RegistryEntry;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.compat.core.BlockComponentHook;
@@ -31,10 +40,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -118,6 +129,51 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
                 }
             }
         }
+    }
+
+    public boolean containsItemIngredients(ItemIngredient... ingredients) {
+        //XXX: put some recipe stuff into MooshroomLib and make AdvancedInventoryComponent work!!!!!
+        //XXX: GO ON HERE
+        for (ItemIngredient ingredient : ingredients) {
+            int amount = ingredient.amount;
+            for (InventoryComponent comp : getCombinedComp(new CombinedInventoryComponent()).getComps().values()) {
+                if (comp instanceof AdvancedInventoryComponent) {
+                    for (Slot slot : ((AdvancedInventoryComponent) comp).getSlots(Type.INPUT)) {
+                        if (((Tag<Item>) ingredient.ingredient).contains(slot.stack.getItem())) {
+                            amount -= slot.stack.getCount();
+                            if (amount <= 0) break;
+                        }
+                    }
+                } else amount -= comp.removeStack(amount, ActionType.TEST).getCount();
+                if (amount <= 0) break;
+            }
+            if (amount > 0) return false;
+        }
+        return true;
+    }
+
+    public boolean containsFluidIngredients(FluidIngredient... ingredients) {
+        boolean bl = true;
+        for (FluidIngredient ingredient : ingredients) {
+            MooshroomLib.LOGGER.wip("Containment Check for " + ingredient);
+            //TODO:fluid
+        }
+        return bl;
+    }
+
+    //only by overriding
+    public boolean containsBlockIngredients(BlockIngredient... ingredients) {
+        return true;
+    }
+
+    //only by overriding
+    public boolean containsEntityIngredients(EntityIngredient... ingredients) {
+        return true;
+    }
+
+    //only by overriding
+    public boolean containsDataIngredients(DataIngredient... ingredients) {
+        return true;
     }
 
     //you have to add all needed components first

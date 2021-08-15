@@ -46,7 +46,10 @@ public class ConfigDataComponent implements DataProviderComponent {
                 continue;
             }
             Identifier id = new Identifier(sId);
-            if (!configs.containsKey(id)) addConfig(id);
+            if (!configs.containsKey(id)) {
+                addConfig(id);
+                MooshroomLib.LOGGER.smallBug(new IllegalStateException("The config " + id.toString() + " wasn't added before, which is recommended."));
+            }
             configs.get(id).withLabel(tag.getString(sId));
         }
     }

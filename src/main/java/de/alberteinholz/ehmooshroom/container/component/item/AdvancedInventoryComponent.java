@@ -338,12 +338,11 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 
     //TODO: make custom toTag & fromTag for not adding empty tags
     
-    //XXX:currently not available will change back later
-    /*
+    /*XXX: here
     public boolean containsInput(ItemIngredient ingredient) {
         int amount = 0;
-        for (Slot slot : slots) {
-            if (ingredient.ingredient != null && slot.type.equals(Type.INPUT) && ingredient.ingredient.contains(slot.stack.getItem()) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true))) amount += slot.stack.getCount();
+        for (Slot slot : getSlots(Type.INPUT)) {
+            if (ingredient.ingredient != null && ingredient.ingredient.contains(slot.stack.getItem()) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true))) amount += slot.stack.getCount();
             if (amount >= ingredient.amount) return true;
         }
         return false;
