@@ -14,8 +14,6 @@ import de.alberteinholz.ehmooshroom.container.component.data.NameDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
 import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent;
 import de.alberteinholz.ehmooshroom.container.component.item.CombinedInventoryComponent;
-import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot;
-import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
 import de.alberteinholz.ehmooshroom.recipes.Input.BlockIngredient;
 import de.alberteinholz.ehmooshroom.recipes.Input.DataIngredient;
 import de.alberteinholz.ehmooshroom.recipes.Input.EntityIngredient;
@@ -40,12 +38,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -132,19 +130,24 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
     }
 
     public boolean containsItemIngredients(ItemIngredient... ingredients) {
-        //XXX: put some recipe stuff into MooshroomLib and make AdvancedInventoryComponent work!!!!!
-        //XXX: GO ON HERE
         for (ItemIngredient ingredient : ingredients) {
             int amount = ingredient.amount;
             for (InventoryComponent comp : getCombinedComp(new CombinedInventoryComponent()).getComps().values()) {
                 if (comp instanceof AdvancedInventoryComponent) {
+                    amount -= ((AdvancedInventoryComponent) comp).containsInput(ingredient);
+                    /*TODO: delete
                     for (Slot slot : ((AdvancedInventoryComponent) comp).getSlots(Type.INPUT)) {
                         if (((Tag<Item>) ingredient.ingredient).contains(slot.stack.getItem())) {
                             amount -= slot.stack.getCount();
                             if (amount <= 0) break;
                         }
                     }
-                } else amount -= comp.removeStack(amount, ActionType.TEST).getCount();
+                    */
+                } else for (ItemStack stack : comp.getStacks()) {
+                    if ((ingredient.ingredient == null || ingredient.ingredient.contains(stack.getItem())) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, stack.getTag(), true))) amount -= stack.getCount();
+                    if (amount <= 0) break;
+                }
+                //TODO: delete: amount -= comp.removeStack(amount, ActionType.TEST).getCount();
                 if (amount <= 0) break;
             }
             if (amount > 0) return false;

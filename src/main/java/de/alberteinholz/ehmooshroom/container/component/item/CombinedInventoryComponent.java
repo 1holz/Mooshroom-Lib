@@ -38,13 +38,13 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     @Override
     public boolean canExtract(int slot) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? false : comp.canExtract(tempSlot);
+        return (comp == null) ? false : comp.canExtract(tempSlot);
     }
 
     @Override
     public boolean canInsert(int slot) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? false : comp.canInsert(tempSlot);
+        return (comp == null) ? false : comp.canInsert(tempSlot);
     }
 
     @Override
@@ -87,20 +87,20 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     @Override
     public ItemStack insertStack(int slot, ItemStack stack, ActionType action) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? stack : comp.insertStack(tempSlot, stack, action);
+        return (comp == null) ? stack : comp.insertStack(tempSlot, stack, action);
     }
 
     //XXX: why not also make search for a stack possible?
     @Override
     public ItemStack removeStack(int slot, ActionType action) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? ItemStack.EMPTY : comp.removeStack(tempSlot, action);
+        return (comp == null) ? ItemStack.EMPTY : comp.removeStack(tempSlot, action);
     }
 
     @Override
     public ItemStack removeStack(int slot, int amount, ActionType action) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? ItemStack.EMPTY : comp.removeStack(tempSlot, amount, action);
+        return (comp == null) ? ItemStack.EMPTY : comp.removeStack(tempSlot, amount, action);
     }
 
     @Override
@@ -117,13 +117,13 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 	@Override
 	public int getMaxStackSize(int slot) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? 0 : comp.getMaxStackSize(slot);
+        return (comp == null) ? 0 : comp.getMaxStackSize(tempSlot);
 	}
 
 	@Override
 	public boolean isAcceptableStack(int slot, ItemStack stack) {
         InventoryComponent comp = getCompFromSlot(slot);
-        return (comp.equals(null)) ? false : comp.isAcceptableStack(slot, stack);
+        return (comp == null) ? false : comp.isAcceptableStack(tempSlot, stack);
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 
     protected InventoryComponent getCompFromSlot(int slot) {
         for (InventoryComponent comp : getComps().values()) {
-            if (comp.size() <= slot) slot -= comp.size() - 1;
+            if (comp.size() <= slot) slot -= comp.size();
             else {
                 tempSlot = slot;
                 return comp;

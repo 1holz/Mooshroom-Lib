@@ -10,18 +10,22 @@ import de.alberteinholz.ehmooshroom.container.component.TransportingComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent;
 import de.alberteinholz.ehmooshroom.container.component.data.ConfigDataComponent.ConfigBehavior;
 import de.alberteinholz.ehmooshroom.container.component.item.AdvancedInventoryComponent.Slot.Type;
+import de.alberteinholz.ehmooshroom.recipes.Input.ItemIngredient;
 import de.alberteinholz.ehmooshroom.util.Helper;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.item.InventoryComponent;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 
+//TODO: check this class for content that can be deleted
 public class AdvancedInventoryComponent implements InventoryComponent, TransportingComponent<InventoryComponent> {
     private Identifier id;
     protected List<Slot> slots = new ArrayList<>();
@@ -121,9 +125,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     
     //returns -1 if id is not present
     public int getIntFromId(Identifier id) {
-        for (int i = 0; i < slots.size(); i++) {
-            if (slots.get(i).id.equals(id)) return i;
-        }
+        for (int i = 0; i < slots.size(); i++) if (slots.get(i).id.equals(id)) return i;
         return -1;
     }
 
@@ -284,25 +286,24 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 		return getType(slot).extract;
 	}
 
+    @Override
     public ItemStack removeStack(int slot, int amount, ActionType action) {
-		ItemStack stack = getStack(slot);
-		if (action.shouldPerform()) onChanged();
-		else stack = stack.copy();
-        return stack.split(amount);
+		ItemStack remains = getStack(slot);
+		ItemStack taken = remains.split(amount);
+		if (action.shouldPerform()) setStack(slot, remains);
+        return taken;
     }
     
     @Override
     public ItemStack removeStack(int slot, ActionType action) {
-        if (action.shouldPerform()) {
-            setStack(slot, ItemStack.EMPTY);
-            onChanged();
-        }
-        return getStack(slot);
+        ItemStack stack = getStack(slot);
+        if (action.shouldPerform()) setStack(slot, ItemStack.EMPTY);
+        return stack;
     }
 
     @Override
 	public void setStack(int slot, ItemStack stack) {
-		if (!isAcceptableStack(slot, stack)) {
+		if (isAcceptableStack(slot, stack)) {
             slots.get(slot).stack = stack;
             onChanged();
         }
@@ -311,8 +312,22 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     @Override
     public ItemStack insertStack(int slot, ItemStack stack, ActionType action) {
 		ItemStack target = getStack(slot);
+        ItemStack ret = stack.copy();
+        if (target.isEmpty() || target.isItemEqual(ret)) {
+            int oriSize = target.getCount();
+            target = new ItemStack(ret.getItem(), Math.min(Math.min(target.getMaxCount(), getMaxStackSize(slot)), target.getCount() + ret.getCount()));
+            ret.decrement(target.getCount() - oriSize);
+        } else if (ret.getCount() <= getMaxStackSize(slot)) {
+            ItemStack temp = target;
+            target = ret;
+            ret = temp;
+        }
+        if (action.shouldPerform()) setStack(slot, target);
+        return ret;
+        /*XXX: delete if not needed (contains a bug?)?
+		ItemStack target = getStack(slot);
         int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(slot));
-        if (target.getCount() >= maxSize) target.setCount(maxSize);
+        //if (target.getCount() >= maxSize) target.setCount(maxSize);
 		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize || !isAcceptableStack(slot, stack)) return stack;
         if (!action.shouldPerform()) stack = stack.copy();
         else onChanged();
@@ -320,6 +335,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         if (target.isEmpty()) setStack(slot, newTarget);
         else target.increment(newTarget.getCount());
         return stack;
+        */
     }
     
 	@Override
@@ -338,16 +354,15 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 
     //TODO: make custom toTag & fromTag for not adding empty tags
     
-    /*XXX: here
-    public boolean containsInput(ItemIngredient ingredient) {
+    //TODO: check if items from one tag can be pulled from multible inventories since it checks for them
+    public int containsInput(ItemIngredient ingredient) {
         int amount = 0;
         for (Slot slot : getSlots(Type.INPUT)) {
-            if (ingredient.ingredient != null && ingredient.ingredient.contains(slot.stack.getItem()) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true))) amount += slot.stack.getCount();
-            if (amount >= ingredient.amount) return true;
+            if ((ingredient.ingredient == null || ingredient.ingredient.contains(slot.stack.getItem())) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true))) amount += slot.stack.getCount();
+            if (amount >= ingredient.amount) return amount;
         }
-        return false;
+        return amount;
     }
-    */
 
     //XXX: temp? also for the combined version?
     @Override
