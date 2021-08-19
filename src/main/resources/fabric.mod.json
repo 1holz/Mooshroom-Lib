@@ -16,10 +16,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "de.alberteinholz.ehmooshroom.MooshroomLib"
+            "de.einholz.ehmooshroom.MooshroomLib"
         ],
         "client": [
-            "de.alberteinholz.ehmooshroom.MooshroomLib"
+            "de.einholz.ehmooshroom.MooshroomLib"
         ]
     },
     "mixins": [],
