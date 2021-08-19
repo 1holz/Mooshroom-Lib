@@ -19,6 +19,7 @@ import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -129,9 +130,14 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         return -1;
     }
 
+    @Deprecated
 	@Override
 	public ItemStack getStack(int slot) {
-		return slots.get(slot).stack.copy();
+		return slots.get(slot).stack;
+    }
+
+	public ItemStack getImmutableStack(int slot) {
+		return getStack(slot).copy();
     }
     
     //null for all types
@@ -167,13 +173,13 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         for (int idFrom : fromContainerComponent != null ? (Integer[]) fromContainerComponent.getExtractable().toArray() : ArrayUtils.toObject(Helper.countingArray(from.size()))) {
             if (fromContainerComponent != null ? fromContainerComponent.canExtract(idFrom, dir) : fromComponent != null ? fromComponent.canExtract(idFrom) : true) {
                 //XXX: Update on UC update
-                ItemStack extractionTest = fromComponent != null ? fromComponent.takeStack(idFrom, maxTransfer - transfer, ActionType.TEST) : from.getStack(idFrom).copy();
+                ItemStack extractionTest = fromComponent != null ? fromComponent.takeStack(idFrom, maxTransfer - transfer, ActionType.TEST) : from.getImmutableStack(idFrom).copy();
                 if (extractionTest.isEmpty()) continue;
                 if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
                 for (int idTo : toContainerComponent != null ? (Integer[]) toContainerComponent.getInsertable().toArray() : ArrayUtils.toObject(Helper.countingArray(to.size()))) {
                     int insertionCount = extractionTest.getCount() - (toComponent != null ? toComponent.insertStack(idTo, extractionTest, action).getCount() : 0);
                     if (!(to instanceof InventoryWrapper)) { //vanilla
-                        ItemStack target = to.getStack(idTo);
+                        ItemStack target = to.getImmutableStack(idTo);
                         insertionCount = target.getCount() + extractionTest.getCount() > Math.min(target.getMaxCount(), to.getMaxCountPerStack()) ? Math.min(target.getMaxCount(), to.getMaxCountPerStack()) - target.getCount() : extractionTest.getCount();
                         if (action.shouldPerform()) target.increment(insertionCount);
                     }
@@ -243,13 +249,13 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         ContainerInventoryComponent toContainerComponent = toComponent instanceof ContainerInventoryComponent ? (ContainerInventoryComponent) toComponent : null;
         for (Object idFrom : fromContainerComponent != null ? fromContainerComponent.getSlots(Type.OUTPUT).keySet().toArray() : Helper.countingArray(from.size())) {
             if (fromContainerComponent != null ? fromContainerComponent.canExtract((String) idFrom, dir) : fromComponent != null ? fromComponent.canExtract((int) idFrom) : true) {
-                ItemStack extractionTest = fromContainerComponent != null ? fromContainerComponent.removeStack((String) idFrom, maxTransfer, ActionType.TEST) : fromComponent != null ? fromComponent.removeStack((int) idFrom, ActionType.TEST) : from.getStack((int) idFrom).copy();
+                ItemStack extractionTest = fromContainerComponent != null ? fromContainerComponent.removeStack((String) idFrom, maxTransfer, ActionType.TEST) : fromComponent != null ? fromComponent.removeStack((int) idFrom, ActionType.TEST) : from.getImmutableStack((int) idFrom).copy();
                 if (extractionTest.isEmpty()) continue;
                 if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
                 for (Object idTo : toContainerComponent != null ? toContainerComponent.getSlots(Type.INPUT).keySet().toArray() : Helper.countingArray(to.size())) {
                     int insertionCount = extractionTest.getCount() - (toContainerComponent != null ? toContainerComponent.insertStack((String) idTo, extractionTest, action).getCount() : toComponent != null ? toComponent.insertStack((int) idTo, extractionTest, action).getCount() : 0);
                     if (!(to instanceof InventoryWrapper)) {
-                        ItemStack gotten = to.getStack((int) idTo);
+                        ItemStack gotten = to.getImmutableStack((int) idTo);
                         insertionCount = gotten.getCount() + extractionTest.getCount() > gotten.getMaxCount() || gotten.getCount() + extractionTest.getCount() > to.getMaxCountPerStack() ? Math.min(gotten.getMaxCount(), to.getMaxCountPerStack()) - gotten.getCount() : extractionTest.getCount();
                         if (action.shouldPerform()) gotten.increment(insertionCount);
                     }
@@ -288,7 +294,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 
     @Override
     public ItemStack removeStack(int slot, int amount, ActionType action) {
-		ItemStack remains = getStack(slot);
+		ItemStack remains = getImmutableStack(slot);
 		ItemStack taken = remains.split(amount);
 		if (action.shouldPerform()) setStack(slot, remains);
         return taken;
@@ -296,7 +302,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     
     @Override
     public ItemStack removeStack(int slot, ActionType action) {
-        ItemStack stack = getStack(slot);
+        ItemStack stack = getImmutableStack(slot);
         if (action.shouldPerform()) setStack(slot, ItemStack.EMPTY);
         return stack;
     }
@@ -311,9 +317,9 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 
     @Override
     public ItemStack insertStack(int slot, ItemStack stack, ActionType action) {
-		ItemStack target = getStack(slot);
+		ItemStack target = getImmutableStack(slot);
         ItemStack ret = stack.copy();
-        if (target.isEmpty() || target.isItemEqual(ret)) {
+        if (target.isEmpty() || ScreenHandler.canStacksCombine(target, ret)) {
             int oriSize = target.getCount();
             target = new ItemStack(ret.getItem(), Math.min(Math.min(target.getMaxCount(), getMaxStackSize(slot)), target.getCount() + ret.getCount()));
             ret.decrement(target.getCount() - oriSize);
@@ -325,7 +331,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         if (action.shouldPerform()) setStack(slot, target);
         return ret;
         /*XXX: delete if not needed (contains a bug?)?
-		ItemStack target = getStack(slot);
+		ItemStack target = getImmutableStack(slot);
         int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(slot));
         //if (target.getCount() >= maxSize) target.setCount(maxSize);
 		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize || !isAcceptableStack(slot, stack)) return stack;
