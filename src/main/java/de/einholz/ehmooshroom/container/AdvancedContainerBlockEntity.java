@@ -39,7 +39,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
@@ -181,7 +181,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
 
     //you have to add all needed components first
     @Override
-    public void fromTag(BlockState state, CompoundTag tag) {
+    public void fromTag(BlockState state, NbtCompound tag) {
         super.fromTag(state, tag);
         if (world == null) return;
         for (String key : tag.getKeys()) {
@@ -191,17 +191,17 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
                 MooshroomLib.LOGGER.smallBug(new NoSuchElementException("There is no Component with the id " + key + " in the AdvancedContainer" + getDisplayName().getString()));
                 continue;
             }
-            CompoundTag compTag = tag.getCompound(key);
+            NbtCompound compTag = tag.getCompound(key);
             getImmutableComps().get(id).fromTag(compTag);
         }
     }
 
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
+    public NbtCompound toTag(NbtCompound tag) {
         super.toTag(tag);
         if (world == null) return tag;
         getImmutableComps().forEach((id, comp) -> {
-            CompoundTag compTag = new CompoundTag();
+            NbtCompound compTag = new NbtCompound();
             comp.toTag(compTag);
             if (!compTag.isEmpty()) tag.put(id.toString(), compTag);
         });
@@ -210,13 +210,13 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
     
     @Environment(EnvType.CLIENT)
     @Override
-    public void fromClientTag(CompoundTag tag) {
+    public void fromClientTag(NbtCompound tag) {
         fromTag(world.getBlockState(pos), tag);
     }
 
     @Environment(EnvType.CLIENT)
     @Override
-    public CompoundTag toClientTag(CompoundTag tag) {
+    public NbtCompound toClientTag(NbtCompound tag) {
         return toTag(tag);
     }
 

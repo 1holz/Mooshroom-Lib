@@ -17,7 +17,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -47,12 +47,12 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (world.isClient) super.onBreak(world, pos, state, player);
         ItemStack itemStack = new ItemStack(asItem());
-        CompoundTag compoundTag = world.getBlockEntity(pos).toTag(new CompoundTag());
-        compoundTag.remove("x");
-        compoundTag.remove("y");
-        compoundTag.remove("z");
-        compoundTag.remove("id");
-        if (!compoundTag.isEmpty()) itemStack.putSubTag("BlockEntityTag", compoundTag);
+        NbtCompound nbtCompound = world.getBlockEntity(pos).toTag(new NbtCompound());
+        nbtCompound.remove("x");
+        nbtCompound.remove("y");
+        nbtCompound.remove("z");
+        nbtCompound.remove("id");
+        if (!nbtCompound.isEmpty()) itemStack.putSubTag("BlockEntityTag", nbtCompound);
         ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), itemStack);
         itemEntity.setToDefaultPickupDelay();
         world.spawnEntity(itemEntity);

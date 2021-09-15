@@ -5,8 +5,8 @@ import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.registry.Registry;
 
@@ -15,9 +15,9 @@ public class Output {
     public final FluidVolume[] fluids;
     public final BlockState[] blocks;
     public final Entity[] entities;
-    public final Tag[] data;
+    public final NbtElement[] data;
 
-    public Output(ItemStack[] items, FluidVolume[] fluids, BlockState[] blocks, Entity[] entities, Tag[] data) {
+    public Output(ItemStack[] items, FluidVolume[] fluids, BlockState[] blocks, Entity[] entities, NbtElement[] data) {
         this.items = items;
         this.fluids = fluids;
         this.blocks = blocks;
@@ -47,7 +47,7 @@ public class Output {
                     buf.writeBoolean(false);
                 } else {
                     buf.writeBoolean(true);
-                    buf.writeCompoundTag(volume.getTag());
+                    buf.writeNbt(volume.getTag());
                 }
             }
         } else {
@@ -67,7 +67,7 @@ public class Output {
             buf.writeInt(entities.length);
             for (Entity entity : entities) {
                 buf.writeIdentifier(Registry.ENTITY_TYPE.getId(entity.getType()));
-                buf.writeCompoundTag(entity.toTag(new CompoundTag()));
+                buf.writeNbt(entity.writeNbt(new NbtCompound()));
             }
         } else {
             buf.writeBoolean(false);
@@ -75,10 +75,10 @@ public class Output {
         if (data != null || data.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(data.length);
-            for (Tag tag : data) {
-                CompoundTag compoundTag = new CompoundTag();
+            for (NbtElement tag : data) {
+                NbtCompound compoundTag = new NbtCompound();
                 compoundTag.put("dummy", tag);
-                buf.writeCompoundTag(compoundTag);
+                buf.writeNbt(compoundTag);
             }
         } else {
             buf.writeBoolean(false);
@@ -99,7 +99,7 @@ public class Output {
             for (int i = 0; i < fluids.length; i++) {
                 fluids[i] = new FluidVolume(Registry.FLUID.get(buf.readIdentifier()), Fraction.of(buf.readInt(), buf.readInt()));
                 if (buf.readBoolean()) {
-                    fluids[i].setTag(buf.readCompoundTag());
+                    fluids[i].setTag(buf.readNbt());
                 }
             }
         }
@@ -116,14 +116,14 @@ public class Output {
             for (int i = 0; i < entities.length; i++) {
                 //use entity.setWorld(world) later
                 entities[i] = Registry.ENTITY_TYPE.get(buf.readIdentifier()).create(null);
-                entities[i].fromTag(buf.readCompoundTag());
+                entities[i].readNbt(buf.readNbt());
             }
         }
-        Tag[] data = null;
+        NbtElement[] data = null;
         if (buf.readBoolean()) {
-            data = new Tag[buf.readInt()];
+            data = new NbtElement[buf.readInt()];
             for (int i = 0; i < data.length; i++) {
-                data[i] = buf.readCompoundTag().get("dummy");
+                data[i] = buf.readNbt().get("dummy");
             }
         }
         return new Output(items, fluids, blocks, entities, data);

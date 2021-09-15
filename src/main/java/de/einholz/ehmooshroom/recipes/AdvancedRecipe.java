@@ -25,7 +25,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
