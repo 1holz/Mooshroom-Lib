@@ -8,7 +8,7 @@ import de.einholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.data.DataProviderComponent;
 import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public class CombinedDataComponent extends CombinedComponent<DataProviderComponent> implements DataProviderComponent {
@@ -35,12 +35,12 @@ public class CombinedDataComponent extends CombinedComponent<DataProviderCompone
     }
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedDataComponent", getComps());
+	public void writeToNbt(NbtCompound nbt) {
+        CombinedComponent.writeNbt(nbt, "CombinedDataComponent", getComps());
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedDataComponent", getComps());
+	public void readFromNbt(NbtCompound nbt) {
+        CombinedComponent.readNbt(nbt, "CombinedDataComponent", getComps());
     }
 }

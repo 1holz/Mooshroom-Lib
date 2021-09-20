@@ -17,7 +17,6 @@ import io.github.cottonmc.component.item.InventoryComponent;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.Identifier;
@@ -364,7 +363,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     public int containsInput(ItemIngredient ingredient) {
         int amount = 0;
         for (Slot slot : getSlots(Type.INPUT)) {
-            if ((ingredient.ingredient == null || ingredient.ingredient.contains(slot.stack.getItem())) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true))) amount += slot.stack.getCount();
+            if ((ingredient.ingredient == null || ingredient.ingredient.contains(slot.stack.getItem())) && (ingredient.nbt == null || NbtHelper.matches(ingredient.nbt, slot.stack.getTag(), true))) amount += slot.stack.getCount();
             if (amount >= ingredient.amount) return amount;
         }
         return amount;

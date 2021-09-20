@@ -20,13 +20,13 @@ import de.einholz.ehmooshroom.recipes.Input.EntityIngredient;
 import de.einholz.ehmooshroom.recipes.Input.FluidIngredient;
 import de.einholz.ehmooshroom.recipes.Input.ItemIngredient;
 import de.einholz.ehmooshroom.registry.RegistryEntry;
+import dev.onyxstudios.cca.api.v3.component.Component;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.compat.core.BlockComponentHook;
 import io.github.cottonmc.component.energy.CapacitorComponent;
 import io.github.cottonmc.component.fluid.TankComponent;
 import io.github.cottonmc.component.item.InventoryComponent;
 import io.netty.buffer.Unpooled;
-import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
@@ -144,7 +144,7 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
                     }
                     */
                 } else for (ItemStack stack : comp.getStacks()) {
-                    if ((ingredient.ingredient == null || ingredient.ingredient.contains(stack.getItem())) && (ingredient.tag == null || NbtHelper.matches(ingredient.tag, stack.getTag(), true))) amount -= stack.getCount();
+                    if ((ingredient.ingredient == null || ingredient.ingredient.contains(stack.getItem())) && (ingredient.nbt == null || NbtHelper.matches(ingredient.nbt, stack.getTag(), true))) amount -= stack.getCount();
                     if (amount <= 0) break;
                 }
                 //TODO: delete: amount -= comp.removeStack(amount, ActionType.TEST).getCount();
@@ -181,43 +181,43 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
 
     //you have to add all needed components first
     @Override
-    public void fromTag(BlockState state, NbtCompound tag) {
-        super.fromTag(state, tag);
+    public void fromTag(BlockState state, NbtCompound nbt) {
+        super.fromTag(state, nbt);
         if (world == null) return;
-        for (String key : tag.getKeys()) {
+        for (String key : nbt.getKeys()) {
             Identifier id = new Identifier(key);
-            if (!tag.contains(key, NbtType.COMPOUND) || tag.getCompound(key).isEmpty()) continue;
+            if (!nbt.contains(key, NbtType.COMPOUND) || nbt.getCompound(key).isEmpty()) continue;
             if (!getImmutableComps().containsKey(id)) {
                 MooshroomLib.LOGGER.smallBug(new NoSuchElementException("There is no Component with the id " + key + " in the AdvancedContainer" + getDisplayName().getString()));
                 continue;
             }
-            NbtCompound compTag = tag.getCompound(key);
-            getImmutableComps().get(id).fromTag(compTag);
+            NbtCompound nbtComp = nbt.getCompound(key);
+            getImmutableComps().get(id).readFromNbt(nbtComp);
         }
     }
 
     @Override
-    public NbtCompound toTag(NbtCompound tag) {
-        super.toTag(tag);
-        if (world == null) return tag;
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
+        if (world == null) return nbt;
         getImmutableComps().forEach((id, comp) -> {
-            NbtCompound compTag = new NbtCompound();
-            comp.toTag(compTag);
-            if (!compTag.isEmpty()) tag.put(id.toString(), compTag);
+            NbtCompound nbtComp = new NbtCompound();
+            comp.writeToNbt(nbtComp);
+            if (!nbtComp.isEmpty()) nbt.put(id.toString(), nbtComp);
         });
-        return tag;
+        return nbt;
     }
     
     @Environment(EnvType.CLIENT)
     @Override
-    public void fromClientTag(NbtCompound tag) {
-        fromTag(world.getBlockState(pos), tag);
+    public void fromClientTag(NbtCompound nbt) {
+        fromTag(world.getBlockState(pos), nbt);
     }
 
     @Environment(EnvType.CLIENT)
     @Override
-    public NbtCompound toClientTag(NbtCompound tag) {
-        return toTag(tag);
+    public NbtCompound toClientTag(NbtCompound nbt) {
+        return writeNbt(nbt);
     }
 
     @Override

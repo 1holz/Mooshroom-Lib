@@ -7,7 +7,7 @@ import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.impl.SimpleDataElement;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public class NameDataComponent implements DataProviderComponent {
@@ -34,14 +34,13 @@ public class NameDataComponent implements DataProviderComponent {
     }
 
     @Override
-    public void fromTag(CompoundTag tag) {
-        if (tag.contains("Name", NbtType.STRING)) setName(tag.getString("Name"));
+    public void readFromNbt(NbtCompound nbt) {
+        if (nbt.contains("Name", NbtType.STRING)) setName(nbt.getString("Name"));
     }
 
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
-        if (getName() != defaultName) tag.putString("Name", getName());
-        return tag;
+    public void writeToNbt(NbtCompound nbt) {
+        if (getName() != defaultName) nbt.putString("Name", getName());
     }
 
     public String getName() {

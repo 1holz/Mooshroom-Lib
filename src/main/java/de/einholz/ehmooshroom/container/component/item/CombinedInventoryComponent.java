@@ -13,7 +13,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -144,13 +144,13 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedInventoryComponent", getComps());
+	public void writeToNbt(NbtCompound nbt) {
+        CombinedComponent.writeNbt(nbt, "CombinedInventoryComponent", getComps());
 	}
     
     @Override
-	public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedInventoryComponent", getComps());
+	public void readFromNbt(NbtCompound nbt) {
+        CombinedComponent.readNbt(nbt, "CombinedInventoryComponent", getComps());
 	}
 
     protected InventoryComponent getCompFromSlot(int slot) {

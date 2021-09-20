@@ -6,10 +6,10 @@ import java.util.Set;
 import de.einholz.ehmooshroom.container.AdvancedContainerBlockEntity;
 import de.einholz.ehmooshroom.container.component.data.CombinedDataComponent;
 import de.einholz.ehmooshroom.container.component.item.CombinedInventoryComponent;
+import dev.onyxstudios.cca.api.v3.component.Component;
+import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import io.github.cottonmc.component.UniversalComponents;
-import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.BlockComponentProvider;
-import nerdhub.cardinal.components.api.component.Component;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.InventoryProvider;
@@ -47,7 +47,7 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (world.isClient) super.onBreak(world, pos, state, player);
         ItemStack itemStack = new ItemStack(asItem());
-        NbtCompound nbtCompound = world.getBlockEntity(pos).toTag(new NbtCompound());
+        NbtCompound nbtCompound = world.getBlockEntity(pos).writeNbt(new NbtCompound());
         nbtCompound.remove("x");
         nbtCompound.remove("y");
         nbtCompound.remove("z");
@@ -60,22 +60,22 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockCo
     }
 
     @Override
-    public <T extends Component> boolean hasComponent(BlockView blockView, BlockPos pos, ComponentType<T> type, Direction side) {
-        return getComponentTypes(blockView, pos, side).contains(type);
+    public <T extends Component> boolean hasComponent(BlockView blockView, BlockPos pos, ComponentKey<T> key, Direction side) {
+        return getComponentKeys(blockView, pos, side).contains(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     //TODO: check wether additional components are needed
-    public <T extends Component> T getComponent(BlockView blockView, BlockPos pos, ComponentType<T> type, Direction side) {
-        if (UniversalComponents.INVENTORY_COMPONENT.equals(type)) return (T) ((AdvancedContainerBlockEntity) blockView.getBlockEntity(pos)).getCombinedComp(new CombinedInventoryComponent());
-        if (UniversalComponents.DATA_PROVIDER_COMPONENT.equals(type)) return (T) ((AdvancedContainerBlockEntity) blockView.getBlockEntity(pos)).getCombinedComp(new CombinedDataComponent());
+    public <T extends Component> T getComponent(BlockView blockView, BlockPos pos, ComponentKey<T> key, Direction side) {
+        if (UniversalComponents.INVENTORY_COMPONENT.equals(key)) return (T) ((AdvancedContainerBlockEntity) blockView.getBlockEntity(pos)).getCombinedComp(new CombinedInventoryComponent());
+        if (UniversalComponents.DATA_PROVIDER_COMPONENT.equals(key)) return (T) ((AdvancedContainerBlockEntity) blockView.getBlockEntity(pos)).getCombinedComp(new CombinedDataComponent());
         return null;
     }
 
     @Override
-    public Set<ComponentType<?>> getComponentTypes(BlockView blockView, BlockPos pos, Direction side) {
-        Set<ComponentType<?>> set = new HashSet<>();
+    public Set<ComponentKey<?>> getComponentKeys(BlockView blockView, BlockPos pos, Direction side) {
+        Set<ComponentKey<?>> set = new HashSet<>();
         set.add(UniversalComponents.INVENTORY_COMPONENT);
         set.add(UniversalComponents.DATA_PROVIDER_COMPONENT);
         return set;

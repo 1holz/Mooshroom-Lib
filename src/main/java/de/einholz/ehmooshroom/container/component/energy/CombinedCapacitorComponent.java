@@ -9,7 +9,7 @@ import de.einholz.ehmooshroom.container.component.CombinedComponent;
 import io.github.cottonmc.component.api.ActionType;
 import io.github.cottonmc.component.energy.CapacitorComponent;
 import io.github.cottonmc.component.energy.type.EnergyType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -106,12 +106,12 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
     }
 
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedCapacitorComponent", getComps());
+    public void writeToNbt(NbtCompound nbt) {
+        CombinedComponent.writeNbt(nbt, "CombinedCapacitorComponent", getComps());
     }
 
     @Override
-    public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedCapacitorComponent", getComps());
+    public void readFromNbt(NbtCompound nbt) {
+        CombinedComponent.readNbt(nbt, "CombinedCapacitorComponent", getComps());
     }
 }

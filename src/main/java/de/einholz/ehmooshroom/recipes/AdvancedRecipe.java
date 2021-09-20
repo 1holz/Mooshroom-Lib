@@ -24,6 +24,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
@@ -183,7 +184,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                         JsonObject itemOutput = (JsonObject) jsonItemOutput.get(i);
                         if (itemOutput.has("nbt")) {
                             try {
-								itemStacksList.add(ItemStack.fromTag(StringNbtReader.parse(itemOutput.get("nbt").getAsString())));
+								itemStacksList.add(ItemStack.fromNbt(StringNbtReader.parse(itemOutput.get("nbt").getAsString())));
 							} catch (CommandSyntaxException e) {
 								MooshroomLib.LOGGER.bigBug(e);
 							}
@@ -199,12 +200,11 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                         JsonObject fluidOutput = (JsonObject) jsonFluidOutput.get(i);
                         if (fluidOutput.has("nbt")) {
                             try {
-								fluidVolumesList.add(FluidVolume.fromTag(StringNbtReader.parse(fluidOutput.get("nbt").getAsString())));
+								fluidVolumesList.add(FluidVolume.fromNbt(StringNbtReader.parse(fluidOutput.get("nbt").getAsString())));
 							} catch (CommandSyntaxException e) {
 								MooshroomLib.LOGGER.bigBug(e);
 							}
                         } else fluidVolumesList.add(new FluidVolume(Registry.FLUID.get(new Identifier(JsonHelper.getString(fluidOutput, "fluid"))), Fraction.of(JsonHelper.getInt(fluidOutput, "numerator", 1), JsonHelper.getInt(fluidOutput, "denominator", 1))));
-
                     }
                 }
                 FluidVolume[] fluidVolumes = !fluidVolumesList.isEmpty() ? fluidVolumesList.toArray(new FluidVolume[fluidVolumesList.size()]) : null;
@@ -228,7 +228,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                         Entity entity = Registry.ENTITY_TYPE.get(new Identifier(JsonHelper.getString(entityOutput, "entity"))).create(null);
                         if (entityOutput.has("nbt")) {
                             try {
-                                entity.fromTag(StringNbtReader.parse(entityOutput.get("nbt").getAsString()));
+                                entity.readNbt(StringNbtReader.parse(entityOutput.get("nbt").getAsString()));
                             } catch (CommandSyntaxException e) {
                                 MooshroomLib.LOGGER.bigBug(e);
                             }
@@ -238,7 +238,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                 }
                 Entity[] entities = !entitiesList.isEmpty() ? entitiesList.toArray(new Entity[entitiesList.size()]) : null;
                 //Data:
-                List<Tag> dataList = new ArrayList<Tag>();
+                List<NbtElement> dataList = new ArrayList<NbtElement>();
                 if (jsonOutput.has("data")) {
                     JsonArray jsonDataOutput = JsonHelper.getArray(jsonOutput, "data");
                     for (int i = 0; i < jsonDataOutput.size(); i++) {
@@ -249,7 +249,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
 						}
                     }
                 }
-                Tag[] data = !dataList.isEmpty() ? dataList.toArray(new Tag[dataList.size()]) : null;
+                NbtElement[] data = !dataList.isEmpty() ? dataList.toArray(new NbtElement[dataList.size()]) : null;
                 output = new Output(itemStacks, fluidVolumes, blockStates, entities, data);
             }
             //GENERATES:

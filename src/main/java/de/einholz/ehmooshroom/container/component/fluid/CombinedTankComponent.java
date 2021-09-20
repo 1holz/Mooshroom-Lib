@@ -12,7 +12,7 @@ import io.github.cottonmc.component.fluid.TankComponent;
 import io.github.fablabsmc.fablabs.api.fluidvolume.v1.FluidVolume;
 import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public class CombinedTankComponent extends CombinedComponent<TankComponent> implements TankComponent {
@@ -119,13 +119,13 @@ public class CombinedTankComponent extends CombinedComponent<TankComponent> impl
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-        return CombinedComponent.toTag(tag, "CombinedTankComponent", getComps());
+	public void writeToNbt(NbtCompound nbt) {
+        CombinedComponent.writeNbt(nbt, "CombinedTankComponent", getComps());
 	}
     
     @Override
-	public void fromTag(CompoundTag tag) {
-        CombinedComponent.fromTag(tag, "CombinedTankComponent", getComps());
+	public void readFromNbt(NbtCompound nbt) {
+        CombinedComponent.readNbt(nbt, "CombinedTankComponent", getComps());
 	}
 
     protected TankComponent getCompFromTank(int tank) {

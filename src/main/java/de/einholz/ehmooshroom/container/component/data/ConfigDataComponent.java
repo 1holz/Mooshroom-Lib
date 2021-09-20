@@ -11,7 +11,7 @@ import io.github.cottonmc.component.data.api.DataElement;
 import io.github.cottonmc.component.data.api.Unit;
 import io.github.cottonmc.component.data.impl.SimpleDataElement;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
@@ -38,10 +38,10 @@ public class ConfigDataComponent implements DataProviderComponent {
 
     //it's recommended to add all needed configs before
     @Override
-    public void fromTag(CompoundTag tag) {
-        if (!tag.contains("Config", NbtType.COMPOUND)) return;
-        for (String sId : tag.getCompound("Config").getKeys()) {
-            if (!tag.contains(sId, NbtType.STRING) || !tag.getString(sId).matches("^[tfTF]{24}$")) {
+    public void readFromNbt(NbtCompound nbt) {
+        if (!nbt.contains("Config", NbtType.COMPOUND)) return;
+        for (String sId : nbt.getCompound("Config").getKeys()) {
+            if (!nbt.contains(sId, NbtType.STRING) || !nbt.getString(sId).matches("^[tfTF]{24}$")) {
                 MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("The config string for " + sId + " is malformated and will be ignored."));
                 continue;
             }
@@ -50,18 +50,17 @@ public class ConfigDataComponent implements DataProviderComponent {
                 addConfig(id);
                 MooshroomLib.LOGGER.smallBug(new IllegalStateException("The config " + id.toString() + " wasn't added before, which is recommended."));
             }
-            configs.get(id).withLabel(tag.getString(sId));
+            configs.get(id).withLabel(nbt.getString(sId));
         }
     }
 
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
-        CompoundTag configTag = new CompoundTag();
+    public void writeToNbt(NbtCompound nbt) {
+        NbtCompound configTag = new NbtCompound();
         configs.forEach((id, config) -> {
             if (!isDefault(config.getLabel().asString())) configTag.putString(id.toString(), config.getLabel().asString());
         });
-        if (!configTag.isEmpty()) tag.put("Config", configTag);
-        return tag;
+        if (!configTag.isEmpty()) nbt.put("Config", configTag);
     }
 
     public List<Identifier> getIds() {

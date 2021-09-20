@@ -11,7 +11,7 @@ import io.github.cottonmc.component.energy.impl.SimpleCapacitorComponent;
 import io.github.cottonmc.component.energy.type.EnergyType;
 import io.github.cottonmc.component.energy.type.EnergyTypes;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
@@ -87,27 +87,26 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent impleme
     public boolean canExtract(Direction dir) {
         return config.allowsConfig(id, ConfigBehavior.FOREIGN_OUTPUT, dir);
     }
-
+    
     //TODO: IMPORTANT!?! make fromTag and toTag for other comps???
     @Override
-    public void fromTag(CompoundTag tag) {
-        if (!tag.contains("Capacitor", NbtType.COMPOUND)) return;
-        CompoundTag fromTag = tag.getCompound("Capacitor");
-        if (fromTag.contains("EnergyType", NbtType.STRING)) energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(fromTag.getString("EnergyType")));
-        if (fromTag.contains("Energy", NbtType.NUMBER)) currentEnergy = fromTag.getInt("Energy");
-        if (fromTag.contains("MaxEnergy", NbtType.NUMBER)) maxEnergy = fromTag.getInt("MaxEnergy");
-        else maxEnergy = getDefaultMaxFromType(energyType);
-        if (fromTag.contains("Harm", NbtType.NUMBER)) harm = fromTag.getInt("Harm");
+    public void writeToNbt(NbtCompound nbt) {
+        NbtCompound toNbt = new NbtCompound();
+        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) toNbt.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
+        if (currentEnergy > 0) toNbt.putInt("Energy", currentEnergy);
+        if (maxEnergy != getDefaultMaxFromType(energyType)) toNbt.putInt("MaxEnergy", maxEnergy);
+        if (harm != 0) toNbt.putInt("Harm", harm);
+        if (!toNbt.isEmpty()) nbt.put("Capacitor", toNbt);
     }
-    
+
     @Override
-    public CompoundTag toTag(CompoundTag tag) {
-        CompoundTag toTag = new CompoundTag();
-        if (energyType != EnergyTypes.ULTRA_LOW_VOLTAGE) toTag.putString("EnergyType", UniversalComponents.ENERGY_TYPES.getId(energyType).toString());
-        if (currentEnergy > 0) toTag.putInt("Energy", currentEnergy);
-        if (maxEnergy != getDefaultMaxFromType(energyType)) toTag.putInt("MaxEnergy", maxEnergy);
-        if (harm != 0) toTag.putInt("Harm", harm);
-        if (!toTag.isEmpty()) tag.put("Capacitor", toTag);
-        return tag;
+    public void readFromNbt(NbtCompound nbt) {
+        if (!nbt.contains("Capacitor", NbtType.COMPOUND)) return;
+        NbtCompound fromNbt = nbt.getCompound("Capacitor");
+        if (fromNbt.contains("EnergyType", NbtType.STRING)) energyType = UniversalComponents.ENERGY_TYPES.get(new Identifier(fromNbt.getString("EnergyType")));
+        if (fromNbt.contains("Energy", NbtType.NUMBER)) currentEnergy = fromNbt.getInt("Energy");
+        if (fromNbt.contains("MaxEnergy", NbtType.NUMBER)) maxEnergy = fromNbt.getInt("MaxEnergy");
+        else maxEnergy = getDefaultMaxFromType(energyType);
+        if (fromNbt.contains("Harm", NbtType.NUMBER)) harm = fromNbt.getInt("Harm");
     }
 }

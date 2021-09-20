@@ -104,22 +104,21 @@ public class Input {
         public final Identifier id;
         public final Tag<Item> ingredient;
         public final int amount;
-        //XXX: rename tag to nbt to avoid confusion with the other tag?
-        public final NbtCompound tag;
+        public final NbtCompound nbt;
 
-        public ItemIngredient(Identifier id, int amount, NbtCompound tag) {
+        public ItemIngredient(Identifier id, int amount, NbtCompound nbt) {
             this.id = id;
             this.ingredient = ServerTagManagerHolder.getTagManager().getItems().getTag(id);
             this.amount = amount;
-            this.tag = tag;
+            this.nbt = nbt;
         }
 
         public void write(PacketByteBuf buf) {
             buf.writeIdentifier(id).writeInt(amount);
-            if (tag == null || tag.isEmpty()) buf.writeBoolean(false);
+            if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
             else {
                 buf.writeBoolean(true);
-                buf.writeNbt(tag);
+                buf.writeNbt(nbt);
             }
         }
 
@@ -132,21 +131,21 @@ public class Input {
         public final Identifier id;
         public final Tag<Fluid> ingredient;
         public final Fraction amount;
-        public final NbtCompound tag;
+        public final NbtCompound nbt;
 
-        public FluidIngredient(Identifier id, Fraction amount, NbtCompound tag) {
+        public FluidIngredient(Identifier id, Fraction amount, NbtCompound nbt) {
             this.id = id;
             this.ingredient = ServerTagManagerHolder.getTagManager().getFluids().getTag(id);
             this.amount = amount;
-            this.tag = tag;
+            this.nbt = nbt;
         }
 
         public void write(PacketByteBuf buf) {
             buf.writeIdentifier(id).writeInt(amount.getNumerator()).writeInt(amount.getDenominator());
-            if (tag == null || tag.isEmpty()) buf.writeBoolean(false);
+            if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
             else {
                 buf.writeBoolean(true);
-                buf.writeNbt(tag);
+                buf.writeNbt(nbt);
             }
         }
 
@@ -180,21 +179,21 @@ public class Input {
         public final Identifier id;
         public final Tag<EntityType<?>> ingredient;
         public final int amount;
-        public final NbtCompound tag;
+        public final NbtCompound nbt;
 
-        public EntityIngredient(Identifier id, int amount, NbtCompound tag) {
+        public EntityIngredient(Identifier id, int amount, NbtCompound nbt) {
             this.id = id;
             this.ingredient = ServerTagManagerHolder.getTagManager().getEntityTypes().getTag(id);
             this.amount = amount;
-            this.tag = tag;
+            this.nbt = nbt;
         }
 
         public void write(PacketByteBuf buf) {
             buf.writeIdentifier(id).writeInt(amount);
-            if (tag == null || tag.isEmpty()) buf.writeBoolean(false);
+            if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
             else {
                 buf.writeBoolean(true);
-                buf.writeNbt(tag);
+                buf.writeNbt(nbt);
             }
         }
 
@@ -204,20 +203,20 @@ public class Input {
     }
 
     public static class DataIngredient {
-        public final NbtElement tag;
+        public final NbtElement nbt;
 
-        public DataIngredient(NbtElement tag) {
-            this.tag = tag;
+        public DataIngredient(NbtElement nbt) {
+            this.nbt = nbt;
         }
 
         public void write(PacketByteBuf buf) {
             NbtCompound NbtCompound = new NbtCompound();
-            NbtCompound.put("data", tag);
+            NbtCompound.put("indata", nbt);
             buf.writeNbt(NbtCompound);
         }
 
         public static DataIngredient read(PacketByteBuf buf) {
-            return new DataIngredient(buf.readNbt().get("data"));
+            return new DataIngredient(buf.readNbt().get("indata"));
         }
     }
 }

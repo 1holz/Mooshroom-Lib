@@ -29,12 +29,8 @@ public class Output {
         if (items != null || items.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(items.length);
-            for (ItemStack stack : items) {
-                buf.writeItemStack(stack);
-            }
-        } else {
-            buf.writeBoolean(false);
-        }
+            for (ItemStack stack : items) buf.writeItemStack(stack);
+        } else buf.writeBoolean(false);
         if (fluids != null || fluids.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(fluids.length);
@@ -43,25 +39,20 @@ public class Output {
                 buf.writeIdentifier(Registry.FLUID.getId(volume.getFluid()));
                 buf.writeInt(volume.getAmount().getNumerator());
                 buf.writeInt(volume.getAmount().getDenominator());
-                if (!volume.hasTag() || volume.getTag().isEmpty()) {
-                    buf.writeBoolean(false);
-                } else {
+                if (!volume.hasNbt() || volume.getNbt().isEmpty()) buf.writeBoolean(false);
+                else {
                     buf.writeBoolean(true);
-                    buf.writeNbt(volume.getTag());
+                    buf.writeNbt(volume.getNbt());
                 }
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (blocks != null || blocks.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(blocks.length);
             for (BlockState state : blocks) {
                 buf.writeIdentifier(Registry.BLOCK.getId(state.getBlock()));
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (entities != null || entities.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(entities.length);
@@ -69,38 +60,30 @@ public class Output {
                 buf.writeIdentifier(Registry.ENTITY_TYPE.getId(entity.getType()));
                 buf.writeNbt(entity.writeNbt(new NbtCompound()));
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
         if (data != null || data.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(data.length);
-            for (NbtElement tag : data) {
-                NbtCompound compoundTag = new NbtCompound();
-                compoundTag.put("dummy", tag);
-                buf.writeNbt(compoundTag);
+            for (NbtElement nbt : data) {
+                NbtCompound nbtCompound = new NbtCompound();
+                nbtCompound.put("outdata", nbt);
+                buf.writeNbt(nbtCompound);
             }
-        } else {
-            buf.writeBoolean(false);
-        }
+        } else buf.writeBoolean(false);
     }
 
     public static Output read(PacketByteBuf buf) {
         ItemStack[] items = null;
         if (buf.readBoolean()) {
             items = new ItemStack[buf.readInt()];
-            for (int i = 0; i < items.length; i++) {
-                items[i] = buf.readItemStack();
-            }
+            for (int i = 0; i < items.length; i++) items[i] = buf.readItemStack();
         }
         FluidVolume[] fluids = null;
         if (buf.readBoolean()) {
             fluids = new FluidVolume[buf.readInt()];
             for (int i = 0; i < fluids.length; i++) {
                 fluids[i] = new FluidVolume(Registry.FLUID.get(buf.readIdentifier()), Fraction.of(buf.readInt(), buf.readInt()));
-                if (buf.readBoolean()) {
-                    fluids[i].setTag(buf.readNbt());
-                }
+                if (buf.readBoolean()) fluids[i].setNbt(buf.readNbt());
             }
         }
         BlockState[] blocks = null;
@@ -122,9 +105,7 @@ public class Output {
         NbtElement[] data = null;
         if (buf.readBoolean()) {
             data = new NbtElement[buf.readInt()];
-            for (int i = 0; i < data.length; i++) {
-                data[i] = buf.readNbt().get("dummy");
-            }
+            for (int i = 0; i < data.length; i++) data[i] = buf.readNbt().get("outdata");
         }
         return new Output(items, fluids, blocks, entities, data);
     }
