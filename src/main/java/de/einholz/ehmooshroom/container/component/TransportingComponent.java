@@ -1,11 +1,12 @@
 package de.einholz.ehmooshroom.container.component;
 
 import de.einholz.ehmooshroom.container.component.data.ConfigDataComponent;
+import de.einholz.ehmooshroom.container.component.util.CustomComponent;
 import dev.onyxstudios.cca.api.v3.component.Component;
 import io.github.cottonmc.component.api.ActionType;
 import net.minecraft.util.math.Direction;
 
-public interface TransportingComponent<C extends Component> extends NamedComponent {
+public interface TransportingComponent<C extends Component> extends CustomComponent {
     void setConfig(ConfigDataComponent config);
     //should make use of config for transporting
 

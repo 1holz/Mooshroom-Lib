@@ -20,6 +20,9 @@
         ],
         "client": [
             "de.einholz.ehmooshroom.MooshroomLib"
+        ],
+        "cardinal-components": [
+            "de.einholz.ehmooshroom.container.component.Registry"
         ]
     },
     "mixins": [],
@@ -30,5 +33,11 @@
     },
     "suggests": {
         "flamingo": "*"
+    },
+    "custom": {
+        "cardinal-components": [
+            "ehmooshroom:energy",
+            "ehmooshroom:heat"
+        ]
     }
 }

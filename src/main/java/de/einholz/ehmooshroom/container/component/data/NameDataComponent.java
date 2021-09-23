@@ -1,16 +1,9 @@
 package de.einholz.ehmooshroom.container.component.data;
 
-import java.util.List;
-
-import io.github.cottonmc.component.data.DataProviderComponent;
-import io.github.cottonmc.component.data.api.DataElement;
-import io.github.cottonmc.component.data.api.Unit;
-import io.github.cottonmc.component.data.impl.SimpleDataElement;
-import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-
-public class NameDataComponent implements DataProviderComponent {
+//XXX is this needed otherwise delete
+@Deprecated
+public class NameDataComponent /*implements DataProviderComponent*/ {
+    /*
     protected SimpleDataElement containerName = new SimpleDataElement();
     protected final String defaultName;
     
@@ -55,4 +48,5 @@ public class NameDataComponent implements DataProviderComponent {
     public void setName(String name) {
         containerName.withLabel(name);
     }
+    */
 }

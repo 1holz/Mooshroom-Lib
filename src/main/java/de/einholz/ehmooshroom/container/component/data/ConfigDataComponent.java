@@ -133,6 +133,7 @@ public class ConfigDataComponent implements DataProviderComponent {
         return sb.toString();
     }
 
+    @Deprecated //XXX: remove
     public static enum ConfigBehavior {
         SELF_INPUT(ConfigState.AVAILABLE_FALSE),
         SELF_OUTPUT(ConfigState.AVAILABLE_FALSE),
@@ -165,6 +166,7 @@ public class ConfigDataComponent implements DataProviderComponent {
         }
     }
 
+    @Deprecated //XXX: remove
     public static enum ConfigState {
         AVAILABLE_TRUE('t'),
         AVAILABLE_FALSE('f'),
