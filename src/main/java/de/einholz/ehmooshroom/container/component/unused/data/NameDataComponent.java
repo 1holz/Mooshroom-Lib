@@ -1,9 +1,9 @@
+/*
 package de.einholz.ehmooshroom.container.component.data;
 
 //XXX is this needed otherwise delete
 @Deprecated
-public class NameDataComponent /*implements DataProviderComponent*/ {
-    /*
+public class NameDataComponent implements DataProviderComponent {
     protected SimpleDataElement containerName = new SimpleDataElement();
     protected final String defaultName;
     
@@ -48,5 +48,5 @@ public class NameDataComponent /*implements DataProviderComponent*/ {
     public void setName(String name) {
         containerName.withLabel(name);
     }
-    */
 }
+*/

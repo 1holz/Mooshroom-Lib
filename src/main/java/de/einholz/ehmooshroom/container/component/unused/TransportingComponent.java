@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component;
 
 import de.einholz.ehmooshroom.container.component.data.ConfigDataComponent;
@@ -25,3 +26,4 @@ public interface TransportingComponent<C extends Component> extends CustomCompon
         PULL;
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.energy;
 
 import java.util.ArrayList;
@@ -115,3 +116,4 @@ public class CombinedCapacitorComponent extends CombinedComponent<CapacitorCompo
         CombinedComponent.readNbt(nbt, "CombinedCapacitorComponent", getComps());
     }
 }
+*/

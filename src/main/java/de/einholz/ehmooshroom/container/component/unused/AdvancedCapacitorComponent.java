@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.energy;
 
 import de.einholz.ehmooshroom.MooshroomLib;
@@ -110,3 +111,4 @@ public class AdvancedCapacitorComponent extends SimpleCapacitorComponent impleme
         if (fromNbt.contains("Harm", NbtType.NUMBER)) harm = fromNbt.getInt("Harm");
     }
 }
+*/

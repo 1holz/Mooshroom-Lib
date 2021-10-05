@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.data;
 
 import java.util.ArrayList;
@@ -187,3 +188,4 @@ public class ConfigDataComponent implements DataProviderComponent {
         }
     }
 }
+*/
