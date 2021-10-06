@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.container.component;
+package de.einholz.ehmooshroom.container.component.unused;
 
 import net.minecraft.util.Identifier;
 

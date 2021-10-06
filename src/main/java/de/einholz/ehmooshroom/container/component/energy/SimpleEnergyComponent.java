@@ -1,5 +1,6 @@
 package de.einholz.ehmooshroom.container.component.energy;
 
+import de.einholz.ehmooshroom.container.component.config.SideConfigComponent;
 import de.einholz.ehmooshroom.container.component.util.BarComponent;
 
 public class SimpleEnergyComponent implements EnergyComponent {
@@ -16,6 +17,12 @@ public class SimpleEnergyComponent implements EnergyComponent {
     public SimpleEnergyComponent(float range) {
         this.max = range;
         checkInit();
+    }
+
+    @Override
+    public SideConfigComponent getSideConfig() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -41,5 +48,11 @@ public class SimpleEnergyComponent implements EnergyComponent {
     @Override
     public void setBalance(float bal) {
         this.bal = bal;
+    }
+
+    @Override
+    public Number getMaxTransfer() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

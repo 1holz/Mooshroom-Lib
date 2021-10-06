@@ -197,11 +197,11 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     */
 
     @Override
-    public Number pull(InventoryComponent from, Direction dir, ActionType action) {
+    public Number pull(InventoryComponent from, Direction dir, Action action) {
         int transfer = 0;
         for (int fromSlot : from instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) from).getExtractable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.range(from.size()))) {
             if ((from instanceof AdvancedInventoryComponent && !((AdvancedInventoryComponent) from).canExtract(fromSlot, dir.getOpposite())) || !from.canExtract(fromSlot)) continue;
-            ItemStack extractionTest = from.removeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
+            ItemStack extractionTest = from.removeStack(fromSlot, maxTransfer - transfer, Action.TEST);
             if (extractionTest.isEmpty()) continue;
             if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
             for (int toSlot : getInsertable().toArray(new Integer[0])) {
@@ -218,11 +218,11 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
 
     @Override
-    public Number push(InventoryComponent to, Direction dir, ActionType action) {
+    public Number push(InventoryComponent to, Direction dir, Action action) {
         int transfer = 0;
         for (int fromSlot : getExtractable().toArray(new Integer[0])) {
             if (!canExtract(fromSlot, dir.getOpposite()) || !canExtract(fromSlot)) continue;
-            ItemStack extractionTest = removeStack(fromSlot, maxTransfer - transfer, ActionType.TEST);
+            ItemStack extractionTest = removeStack(fromSlot, maxTransfer - transfer, Action.TEST);
             if (extractionTest.isEmpty()) continue;
             if (extractionTest.getCount() > maxTransfer - transfer) extractionTest.setCount(maxTransfer - transfer);
             for (int toSlot : to instanceof AdvancedInventoryComponent ? ((AdvancedInventoryComponent) to).getInsertable().toArray(new Integer[0]) : ArrayUtils.toObject(Helper.range(to.size()))) {
@@ -292,7 +292,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 	}
 
     @Override
-    public ItemStack removeStack(int slot, int amount, ActionType action) {
+    public ItemStack removeStack(int slot, int amount, Action action) {
 		ItemStack remains = getImmutableStack(slot);
 		ItemStack taken = remains.split(amount);
 		if (action.shouldPerform()) setStack(slot, remains);
@@ -300,7 +300,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
     
     @Override
-    public ItemStack removeStack(int slot, ActionType action) {
+    public ItemStack removeStack(int slot, Action action) {
         ItemStack stack = getImmutableStack(slot);
         if (action.shouldPerform()) setStack(slot, ItemStack.EMPTY);
         return stack;
@@ -315,7 +315,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
 
     @Override
-    public ItemStack insertStack(int slot, ItemStack stack, ActionType action) {
+    public ItemStack insertStack(int slot, ItemStack stack, Action action) {
 		ItemStack target = getImmutableStack(slot);
         ItemStack ret = stack.copy();
         if (target.isEmpty() || ScreenHandler.canStacksCombine(target, ret)) {
@@ -344,7 +344,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
     
 	@Override
-	public ItemStack insertStack(ItemStack stack, ActionType action) {
+	public ItemStack insertStack(ItemStack stack, Action action) {
         for (int i = 0; i < size(); i++) {
             stack = insertStack(i, stack, action);
 			if (stack.isEmpty()) return stack;

@@ -79,26 +79,26 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
     }
 
     @Override
-    public ItemStack insertStack(ItemStack stack, ActionType action) {
+    public ItemStack insertStack(ItemStack stack, Action action) {
         for (InventoryComponent comp : getComps().values()) stack = comp.insertStack(stack, action);
         return stack;
     }
 
     @Override
-    public ItemStack insertStack(int slot, ItemStack stack, ActionType action) {
+    public ItemStack insertStack(int slot, ItemStack stack, Action action) {
         InventoryComponent comp = getCompFromSlot(slot);
         return (comp == null) ? stack : comp.insertStack(tempSlot, stack, action);
     }
 
     //XXX: why not also make search for a stack possible?
     @Override
-    public ItemStack removeStack(int slot, ActionType action) {
+    public ItemStack removeStack(int slot, Action action) {
         InventoryComponent comp = getCompFromSlot(slot);
         return (comp == null) ? ItemStack.EMPTY : comp.removeStack(tempSlot, action);
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount, ActionType action) {
+    public ItemStack removeStack(int slot, int amount, Action action) {
         InventoryComponent comp = getCompFromSlot(slot);
         return (comp == null) ? ItemStack.EMPTY : comp.removeStack(tempSlot, amount, action);
     }

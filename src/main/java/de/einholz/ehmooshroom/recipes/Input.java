@@ -1,6 +1,5 @@
 package de.einholz.ehmooshroom.recipes;
 
-import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
@@ -14,6 +13,7 @@ import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 
 public class Input {
+    //TODO put ingredients in seperate files!
     public final ItemIngredient[] items;
     public final FluidIngredient[] fluids;
     public final BlockIngredient[] blocks;
@@ -130,10 +130,10 @@ public class Input {
     public static class FluidIngredient {
         public final Identifier id;
         public final Tag<Fluid> ingredient;
-        public final Fraction amount;
+        public final float amount;
         public final NbtCompound nbt;
 
-        public FluidIngredient(Identifier id, Fraction amount, NbtCompound nbt) {
+        public FluidIngredient(Identifier id, float amount, NbtCompound nbt) {
             this.id = id;
             this.ingredient = ServerTagManagerHolder.getTagManager().getFluids().getTag(id);
             this.amount = amount;
@@ -141,7 +141,7 @@ public class Input {
         }
 
         public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id).writeInt(amount.getNumerator()).writeInt(amount.getDenominator());
+            buf.writeIdentifier(id).writeFloat(amount);
             if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
             else {
                 buf.writeBoolean(true);
@@ -150,14 +150,14 @@ public class Input {
         }
 
         public static FluidIngredient read(PacketByteBuf buf) {
-            return new FluidIngredient(buf.readIdentifier(), Fraction.of(buf.readInt(), buf.readInt()), buf.readBoolean() ? buf.readNbt() : new NbtCompound());
+            return new FluidIngredient(buf.readIdentifier(), buf.readFloat(), buf.readBoolean() ? buf.readNbt() : new NbtCompound());
         }
     }
 
     public static class BlockIngredient {
         public final Identifier id;
         public final Tag<Block> ingredient;
-        //XXX: are states the right thing here? probably not...
+        //XXX are states the right thing here? probably not…
         public final BlockState state;
 
         public BlockIngredient(Identifier id) {

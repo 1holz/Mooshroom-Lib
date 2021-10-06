@@ -43,12 +43,12 @@ public class InventoryWrapperComp implements SidedInventory {
 
     @Override
     public ItemStack removeStack(int slot, int amount) {
-        return component.removeStack(slot, amount, ActionType.PERFORM);
+        return component.removeStack(slot, amount, Action.PERFORM);
     }
 
     @Override
     public ItemStack removeStack(int slot) {
-        return component.removeStack(slot, ActionType.PERFORM);
+        return component.removeStack(slot, Action.PERFORM);
     }
 
     @Override
