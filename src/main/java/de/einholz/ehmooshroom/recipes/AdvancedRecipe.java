@@ -310,6 +310,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     }
 
     //FIXME: use instead of InventoryWrapperPos later on
+    //done maybe?
     @Deprecated
     public static final class PosAsInv implements Inventory {
         public BlockPos pos;

@@ -1,16 +1,18 @@
 package de.einholz.ehmooshroom.container.component.item;
 
-import java.util.Random;
+import java.util.List;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.item.ItemComponent.ItemSpecification;
 import de.einholz.ehmooshroom.container.component.util.TransportingComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 
@@ -24,11 +26,60 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     public static final ComponentKey<ItemComponent> ITEM_OUTPUT = ComponentRegistry.getOrCreate(ITEM_OUTPUT_ID, ItemComponent.class);
     public static final ComponentKey<ItemComponent> ITEM_STORAGE = ComponentRegistry.getOrCreate(ITEM_STORAGE_ID, ItemComponent.class);
     
-    public static class ItemSpecification {
+    List<ItemStack> getStacks();
+    int getMaxStackSize();
+
+    default ItemStack getStack(int slot) {
+        return getStacks().get(slot);
+    }
+
+    default void setStack(int slot, ItemStack stack) {
+        getStacks().set(slot, stack);
+    }
+
+    default Number getContent(ItemSpecification type) {
+        int content = 0;
+        for (ItemStack stack : getStacks()) if (type.matches(stack)) content += stack.getCount();
+        return content;
+    }
+
+    default Number getSpace(ItemSpecification type) {
+        int space = 0;
+        for (ItemStack stack : getStacks()) if (stack.isEmpty() || type.matches(stack)) space += Math.min(getMaxStackSize(), type.getMaxStackSize());
+        return space;
+    }
+
+    @Override
+    default Number change(Number amount, Action action, ItemSpecification type) {
+        int i = amount.intValue();
+        for (ItemStack stack : getStacks()) {
+            if (i == 0) break;
+            int change = i > 0 ? Math.min(i, Math.min(stack.getMaxCount(), getMaxStackSize()) - stack.getCount()) : Math.max(i, stack.getCount() * -1);
+            if (action.perfrom()) stack.increment(change);
+            i -= change;
+        }
+        return amount.intValue() - i;
+    }
+
+    @Override
+    default void writeNbt(NbtCompound tag) {
+        NbtList list = new NbtList();
+        for (ItemStack stack : getStacks()) list.add(stack.writeNbt(new NbtCompound()));
+        tag.put("Inventory", list);
+    }
+
+    @Override
+    default void readNbt(NbtCompound tag) {
+        NbtList list = tag.getList("Inventory", NbtType.COMPOUND);
+        for (int i = 0; i < list.size(); i++) setStack(i, ItemStack.fromNbt(list.getCompound(i)));
+    }
+
+    @Deprecated
+    public static class TagSpecification {
         private Tag<Item> tag;
         private NbtCompound nbt;
 
-        public ItemSpecification(Tag<Item> tag, NbtCompound nbt) {
+        public TagSpecification(Tag<Item> tag, NbtCompound nbt) {
             this.tag = tag;
             this.nbt = nbt;
         }
@@ -36,19 +87,28 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
         public boolean matches(ItemStack stack) {
             return (tag == null || tag.contains(stack.getItem())) && NbtHelper.matches(nbt, stack.getTag(), true);
         }
+    }
 
-        public int size() {
-            return tag.values().size();
+    public static class ItemSpecification {
+        private Item item;
+        private NbtCompound nbt;
+
+        public ItemSpecification(Item item, NbtCompound nbt) {
+            this.item = item;
+            this.nbt = nbt;
         }
 
-        public Item getSingle() {
-            return tag.getRandom(new Random());
+        public boolean matches(ItemStack stack) {
+            return (item == null || item.equals(stack.getItem())) && NbtHelper.matches(nbt, stack.getTag(), true);
         }
 
-        public int getMinMaxStack() {
-            int i = Integer.MAX_VALUE;
-            for (Item item : tag.values()) if (item.getMaxCount() < i) i = item.getMaxCount();
-            return i;
+        @Deprecated
+        public Item getItem() {
+            return item;
+        }
+
+        public int getMaxStackSize() {
+            return item.getMaxCount();
         }
     }
 }

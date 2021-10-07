@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.item;
 
 import net.minecraft.entity.player.PlayerEntity;
@@ -5,7 +6,6 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-//TODO: move to mooshroomlib
 public class InventoryWrapperPos implements Inventory {
     public final BlockPos pos;
 
@@ -52,3 +52,4 @@ public class InventoryWrapperPos implements Inventory {
     @Override
     public void clear() {}
 }
+*/

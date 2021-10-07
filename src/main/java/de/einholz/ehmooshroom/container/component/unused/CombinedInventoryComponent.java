@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.item;
 
 import java.util.ArrayList;
@@ -164,3 +165,4 @@ public class CombinedInventoryComponent extends CombinedComponent<InventoryCompo
         return null;
     }
 }
+*/

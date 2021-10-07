@@ -2,12 +2,12 @@ package de.einholz.ehmooshroom.container.component.energy;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.util.BarComponent;
-import de.einholz.ehmooshroom.container.component.util.TransportingComponent;
+import de.einholz.ehmooshroom.container.component.util.TrasportingBarComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import net.minecraft.util.Identifier;
 
-public interface EnergyComponent extends BarComponent, TransportingComponent<EnergyComponent, Void> {
+public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent, Void> {
     public static final Identifier ENERGY_ID = MooshroomLib.HELPER.makeId("heat");
     public static final ComponentKey<EnergyComponent> ENERGY = ComponentRegistry.getOrCreate(ENERGY_ID, EnergyComponent.class);
 

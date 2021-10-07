@@ -7,6 +7,7 @@ public class SimpleEnergyComponent implements EnergyComponent {
     private float cur = BarComponent.ZERO;
     private final float max;
     private float bal;
+    private float maxTransfer;
 
     @Override
     public <P> SimpleEnergyComponent of(P provider) {
@@ -14,8 +15,9 @@ public class SimpleEnergyComponent implements EnergyComponent {
         return null;
     }
 
-    public SimpleEnergyComponent(float range) {
+    public SimpleEnergyComponent(float range, float maxTransfer) {
         this.max = range;
+        this.maxTransfer = maxTransfer;
         checkInit();
     }
 
@@ -52,7 +54,11 @@ public class SimpleEnergyComponent implements EnergyComponent {
 
     @Override
     public Number getMaxTransfer() {
-        // TODO Auto-generated method stub
-        return null;
+        return maxTransfer;
+    }
+
+    @Override
+    public void setMaxTransfer(Number maxTransfer) {
+        this.maxTransfer = maxTransfer.floatValue();
     }
 }

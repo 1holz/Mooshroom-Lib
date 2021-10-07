@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.item;
 
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 		for (Slot slot : slots) list.add(slot.stack.copy());
 		return list;
 	}
-
+    
     @Deprecated
 	@Override
 	public DefaultedList<ItemStack> getMutableStacks() {
@@ -122,7 +123,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
 		for (Slot slot : slots) list.add(slot.stack);
 		return list;
     }
-    
+
     //returns -1 if id is not present
     public int getIntFromId(Identifier id) {
         for (int i = 0; i < slots.size(); i++) if (slots.get(i).id.equals(id)) return i;
@@ -161,6 +162,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     protected Type getType(int slot) {
         return slots.get(slot).type;
     }
+    */
 
     /*
     public static int move(Inventory from, Inventory to, int maxTransfer, Direction dir, ActionType action) {
@@ -196,6 +198,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
     */
 
+    /*
     @Override
     public Number pull(InventoryComponent from, Direction dir, Action action) {
         int transfer = 0;
@@ -237,6 +240,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         }
         return transfer;
     }
+    */
 
     /*
     @Deprecated
@@ -271,6 +275,7 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
     }
     */
 
+/*
     public boolean canInsert(int slot, Direction dir) {
         if (!canInsert(slot)) return false;
         else  return ((ConfigDataComponent) config).allowsConfig(id, ConfigBehavior.FOREIGN_INPUT, dir);
@@ -329,18 +334,17 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         }
         if (action.shouldPerform()) setStack(slot, target);
         return ret;
-        /*XXX: delete if not needed (contains a bug?)?
-		ItemStack target = getImmutableStack(slot);
-        int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(slot));
-        //if (target.getCount() >= maxSize) target.setCount(maxSize);
-		if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize || !isAcceptableStack(slot, stack)) return stack;
-        if (!action.shouldPerform()) stack = stack.copy();
-        else onChanged();
-        ItemStack newTarget = stack.split(maxSize - target.getCount());
-        if (target.isEmpty()) setStack(slot, newTarget);
-        else target.increment(newTarget.getCount());
-        return stack;
-        */
+        //XXX: delete if not needed (contains a bug?)?
+		//ItemStack target = getImmutableStack(slot);
+        //int maxSize = Math.min(target.getMaxCount(), getMaxStackSize(slot));
+        ////if (target.getCount() >= maxSize) target.setCount(maxSize);
+		//if (!target.isEmpty() && !target.isItemEqualIgnoreDamage(stack) || target.getCount() >= maxSize || !isAcceptableStack(slot, stack)) return stack;
+        //if (!action.shouldPerform()) stack = stack.copy();
+        //else onChanged();
+        //ItemStack newTarget = stack.split(maxSize - target.getCount());
+        //if (target.isEmpty()) setStack(slot, newTarget);
+        //else target.increment(newTarget.getCount());
+        //return stack;
     }
     
 	@Override
@@ -411,3 +415,4 @@ public class AdvancedInventoryComponent implements InventoryComponent, Transport
         }
     }
 }
+*/

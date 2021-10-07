@@ -1,3 +1,4 @@
+/*
 package de.einholz.ehmooshroom.container.component.item;
 
 import java.util.stream.IntStream;
@@ -89,3 +90,4 @@ public class InventoryWrapperComp implements SidedInventory {
         else return component.canExtract(slot);
     }
 }
+*/

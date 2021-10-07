@@ -3,6 +3,7 @@ package de.einholz.ehmooshroom.container.component.util;
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent.SideConfigBehavior;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 
 //T may be null if not applicable
@@ -12,6 +13,7 @@ public interface TransportingComponent<C extends TransportingComponent<?, T>, T>
     Number getContent(T type);
     Number getSpace(T type);
     Number getMaxTransfer();
+    void setMaxTransfer(Number maxTransfer);
     Number change(Number amount, Action action, T type);
 
     //here Direction is always from the perspective of the block performing the action
@@ -43,6 +45,16 @@ public interface TransportingComponent<C extends TransportingComponent<?, T>, T>
             return check;
         }
         return transfer;
+    }
+
+    @Override
+    default void writeNbt(NbtCompound tag) {
+        tag.putDouble("MaxTransfer", getMaxTransfer().doubleValue());
+    }
+
+    @Override
+    default void readNbt(NbtCompound tag) {
+        setMaxTransfer(tag.getDouble("MaxTransfer"));
     }
 
     static enum Action {
