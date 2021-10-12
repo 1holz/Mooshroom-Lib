@@ -1,19 +1,14 @@
 package de.einholz.ehmooshroom.recipes;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import de.einholz.ehmooshroom.recipes.Ingrediets.BlockIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.DataIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.EntityIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.FluidIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.ItemIngredient;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.Tag;
-import net.minecraft.util.Identifier;
 
 public class Input {
-    //TODO put ingredients in seperate files!
+    //XXX use interface for all ingredients? anotate their constructor with the only server thing?
     public final ItemIngredient[] items;
     public final FluidIngredient[] fluids;
     public final BlockIngredient[] blocks;
@@ -98,125 +93,5 @@ public class Input {
             }
         }
         return new Input(items, fluids, blocks, entities, data);
-    }
-
-    public static class ItemIngredient {
-        public final Identifier id;
-        public final Tag<Item> ingredient;
-        public final int amount;
-        public final NbtCompound nbt;
-
-        public ItemIngredient(Identifier id, int amount, NbtCompound nbt) {
-            this.id = id;
-            this.ingredient = ServerTagManagerHolder.getTagManager().getItems().getTag(id);
-            this.amount = amount;
-            this.nbt = nbt;
-        }
-
-        public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id).writeInt(amount);
-            if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
-            else {
-                buf.writeBoolean(true);
-                buf.writeNbt(nbt);
-            }
-        }
-
-        public static ItemIngredient read(PacketByteBuf buf) {
-            return new ItemIngredient(buf.readIdentifier(), buf.readInt(), buf.readBoolean() ? buf.readNbt() : new NbtCompound());
-        }
-    }
-
-    public static class FluidIngredient {
-        public final Identifier id;
-        public final Tag<Fluid> ingredient;
-        public final float amount;
-        public final NbtCompound nbt;
-
-        public FluidIngredient(Identifier id, float amount, NbtCompound nbt) {
-            this.id = id;
-            this.ingredient = ServerTagManagerHolder.getTagManager().getFluids().getTag(id);
-            this.amount = amount;
-            this.nbt = nbt;
-        }
-
-        public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id).writeFloat(amount);
-            if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
-            else {
-                buf.writeBoolean(true);
-                buf.writeNbt(nbt);
-            }
-        }
-
-        public static FluidIngredient read(PacketByteBuf buf) {
-            return new FluidIngredient(buf.readIdentifier(), buf.readFloat(), buf.readBoolean() ? buf.readNbt() : new NbtCompound());
-        }
-    }
-
-    public static class BlockIngredient {
-        public final Identifier id;
-        public final Tag<Block> ingredient;
-        //XXX are states the right thing here? probably not…
-        public final BlockState state;
-
-        public BlockIngredient(Identifier id) {
-            this.id = id;
-            this.ingredient = ServerTagManagerHolder.getTagManager().getBlocks().getTag(id);
-            this.state = null;
-        }
-
-        public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id);
-        }
-
-        public static BlockIngredient read(PacketByteBuf buf) {
-            return new BlockIngredient(buf.readIdentifier());
-        }
-    }
-
-    public static class EntityIngredient {
-        public final Identifier id;
-        public final Tag<EntityType<?>> ingredient;
-        public final int amount;
-        public final NbtCompound nbt;
-
-        public EntityIngredient(Identifier id, int amount, NbtCompound nbt) {
-            this.id = id;
-            this.ingredient = ServerTagManagerHolder.getTagManager().getEntityTypes().getTag(id);
-            this.amount = amount;
-            this.nbt = nbt;
-        }
-
-        public void write(PacketByteBuf buf) {
-            buf.writeIdentifier(id).writeInt(amount);
-            if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
-            else {
-                buf.writeBoolean(true);
-                buf.writeNbt(nbt);
-            }
-        }
-
-        public static EntityIngredient read(PacketByteBuf buf) {
-            return new EntityIngredient(buf.readIdentifier(), buf.readInt(), buf.readBoolean() ? buf.readNbt() : new NbtCompound());
-        }
-    }
-
-    public static class DataIngredient {
-        public final NbtElement nbt;
-
-        public DataIngredient(NbtElement nbt) {
-            this.nbt = nbt;
-        }
-
-        public void write(PacketByteBuf buf) {
-            NbtCompound NbtCompound = new NbtCompound();
-            NbtCompound.put("indata", nbt);
-            buf.writeNbt(NbtCompound);
-        }
-
-        public static DataIngredient read(PacketByteBuf buf) {
-            return new DataIngredient(buf.readNbt().get("indata"));
-        }
     }
 }

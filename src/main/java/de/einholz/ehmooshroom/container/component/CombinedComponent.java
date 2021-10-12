@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
+//TODO revise whether this is needed
+@Deprecated
 public class CombinedComponent<T extends Component> {
     private Map<Identifier, T> childComps = new HashMap<>();
 

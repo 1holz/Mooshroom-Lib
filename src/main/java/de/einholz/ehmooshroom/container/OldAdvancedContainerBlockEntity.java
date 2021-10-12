@@ -1,5 +1,5 @@
 package de.einholz.ehmooshroom.container;
-
+/*
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -50,18 +50,18 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-public abstract class AdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
+public abstract class OldAdvancedContainerBlockEntity extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     protected Map<Identifier, Component> comps = new HashMap<>();
 
-    public AdvancedContainerBlockEntity(RegistryEntry registryEntry) {
+    public OldAdvancedContainerBlockEntity(RegistryEntry registryEntry) {
         this(registryEntry.id, registryEntry.clientHandlerFactory, registryEntry.blockEntityType);
     }
 
     //TODO:
     //maybe make them their own components?
     //declare the ids at the beginning of the class so it is easier to know them
-    public AdvancedContainerBlockEntity(Identifier titelTranslationKey, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, BlockEntityType<? extends BlockEntity> blockEntityType) {
+    public OldAdvancedContainerBlockEntity(Identifier titelTranslationKey, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, BlockEntityType<? extends BlockEntity> blockEntityType) {
         super(blockEntityType);
         this.clientHandlerFactory = clientHandlerFactory;
         addComponent(MooshroomLib.HELPER.makeId("name"), new NameDataComponent(titelTranslationKey));
@@ -135,14 +135,13 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
             for (InventoryComponent comp : getCombinedComp(new CombinedInventoryComponent()).getComps().values()) {
                 if (comp instanceof AdvancedInventoryComponent) {
                     amount -= ((AdvancedInventoryComponent) comp).containsInput(ingredient);
-                    /*TODO: delete
+                    TODO: delete
                     for (Slot slot : ((AdvancedInventoryComponent) comp).getSlots(Type.INPUT)) {
                         if (((Tag<Item>) ingredient.ingredient).contains(slot.stack.getItem())) {
                             amount -= slot.stack.getCount();
                             if (amount <= 0) break;
                         }
                     }
-                    */
                 } else for (ItemStack stack : comp.getStacks()) {
                     if ((ingredient.ingredient == null || ingredient.ingredient.contains(stack.getItem())) && (ingredient.nbt == null || NbtHelper.matches(ingredient.nbt, stack.getTag(), true))) amount -= stack.getCount();
                     if (amount <= 0) break;
@@ -237,3 +236,4 @@ public abstract class AdvancedContainerBlockEntity extends BlockEntity implement
         buf.writeBlockPos(pos);
     }
 }
+*/

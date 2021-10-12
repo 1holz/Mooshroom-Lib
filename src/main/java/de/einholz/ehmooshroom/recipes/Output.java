@@ -1,7 +1,5 @@
 package de.einholz.ehmooshroom.recipes;
 
-import io.github.fablabsmc.fablabs.api.fluidvolume.v1.FluidVolume;
-import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -10,16 +8,17 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.registry.Registry;
 
+//TODO remake fluids
 public class Output {
     public final ItemStack[] items;
-    public final FluidVolume[] fluids;
+    //public final FluidVolume[] fluids;
     public final BlockState[] blocks;
     public final Entity[] entities;
     public final NbtElement[] data;
 
-    public Output(ItemStack[] items, FluidVolume[] fluids, BlockState[] blocks, Entity[] entities, NbtElement[] data) {
+    public Output(ItemStack[] items, /*FluidVolume[] fluids, */BlockState[] blocks, Entity[] entities, NbtElement[] data) {
         this.items = items;
-        this.fluids = fluids;
+        //this.fluids = fluids;
         this.blocks = blocks;
         this.entities = entities;
         this.data = data;
@@ -31,6 +30,7 @@ public class Output {
             buf.writeInt(items.length);
             for (ItemStack stack : items) buf.writeItemStack(stack);
         } else buf.writeBoolean(false);
+        /*
         if (fluids != null || fluids.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(fluids.length);
@@ -46,6 +46,7 @@ public class Output {
                 }
             }
         } else buf.writeBoolean(false);
+        */
         if (blocks != null || blocks.length > 0) {
             buf.writeBoolean(true);
             buf.writeInt(blocks.length);
@@ -78,6 +79,7 @@ public class Output {
             items = new ItemStack[buf.readInt()];
             for (int i = 0; i < items.length; i++) items[i] = buf.readItemStack();
         }
+        /*
         FluidVolume[] fluids = null;
         if (buf.readBoolean()) {
             fluids = new FluidVolume[buf.readInt()];
@@ -86,6 +88,7 @@ public class Output {
                 if (buf.readBoolean()) fluids[i].setNbt(buf.readNbt());
             }
         }
+        */
         BlockState[] blocks = null;
         if (buf.readBoolean()) {
             blocks = new BlockState[buf.readInt()];
@@ -107,6 +110,6 @@ public class Output {
             data = new NbtElement[buf.readInt()];
             for (int i = 0; i < data.length; i++) data[i] = buf.readNbt().get("outdata");
         }
-        return new Output(items, fluids, blocks, entities, data);
+        return new Output(items, /*fluids, */blocks, entities, data);
     }
 }

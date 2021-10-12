@@ -8,15 +8,13 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.container.AdvancedContainerBlockEntity;
-import de.einholz.ehmooshroom.recipes.Input.BlockIngredient;
-import de.einholz.ehmooshroom.recipes.Input.DataIngredient;
-import de.einholz.ehmooshroom.recipes.Input.EntityIngredient;
-import de.einholz.ehmooshroom.recipes.Input.FluidIngredient;
-import de.einholz.ehmooshroom.recipes.Input.ItemIngredient;
+import de.einholz.ehmooshroom.container.AdvancedContainerBE;
+import de.einholz.ehmooshroom.recipes.Ingrediets.BlockIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.DataIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.EntityIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.FluidIngredient;
+import de.einholz.ehmooshroom.recipes.Ingrediets.ItemIngredient;
 import de.einholz.ehmooshroom.registry.RegistryHelper;
-import io.github.fablabsmc.fablabs.api.fluidvolume.v1.FluidVolume;
-import io.github.fablabsmc.fablabs.api.fluidvolume.v1.Fraction;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -76,8 +74,8 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     }
 
     public boolean matches(BlockPos pos, World world) {
-        AdvancedContainerBlockEntity be = (AdvancedContainerBlockEntity) world.getBlockEntity(pos);
-        //TODO: convert generate & consume to data ingredient
+        AdvancedContainerBE be = (AdvancedContainerBE) world.getBlockEntity(pos);
+        //TODO: convert generate & consume to data ingredient or own ErnergyIngredient
         //if (consumes != Double.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
         return input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data));
     }
@@ -123,7 +121,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                     for (int i = 0; i < jsonFluidInput.size(); i++) {
                         JsonObject fluidInput = (JsonObject) jsonFluidInput.get(i);
                         try {
-							fluidIngredientsList.add(new FluidIngredient(new Identifier(JsonHelper.getString(fluidInput, "fluid")), Fraction.of(JsonHelper.getInt(fluidInput, "numerator", 1), JsonHelper.getInt(fluidInput, "denominator", 1)), JsonHelper.hasString(fluidInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(fluidInput, "nbt")) : null));
+							fluidIngredientsList.add(new FluidIngredient(new Identifier(JsonHelper.getString(fluidInput, "fluid")), JsonHelper.getFloat(fluidInput, "amount", 1), JsonHelper.hasString(fluidInput, "nbt") ? StringNbtReader.parse(JsonHelper.getString(fluidInput, "nbt")) : null));
 						} catch (CommandSyntaxException e) {
 							MooshroomLib.LOGGER.bigBug(e);
 						}
@@ -193,6 +191,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                 }
                 ItemStack[] itemStacks = !itemStacksList.isEmpty() ? itemStacksList.toArray(new ItemStack[itemStacksList.size()]) : null;
                 //Fluids:
+                /*TODO remake fluids
                 List<FluidVolume> fluidVolumesList = new ArrayList<FluidVolume>();
                 if (jsonOutput.has("fluids")) {
                     JsonArray jsonFluidOutput = JsonHelper.getArray(jsonOutput, "fluids");
@@ -208,6 +207,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                     }
                 }
                 FluidVolume[] fluidVolumes = !fluidVolumesList.isEmpty() ? fluidVolumesList.toArray(new FluidVolume[fluidVolumesList.size()]) : null;
+                */
                 //Blocks:
                 //TODO: state & nbt support (blockentities?)
                 List<BlockState> blockStatesList = new ArrayList<BlockState>();
@@ -250,7 +250,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                     }
                 }
                 NbtElement[] data = !dataList.isEmpty() ? dataList.toArray(new NbtElement[dataList.size()]) : null;
-                output = new Output(itemStacks, fluidVolumes, blockStates, entities, data);
+                output = new Output(itemStacks, /*fluidVolumes, */blockStates, entities, data);
             }
             //GENERATES:
             double generates = json.has("generates") ? json.get("generates").getAsDouble() : Double.NaN;
