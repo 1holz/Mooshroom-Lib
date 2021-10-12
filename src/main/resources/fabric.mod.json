@@ -37,7 +37,12 @@
     "custom": {
         "cardinal-components": [
             "ehmooshroom:energy",
-            "ehmooshroom:heat"
+            "ehmooshroom:heat",
+            "ehmooshroom:item_internal",
+            "ehmooshroom:item_input",
+            "ehmooshroom:item_output",
+            "ehmooshroom:item_storage",
+            "ehmooshroom:side_config"
         ]
     }
 }

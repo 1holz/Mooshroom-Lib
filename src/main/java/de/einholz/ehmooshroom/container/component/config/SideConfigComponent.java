@@ -6,13 +6,16 @@ import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.util.CustomComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 public interface SideConfigComponent extends CustomComponent {
-    public static final Identifier SIDE_CONFIG_ID = MooshroomLib.HELPER.makeId("heat");
-    public static final ComponentKey<SideConfigComponent> ENERGY = ComponentRegistry.getOrCreate(SIDE_CONFIG_ID, SideConfigComponent.class);
-    public static char[][] DEFAULT_CHARS = getDefault();
+    public static final Identifier SIDE_CONFIG_ID = MooshroomLib.HELPER.makeId("side_config");
+    public static final ComponentKey<SideConfigComponent> SIDE_CONFIG = ComponentRegistry.getOrCreate(SIDE_CONFIG_ID, SideConfigComponent.class);
+    //TODO: use cache!!!
+    public static final BlockApiLookup<SideConfigComponent, Void> SIDE_CONFIG_LOOKUP = BlockApiLookup.get(SIDE_CONFIG_ID, SideConfigComponent.class, Void.class);
+    public static final char[][] DEFAULT_CHARS = getDefault();
 
     //IMPL
     char getState(Identifier id, Direction dir, SideConfigBehavior behavior);

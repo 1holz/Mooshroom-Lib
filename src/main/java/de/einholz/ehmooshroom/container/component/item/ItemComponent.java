@@ -7,6 +7,7 @@ import de.einholz.ehmooshroom.container.component.item.ItemComponent.ItemSpecifi
 import de.einholz.ehmooshroom.container.component.util.TransportingComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 public interface ItemComponent extends TransportingComponent<ItemComponent, ItemSpecification> {
     public static final Identifier ITEM_INTERNAL_ID = MooshroomLib.HELPER.makeId("item_internal");
@@ -25,6 +27,11 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     public static final ComponentKey<ItemComponent> ITEM_INPUT = ComponentRegistry.getOrCreate(ITEM_INPUT_ID, ItemComponent.class);
     public static final ComponentKey<ItemComponent> ITEM_OUTPUT = ComponentRegistry.getOrCreate(ITEM_OUTPUT_ID, ItemComponent.class);
     public static final ComponentKey<ItemComponent> ITEM_STORAGE = ComponentRegistry.getOrCreate(ITEM_STORAGE_ID, ItemComponent.class);
+    //TODO: use cache!!!
+    public static final BlockApiLookup<ItemComponent, Direction> ITEM_INTERNAL_LOOKUP = BlockApiLookup.get(ITEM_INTERNAL_ID, ItemComponent.class, Direction.class);
+    public static final BlockApiLookup<ItemComponent, Direction> ITEM_INPUT_LOOKUP = BlockApiLookup.get(ITEM_INPUT_ID, ItemComponent.class, Direction.class);
+    public static final BlockApiLookup<ItemComponent, Direction> ITEM_OUTPUT_LOOKUP = BlockApiLookup.get(ITEM_OUTPUT_ID, ItemComponent.class, Direction.class);
+    public static final BlockApiLookup<ItemComponent, Direction> ITEM_STORAGE_LOOKUP = BlockApiLookup.get(ITEM_STORAGE_ID, ItemComponent.class, Direction.class);
     
     List<ItemStack> getStacks();
     int getMaxStackSize();

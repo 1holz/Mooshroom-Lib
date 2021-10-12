@@ -44,5 +44,7 @@ public class Registry implements BlockComponentInitializer, ChunkComponentInitia
     public void registerChunkComponentFactories(ChunkComponentFactoryRegistry reg) {}
 
     @Override
-    public void registerBlockComponentFactories(BlockComponentFactoryRegistry reg) {}
+    public void registerBlockComponentFactories(BlockComponentFactoryRegistry reg) {
+        //TODO: also see BlockApiLookup
+    }
 }
