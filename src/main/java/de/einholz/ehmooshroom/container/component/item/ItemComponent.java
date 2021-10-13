@@ -3,6 +3,7 @@ package de.einholz.ehmooshroom.container.component.item;
 import java.util.List;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.container.component.config.SideConfigComponent.SideConfigType;
 import de.einholz.ehmooshroom.container.component.item.ItemComponent.ItemSpecification;
 import de.einholz.ehmooshroom.container.component.util.TransportingComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -16,7 +17,6 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 
 public interface ItemComponent extends TransportingComponent<ItemComponent, ItemSpecification> {
     public static final Identifier ITEM_INTERNAL_ID = MooshroomLib.HELPER.makeId("item_internal");
@@ -29,10 +29,10 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     public static final ComponentKey<ItemComponent> ITEM_STORAGE = ComponentRegistry.getOrCreate(ITEM_STORAGE_ID, ItemComponent.class);
     //TODO: use cache!!!
     //null for ignoring dir
-    public static final BlockApiLookup<ItemComponent, Direction> ITEM_INTERNAL_LOOKUP = BlockApiLookup.get(ITEM_INTERNAL_ID, ItemComponent.class, Direction.class);
-    public static final BlockApiLookup<ItemComponent, Direction> ITEM_INPUT_LOOKUP = BlockApiLookup.get(ITEM_INPUT_ID, ItemComponent.class, Direction.class);
-    public static final BlockApiLookup<ItemComponent, Direction> ITEM_OUTPUT_LOOKUP = BlockApiLookup.get(ITEM_OUTPUT_ID, ItemComponent.class, Direction.class);
-    public static final BlockApiLookup<ItemComponent, Direction> ITEM_STORAGE_LOOKUP = BlockApiLookup.get(ITEM_STORAGE_ID, ItemComponent.class, Direction.class);
+    public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_INTERNAL_LOOKUP = BlockApiLookup.get(ITEM_INTERNAL_ID, ItemComponent.class, SideConfigType.class);
+    public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_INPUT_LOOKUP = BlockApiLookup.get(ITEM_INPUT_ID, ItemComponent.class, SideConfigType.class);
+    public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_OUTPUT_LOOKUP = BlockApiLookup.get(ITEM_OUTPUT_ID, ItemComponent.class, SideConfigType.class);
+    public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_STORAGE_LOOKUP = BlockApiLookup.get(ITEM_STORAGE_ID, ItemComponent.class, SideConfigType.class);
     
     List<ItemStack> getStacks();
     int getMaxStackSize();
@@ -70,15 +70,15 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     }
 
     @Override
-    default void writeNbt(NbtCompound tag) {
+    default void writeNbt(NbtCompound nbt) {
         NbtList list = new NbtList();
         for (ItemStack stack : getStacks()) list.add(stack.writeNbt(new NbtCompound()));
-        tag.put("Inventory", list);
+        nbt.put("Inventory", list);
     }
 
     @Override
-    default void readNbt(NbtCompound tag) {
-        NbtList list = tag.getList("Inventory", NbtType.COMPOUND);
+    default void readNbt(NbtCompound nbt) {
+        NbtList list = nbt.getList("Inventory", NbtType.COMPOUND);
         for (int i = 0; i < list.size(); i++) setStack(i, ItemStack.fromNbt(list.getCompound(i)));
     }
 

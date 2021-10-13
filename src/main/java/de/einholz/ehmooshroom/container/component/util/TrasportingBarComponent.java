@@ -4,14 +4,14 @@ import net.minecraft.nbt.NbtCompound;
 
 public interface TrasportingBarComponent<C extends TransportingComponent<?, T>, T> extends BarComponent, TransportingComponent<C, T> {
     @Override
-    default void writeNbt(NbtCompound tag) {
-        tag.putFloat("Cur", getCur());
-        tag.putDouble("MaxTransfer", getMaxTransfer().doubleValue());
+    default void writeNbt(NbtCompound nbt) {
+        BarComponent.super.writeNbt(nbt);
+        TransportingComponent.super.writeNbt(nbt);
     }
 
     @Override
-    default void readNbt(NbtCompound tag) {
-        setCur(tag.getFloat("Cur"));
-        setMaxTransfer(tag.getDouble("MaxTransfer"));
+    default void readNbt(NbtCompound nbt) {
+        BarComponent.super.readNbt(nbt);
+        TransportingComponent.super.readNbt(nbt);
     }
 }

@@ -1,5 +1,5 @@
-package de.einholz.ehmooshroom.container.component.data;
-
+package de.einholz.ehmooshroom.container.component.unused.data;
+/*
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,3 +44,4 @@ public class CombinedDataComponent extends CombinedComponent<DataProviderCompone
         CombinedComponent.readNbt(nbt, "CombinedDataComponent", getComps());
     }
 }
+*/

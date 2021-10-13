@@ -2,6 +2,7 @@ package de.einholz.ehmooshroom.container.component.util;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import dev.onyxstudios.cca.api.v3.component.tick.CommonTickingComponent;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.NbtCompound;
 
 //XXX use Number instead of float like in TranportingComponent?
@@ -73,12 +74,12 @@ public interface BarComponent extends CustomComponent, CommonTickingComponent {
     }
 
     @Override
-    default void writeNbt(NbtCompound tag) {
-        tag.putFloat("Cur", getCur());
+    default void writeNbt(NbtCompound nbt) {
+        if (getCur() != 0.0F) nbt.putFloat("Cur", getCur());
     }
 
     @Override
-    default void readNbt(NbtCompound tag) {
-        setCur(tag.getFloat("Cur"));
+    default void readNbt(NbtCompound nbt) {
+        if (nbt.contains("Activation_State", NbtType.NUMBER)) setCur(nbt.getFloat("Cur"));
     }
 }
