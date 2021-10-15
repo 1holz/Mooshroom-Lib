@@ -25,6 +25,8 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiCache;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.minecraft.block.entity.BlockEntity;
@@ -35,10 +37,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ComponentProvider, CompContextProvider {
+    public final BlockApiCache<SideConfigComponent, Void> SIDE_CONFIG_CACHE;
     private Builder<T> compFactory;
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private Map<Identifier, Object[]> compContexts = new HashMap<>();
@@ -52,12 +56,18 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
         this.clientHandlerFactory = clientHandlerFactory;
         compFactory = (Builder<T>) Factory.builder(getBEClass());
         addComponent(this, SideConfigComponent.SIDE_CONFIG, SimpleSideConfigComponent::new, null);
+        SIDE_CONFIG_CACHE = createCache(SideConfigComponent.SIDE_CONFIG_LOOKUP);
     }
 
     protected static <C extends Component, T extends AdvancedContainerBE<T>> void addComponent(AdvancedContainerBE<T> be, ComponentKey<C> key, Function<T, C> factory, Object[] context) {
         be.compFactory.component(key, factory);
         if (context != null && context.length > 0) be.compContexts.put(key.getId(), context);
         //TODO add to SideConfig
+    }
+
+    @SuppressWarnings("resource")
+    protected <C extends Component, P> BlockApiCache<C, P> createCache(BlockApiLookup<C, P> lookup) {
+        return getWorld().isClient ? null : BlockApiCache.create(lookup, (ServerWorld) getWorld(), getPos());
     }
 
     @Override

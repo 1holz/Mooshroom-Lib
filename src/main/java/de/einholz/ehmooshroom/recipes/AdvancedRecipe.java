@@ -38,12 +38,12 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     public final Identifier typeId;
     public final Identifier id;
     public final Input input;
-    public final double consumes;
+    public final float consumes;
     public final Output output;
-    public final double generates;
-    public final double timeModifier;
+    public final float generates;
+    public final float timeModifier;
 
-    public AdvancedRecipe(Identifier id, Input input, double consumes, Output output, double generates, double timeModifier) {
+    public AdvancedRecipe(Identifier id, Input input, float consumes, Output output, float generates, float timeModifier) {
         this.typeId = new Identifier(id.getNamespace(), id.getPath().split("/")[1]);
         this.id = id;
         this.input = input;
@@ -74,9 +74,9 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     }
 
     public boolean matches(BlockPos pos, World world) {
-        AdvancedContainerBE be = (AdvancedContainerBE) world.getBlockEntity(pos);
+        AdvancedContainerBE<?> be = (AdvancedContainerBE<?>) world.getBlockEntity(pos);
         //TODO: convert generate & consume to data ingredient or own ErnergyIngredient
-        //if (consumes != Double.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
+        //if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
         return input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data));
     }
 
@@ -169,7 +169,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                 input = new Input(itemIngredients, fluidIngredients, blockIngredients, entityIngredients, dataIngredients);
             }
             //CONSUMES:
-            double consumes = json.has("consumes") ? json.get("consumes").getAsDouble() : Double.NaN;
+            float consumes = json.has("consumes") ? json.get("consumes").getAsFloat() : Float.NaN;
             //OUTPUT:
             Output output = null;
             if (json.has("output")) {
@@ -253,10 +253,10 @@ public class AdvancedRecipe implements Recipe<Inventory> {
                 output = new Output(itemStacks, /*fluidVolumes, */blockStates, entities, data);
             }
             //GENERATES:
-            double generates = json.has("generates") ? json.get("generates").getAsDouble() : Double.NaN;
+            float generates = json.has("generates") ? json.get("generates").getAsFloat() : Float.NaN;
             //TIMEMODIFIER
-            //Why does JsonHelper not support double values?
-            double timeModifier = json.has("timeModifier") ? json.get("timeModifier").getAsDouble() : Double.NaN;
+            //Why does JsonHelper not support float values?
+            float timeModifier = json.has("timeModifier") ? json.get("timeModifier").getAsFloat() : Float.NaN;
             return factory.create(id, input, consumes, output, generates, timeModifier);
         }
 
@@ -265,21 +265,21 @@ public class AdvancedRecipe implements Recipe<Inventory> {
         @Override
         public void write(PacketByteBuf buf, AdvancedRecipe recipe) {
             recipe.input.write(buf);
-            buf.writeDouble(recipe.consumes);
+            buf.writeFloat(recipe.consumes);
             recipe.output.write(buf);
-            buf.writeDouble(recipe.generates);
-            buf.writeDouble(recipe.timeModifier);
+            buf.writeFloat(recipe.generates);
+            buf.writeFloat(recipe.timeModifier);
         }
 
         //from packet to client
         @Environment(EnvType.CLIENT)
         @Override
         public AdvancedRecipe read(Identifier id, PacketByteBuf buf) {
-            return factory.create(id, Input.read(buf), buf.readDouble(), Output.read(buf), buf.readDouble(), buf.readDouble());
+            return factory.create(id, Input.read(buf), buf.readFloat(), Output.read(buf), buf.readFloat(), buf.readFloat());
         }
 
         public interface Factory {
-            AdvancedRecipe create(Identifier id, Input input, double consumes, Output output, double generates, double timeModifier);
+            AdvancedRecipe create(Identifier id, Input input, float consumes, Output output, float generates, float timeModifier);
         }
     }
 

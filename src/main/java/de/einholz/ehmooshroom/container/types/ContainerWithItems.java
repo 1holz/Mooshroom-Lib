@@ -6,7 +6,7 @@ import de.einholz.ehmooshroom.recipes.Ingrediets.ItemIngredient;
 import net.minecraft.item.ItemStack;
 
 public interface ContainerWithItems {
-    static boolean containsItems(AdvancedContainerBE container, ItemIngredient... ingredients) {
+    static boolean containsItems(AdvancedContainerBE<?> container, ItemIngredient... ingredients) {
         for (ItemIngredient ingredient : ingredients) {
             int amount = ingredient.amount;
             for (ItemStack stack : ItemComponent.ITEM_INPUT_LOOKUP.find(container.getWorld(), container.getPos(), container.getWorld().getBlockState(container.getPos()), container, null).getStacks()) {
