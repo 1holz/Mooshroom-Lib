@@ -1,6 +1,5 @@
 package de.einholz.ehmooshroom.block;
 
-import de.einholz.ehmooshroom.container.AdvancedContainerBE;
 import de.einholz.ehmooshroom.registry.RegistryHelper;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockEntityProvider;
@@ -12,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -31,7 +31,7 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockEn
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) player.openHandledScreen((AdvancedContainerBE) world.getBlockEntity(pos));
+        if (!world.isClient) player.openHandledScreen((NamedScreenHandlerFactory) world.getBlockEntity(pos));
         return ActionResult.SUCCESS;
     }
 

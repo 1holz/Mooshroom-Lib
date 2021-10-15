@@ -4,17 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 public class SimpleSideConfigComponent implements SideConfigComponent {
     protected final Map<Identifier, char[][]> configs = new HashMap<>();
 
-    @Override
-    public <P> SimpleSideConfigComponent of(P provider) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public SimpleSideConfigComponent(BlockEntity be) {}
 
     @Override
     public char[][] getConfig(Identifier id) {

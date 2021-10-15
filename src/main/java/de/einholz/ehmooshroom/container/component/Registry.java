@@ -45,6 +45,6 @@ public class Registry implements BlockComponentInitializer, ChunkComponentInitia
 
     @Override
     public void registerBlockComponentFactories(BlockComponentFactoryRegistry reg) {
-        //TODO: also see BlockApiLookup
+        //TODO: also see BlockApiLookup and TechMod init
     }
 }

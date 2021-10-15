@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
 
 public interface ItemComponent extends TransportingComponent<ItemComponent, ItemSpecification> {
@@ -28,7 +27,7 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     public static final ComponentKey<ItemComponent> ITEM_OUTPUT = ComponentRegistry.getOrCreate(ITEM_OUTPUT_ID, ItemComponent.class);
     public static final ComponentKey<ItemComponent> ITEM_STORAGE = ComponentRegistry.getOrCreate(ITEM_STORAGE_ID, ItemComponent.class);
     //TODO: use cache!!!
-    //null for ignoring dir
+    //null for ignoring
     public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_INTERNAL_LOOKUP = BlockApiLookup.get(ITEM_INTERNAL_ID, ItemComponent.class, SideConfigType.class);
     public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_INPUT_LOOKUP = BlockApiLookup.get(ITEM_INPUT_ID, ItemComponent.class, SideConfigType.class);
     public static final BlockApiLookup<ItemComponent, SideConfigType> ITEM_OUTPUT_LOOKUP = BlockApiLookup.get(ITEM_OUTPUT_ID, ItemComponent.class, SideConfigType.class);
@@ -80,21 +79,6 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     default void readNbt(NbtCompound nbt) {
         NbtList list = nbt.getList("Inventory", NbtType.COMPOUND);
         for (int i = 0; i < list.size(); i++) setStack(i, ItemStack.fromNbt(list.getCompound(i)));
-    }
-
-    @Deprecated
-    public static class TagSpecification {
-        private Tag<Item> tag;
-        private NbtCompound nbt;
-
-        public TagSpecification(Tag<Item> tag, NbtCompound nbt) {
-            this.tag = tag;
-            this.nbt = nbt;
-        }
-
-        public boolean matches(ItemStack stack) {
-            return (tag == null || tag.contains(stack.getItem())) && NbtHelper.matches(nbt, stack.getTag(), true);
-        }
     }
 
     public static class ItemSpecification {

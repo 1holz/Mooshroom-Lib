@@ -5,7 +5,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public interface CustomComponent extends Component {
-    <P extends Object> CustomComponent of(P provider);
     Identifier getId();
     void writeNbt(NbtCompound tag);
     void readNbt(NbtCompound tag);

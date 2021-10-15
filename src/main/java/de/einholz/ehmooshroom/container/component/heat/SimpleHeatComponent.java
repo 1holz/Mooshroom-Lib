@@ -1,5 +1,6 @@
 package de.einholz.ehmooshroom.container.component.heat;
 
+import de.einholz.ehmooshroom.container.component.CompContextProvider;
 import de.einholz.ehmooshroom.container.component.util.BarComponent;
 
 public class SimpleHeatComponent implements HeatComponent {
@@ -8,20 +9,11 @@ public class SimpleHeatComponent implements HeatComponent {
     private final float max;
     private float bal;
 
-    @Override
-    public <P> SimpleHeatComponent of(P provider) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    //1500 for CoalGenerator
-    public SimpleHeatComponent(float range) {
-        this(BarComponent.ZERO, range);
-    }
-
-    public SimpleHeatComponent(float min, float max) {
-        this.min = min;
-        this.max = max;
+    //float min usually 0
+    //float max 1500 for basic Machine
+    public SimpleHeatComponent(CompContextProvider contextProvider) {
+        min = (float) contextProvider.getCompContext(getId())[0];
+        max = (float) contextProvider.getCompContext(getId())[1];
         checkInit();
     }
 
