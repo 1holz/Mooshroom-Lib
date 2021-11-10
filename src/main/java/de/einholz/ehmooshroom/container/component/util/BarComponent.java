@@ -57,9 +57,15 @@ public interface BarComponent extends CustomComponent, CommonTickingComponent {
         return getValue();
     }
 
-    default float change(float change) {
-        setCur(getCur() + change);
-        return check();
+    default float decrease(float change) {
+        return increase(change * -1) * -1;
+    }
+
+    //returns actual change
+    default float increase(float change) {
+        float cur = getCur();
+        setCur(cur + change);
+        return check() - cur;
     }
 
     default float check() {
@@ -80,6 +86,6 @@ public interface BarComponent extends CustomComponent, CommonTickingComponent {
 
     @Override
     default void readNbt(NbtCompound nbt) {
-        if (nbt.contains("Activation_State", NbtType.NUMBER)) setCur(nbt.getFloat("Cur"));
+        if (nbt.contains("Cur", NbtType.NUMBER)) setCur(nbt.getFloat("Cur"));
     }
 }

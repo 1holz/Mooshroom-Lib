@@ -1,68 +1,53 @@
 package de.einholz.ehmooshroom.container.component.util;
 
-import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent.SideConfigBehavior;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 
+//TODO delete T stuff
 //T may be null if not applicable
-public interface TransportingComponent<C extends TransportingComponent<?, T>, T> extends CustomComponent {
+public interface TransportingComponent<C extends TransportingComponent<C>> extends CustomComponent {
     //return null if not applicable
     SideConfigComponent getSideConfig();
-    Number getContent(T type);
-    Number getSpace(T type);
+    //Number getContent(T type);
+    //Number getSpace(T type);
     Number getMaxTransfer();
     void setMaxTransfer(Number maxTransfer);
-    Number change(Number amount, Action action, T type);
+    //Number change(Number amount, Action action);
+    //assumes transportation is allowed
+    Number transport(C from, C to);
 
     //here Direction is always from the perspective of the block performing the action
-    default Number pull(TransportingComponent<C, T> from, Direction dir, Action action, T type) {
-        if (!getSideConfig().allows(getId(), dir, SideConfigBehavior.SELF_INPUT) || !from.getSideConfig().allows(from.getId(), dir, SideConfigBehavior.FOREIGN_INPUT)) return 0;
-        return TransportingComponent.transport(from, this, action, type);
+    @SuppressWarnings("unchecked")
+    default Number pull(C from, Direction dir) {
+        if (!getSideConfig().allows(getId(), dir, SideConfigBehavior.SELF_INPUT) || !from.getSideConfig().allows(from.getId(), dir.getOpposite(), SideConfigBehavior.FOREIGN_INPUT)) return 0;
+        return transport(from, (C) this);
     }
 
-    default Number push(TransportingComponent<C, T> to, Direction dir, Action action, T type) {
-        if (!getSideConfig().allows(getId(), dir, SideConfigBehavior.SELF_OUTPUT) || !to.getSideConfig().allows(to.getId(), dir, SideConfigBehavior.FOREIGN_OUTPUT)) return 0;
-        return TransportingComponent.transport(this, to, action, type);
+    @SuppressWarnings("unchecked")
+    default Number push(C to, Direction dir) {
+        if (!getSideConfig().allows(getId(), dir, SideConfigBehavior.SELF_OUTPUT) || !to.getSideConfig().allows(to.getId(), dir.getOpposite(), SideConfigBehavior.FOREIGN_OUTPUT)) return 0;
+        return transport((C) this, to);
     }
 
-    default Number pull(TransportingComponent<C, T> from, Action action, T type) {
-        return TransportingComponent.transport(from, this, action, type);
+    @SuppressWarnings("unchecked")
+    default Number pull(C from) {
+        return transport(from, (C) this);
     }
 
-    default Number push(TransportingComponent<C, T> to, Action action, T type) {
-        return TransportingComponent.transport(this, to, action, type);
-    }
-
-    //assumes transportation is allowed
-    static <C extends TransportingComponent<?, T>, T> Number transport(TransportingComponent<C, T> from, TransportingComponent<C, T> to, Action action, T type) {
-        if (from.getMaxTransfer().doubleValue() <= 0.0 || to.getMaxTransfer().doubleValue() <= 0.0) return 0;
-        double transfer = Math.min(Math.min(from.getMaxTransfer().doubleValue(), to.getMaxTransfer().doubleValue()), Math.min(from.getContent(type).doubleValue(), to.getSpace(type).doubleValue()));
-        if (action.perfrom()) {
-            double check = to.change(from.change(transfer, Action.PERFORM, type), Action.PERFORM, type).doubleValue();
-            if (Math.abs(transfer - check) >= 0.01) MooshroomLib.LOGGER.smallBug(new Exception("Bigger transfer discrepancy of " + (transfer - check)));
-            return check;
-        }
-        return transfer;
+    @SuppressWarnings("unchecked")
+    default Number push(C to) {
+        return transport((C) this, to);
     }
 
     @Override
     default void writeNbt(NbtCompound tag) {
-        tag.putDouble("MaxTransfer", getMaxTransfer().doubleValue());
+        tag.putFloat("Max_Transfer", getMaxTransfer().floatValue());
     }
 
     @Override
     default void readNbt(NbtCompound tag) {
-        setMaxTransfer(tag.getDouble("MaxTransfer"));
-    }
-
-    static enum Action {
-        PERFORM,
-        TEST;
-
-        public boolean perfrom() {
-            return PERFORM.equals(this);
-        }
+        setMaxTransfer(tag.getFloat("Max_Transfer"));
     }
 }

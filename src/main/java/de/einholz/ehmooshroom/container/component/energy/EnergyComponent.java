@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent, Void> {
+public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent> {
     public static final Identifier ENERGY_ID = MooshroomLib.HELPER.makeId("heat");
     public static final ComponentKey<EnergyComponent> ENERGY = ComponentRegistry.getOrCreate(ENERGY_ID, EnergyComponent.class);
     //TODO: use cache!!!
@@ -25,6 +25,7 @@ public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent
         return BarComponent.ZERO;
     }
 
+    /*
     @Override
     default Number getContent(Void type) {
         return getCur();
@@ -36,8 +37,9 @@ public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent
     }
 
     @Override
-    default Number change(Number amount, Action action, Void type) {
+    default Number change(Number amount, Action action) {
         if (action.perfrom()) return change(amount.floatValue());
         return amount.floatValue() < 0.0F ? Math.min(amount.floatValue(), getContent(type).floatValue()) : Math.min(amount.floatValue(), getSpace(type).floatValue());
     }
+    */
 }

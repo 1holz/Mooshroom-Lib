@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.CompContextProvider;
+import de.einholz.ehmooshroom.container.component.LookupCacheProvider;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent;
 import de.einholz.ehmooshroom.container.component.config.SimpleSideConfigComponent;
 import de.einholz.ehmooshroom.container.types.ContainerWithFluids;
@@ -41,8 +43,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ComponentProvider, CompContextProvider {
-    public final BlockApiCache<SideConfigComponent, Void> SIDE_CONFIG_CACHE;
+public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ComponentProvider, CompContextProvider, LookupCacheProvider {
+    private Map<ComponentKey<? extends Component>, BlockApiCache<? extends Component, ?>> cache = new HashMap<>();
     private Builder<T> compFactory;
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private Map<Identifier, Object[]> compContexts = new HashMap<>();
@@ -51,12 +53,13 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
         this(registryEntry.id, registryEntry.clientHandlerFactory, registryEntry.blockEntityType);
     }
 
+    @SuppressWarnings("unchecked")
     public AdvancedContainerBE(Identifier titelTranslationKey, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, BlockEntityType<? extends BlockEntity> blockEntityType) {
         super(blockEntityType);
         this.clientHandlerFactory = clientHandlerFactory;
-        compFactory = (Builder<T>) Factory.builder(getBEClass());
+        compFactory = (Builder<T>) Factory.builder(getClass());
         addComponent(this, SideConfigComponent.SIDE_CONFIG, SimpleSideConfigComponent::new, null);
-        SIDE_CONFIG_CACHE = createCache(SideConfigComponent.SIDE_CONFIG_LOOKUP);
+        createCache(SideConfigComponent.SIDE_CONFIG, SideConfigComponent.SIDE_CONFIG_LOOKUP);
     }
 
     protected static <C extends Component, T extends AdvancedContainerBE<T>> void addComponent(AdvancedContainerBE<T> be, ComponentKey<C> key, Function<T, C> factory, Object[] context) {
@@ -65,9 +68,17 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
         //TODO add to SideConfig
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <C extends Component> BlockApiCache<C, ?> getCache(ComponentKey<C> key) {
+        return (BlockApiCache<C, ?>) cache.get(key);
+    }
+
+    //TODO server? client?
     @SuppressWarnings("resource")
-    protected <C extends Component, P> BlockApiCache<C, P> createCache(BlockApiLookup<C, P> lookup) {
-        return getWorld().isClient ? null : BlockApiCache.create(lookup, (ServerWorld) getWorld(), getPos());
+    protected <C extends Component> void createCache(ComponentKey<C> key, BlockApiLookup<C, ?> lookup) {
+        if (!getWorld().isClient) cache.put(key, BlockApiCache.create(lookup, (ServerWorld) getWorld(), getPos()));
+        else MooshroomLib.LOGGER.smallBug(new IllegalStateException("The LookupCache for " + key.getId().toString() + " should only be created on the server side!"));
     }
 
     @Override
@@ -80,8 +91,6 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
     public ComponentContainer getComponentContainer() {
         return compFactory.build().createContainer((T) this);
     }
-
-    protected abstract Class<T> getBEClass();
 
     public BlockPos getPos() {
         return pos;

@@ -4,20 +4,22 @@ import java.util.List;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent.SideConfigType;
-import de.einholz.ehmooshroom.container.component.item.ItemComponent.ItemSpecification;
 import de.einholz.ehmooshroom.container.component.util.TransportingComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 
-public interface ItemComponent extends TransportingComponent<ItemComponent, ItemSpecification> {
+//slot numbers for machine internals:
+//0: power input
+//1: power output
+//2: upgrades
+//3: network
+public interface ItemComponent extends TransportingComponent<ItemComponent> {
     public static final Identifier ITEM_INTERNAL_ID = MooshroomLib.HELPER.makeId("item_internal");
     public static final Identifier ITEM_INPUT_ID = MooshroomLib.HELPER.makeId("item_input");
     public static final Identifier ITEM_OUTPUT_ID = MooshroomLib.HELPER.makeId("item_output");
@@ -44,6 +46,30 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
         getStacks().set(slot, stack);
     }
 
+    default int size() {
+        return getStacks().size();
+    }
+
+    @Override
+    default Number transport(ItemComponent from, ItemComponent to) {
+        int oriTrans = Math.min(from.getMaxTransfer().intValue(), to.getMaxTransfer().intValue());
+        int transfer = oriTrans;
+        for (ItemStack fStack : from.getStacks()) {
+            if (fStack.isEmpty()) continue;
+            for (int j = 0; j < to.size(); j++) {
+                ItemStack tStack = to.getStack(j);
+                if (!tStack.isEmpty() || !ItemStack.areEqual(fStack, tStack)) continue;
+                int sTransfer = Math.min(tStack.getMaxCount() - tStack.getCount(), Math.min(fStack.getCount(), transfer));
+                to.setStack(j, new ItemStack(fStack.getItem(), to.getStack(j).getCount() + sTransfer));;
+                fStack.decrement(sTransfer);
+                transfer -= sTransfer;
+                if (transfer <= 0) return oriTrans;
+            }
+        }
+        return oriTrans - transfer;
+    }
+
+    /*
     default Number getContent(ItemSpecification type) {
         int content = 0;
         for (ItemStack stack : getStacks()) if (type.matches(stack)) content += stack.getCount();
@@ -57,7 +83,7 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
     }
 
     @Override
-    default Number change(Number amount, Action action, ItemSpecification type) {
+    default Number change(Number amount, Action action) {
         int i = amount.intValue();
         for (ItemStack stack : getStacks()) {
             if (i == 0) break;
@@ -67,6 +93,7 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
         }
         return amount.intValue() - i;
     }
+    */
 
     @Override
     default void writeNbt(NbtCompound nbt) {
@@ -81,6 +108,8 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
         for (int i = 0; i < list.size(); i++) setStack(i, ItemStack.fromNbt(list.getCompound(i)));
     }
 
+    //TODO delete
+    /*
     public static class ItemSpecification {
         private Item item;
         private NbtCompound nbt;
@@ -103,4 +132,5 @@ public interface ItemComponent extends TransportingComponent<ItemComponent, Item
             return item.getMaxCount();
         }
     }
+    */
 }
