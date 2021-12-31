@@ -9,6 +9,7 @@ import de.einholz.ehmooshroom.container.component.CompContextProvider;
 import de.einholz.ehmooshroom.container.component.LookupCacheProvider;
 import de.einholz.ehmooshroom.container.component.config.SideConfigComponent;
 import de.einholz.ehmooshroom.container.component.config.SimpleSideConfigComponent;
+import de.einholz.ehmooshroom.container.component.util.TransportingComponent;
 import de.einholz.ehmooshroom.container.types.ContainerWithFluids;
 import de.einholz.ehmooshroom.container.types.ContainerWithItems;
 import de.einholz.ehmooshroom.recipes.Ingrediets.BlockIngredient;
@@ -44,6 +45,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ComponentProvider, CompContextProvider, LookupCacheProvider {
+    private ComponentContainer compContainer;
     private Map<ComponentKey<? extends Component>, BlockApiCache<? extends Component, ?>> cache = new HashMap<>();
     private Builder<T> compFactory;
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
@@ -65,13 +67,17 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
     protected static <C extends Component, T extends AdvancedContainerBE<T>> void addComponent(AdvancedContainerBE<T> be, ComponentKey<C> key, Function<T, C> factory, Object[] context) {
         be.compFactory.component(key, factory);
         if (context != null && context.length > 0) be.compContexts.put(key.getId(), context);
-        //TODO add to SideConfig
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <C extends Component> BlockApiCache<C, ?> getCache(ComponentKey<C> key) {
         return (BlockApiCache<C, ?>) cache.get(key);
+    }
+
+    //conveniant access to some comps
+    public SideConfigComponent getSideConfigComp() {
+        return getCache(SideConfigComponent.SIDE_CONFIG).find(null);
     }
 
     //TODO server? client?
@@ -87,9 +93,14 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
     }
 
     @SuppressWarnings("unchecked")
+    public void finish() {
+        compContainer = compFactory.build().createContainer((T) this);
+        for (ComponentKey<?> key : getComponentContainer().keys()) if (TransportingComponent.class.isAssignableFrom(key.getComponentClass())) getSideConfigComp().addSideConfig(key.getId());
+    }
+
     @Override
     public ComponentContainer getComponentContainer() {
-        return compFactory.build().createContainer((T) this);
+        return compContainer;
     }
 
     public BlockPos getPos() {

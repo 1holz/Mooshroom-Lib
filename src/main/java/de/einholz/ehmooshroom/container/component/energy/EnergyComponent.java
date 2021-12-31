@@ -2,15 +2,15 @@ package de.einholz.ehmooshroom.container.component.energy;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.container.component.util.BarComponent;
-import de.einholz.ehmooshroom.container.component.util.TrasportingBarComponent;
+import de.einholz.ehmooshroom.container.component.util.TransportingBarComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent> {
-    public static final Identifier ENERGY_ID = MooshroomLib.HELPER.makeId("heat");
+public interface EnergyComponent extends TransportingBarComponent<EnergyComponent> {
+    public static final Identifier ENERGY_ID = MooshroomLib.HELPER.makeId("energy");
     public static final ComponentKey<EnergyComponent> ENERGY = ComponentRegistry.getOrCreate(ENERGY_ID, EnergyComponent.class);
     //TODO: use cache!!!
     public static final BlockApiLookup<EnergyComponent, Direction> ENERGY_LOOKUP = BlockApiLookup.get(ENERGY_ID, EnergyComponent.class, Direction.class);
@@ -25,17 +25,17 @@ public interface EnergyComponent extends TrasportingBarComponent<EnergyComponent
         return BarComponent.ZERO;
     }
 
-    /*
     @Override
-    default Number getContent(Void type) {
+    default float getContent() {
         return getCur();
     }
 
     @Override
-    default Number getSpace(Void type) {
+    default float getSpace() {
         return getMax() - getCur();
     }
 
+    /*
     @Override
     default Number change(Number amount, Action action) {
         if (action.perfrom()) return change(amount.floatValue());

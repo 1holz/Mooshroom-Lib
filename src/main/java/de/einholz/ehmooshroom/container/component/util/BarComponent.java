@@ -5,7 +5,7 @@ import dev.onyxstudios.cca.api.v3.component.tick.CommonTickingComponent;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.NbtCompound;
 
-//XXX use Number instead of float like in TranportingComponent?
+//XXX use something different than float?
 public interface BarComponent extends CustomComponent, CommonTickingComponent {
     public static final float ZERO = 0.0F;
 

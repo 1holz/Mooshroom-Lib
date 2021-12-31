@@ -5,16 +5,12 @@ import de.einholz.ehmooshroom.container.component.config.SideConfigComponent.Sid
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 
-//TODO delete T stuff
-//T may be null if not applicable
+//here Number is used
 public interface TransportingComponent<C extends TransportingComponent<C>> extends CustomComponent {
     //return null if not applicable
     SideConfigComponent getSideConfig();
-    //Number getContent(T type);
-    //Number getSpace(T type);
     Number getMaxTransfer();
     void setMaxTransfer(Number maxTransfer);
-    //Number change(Number amount, Action action);
     //assumes transportation is allowed
     Number transport(C from, C to);
 
@@ -43,11 +39,11 @@ public interface TransportingComponent<C extends TransportingComponent<C>> exten
 
     @Override
     default void writeNbt(NbtCompound tag) {
-        tag.putFloat("Max_Transfer", getMaxTransfer().floatValue());
+        tag.putDouble("Max_Transfer", getMaxTransfer().doubleValue());
     }
 
     @Override
     default void readNbt(NbtCompound tag) {
-        setMaxTransfer(tag.getFloat("Max_Transfer"));
+        setMaxTransfer(tag.getDouble("Max_Transfer"));
     }
 }

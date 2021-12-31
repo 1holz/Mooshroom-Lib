@@ -5,16 +5,16 @@ import de.einholz.ehmooshroom.container.component.config.SideConfigComponent;
 import de.einholz.ehmooshroom.container.component.util.BarComponent;
 
 public class SimpleEnergyComponent implements EnergyComponent {
-    private float cur = BarComponent.ZERO;
-    private final float max;
-    private float bal;
-    private float maxTransfer;
+    private int cur = (int) BarComponent.ZERO;
+    private final int max;
+    private int bal;
+    private int maxTransfer;
 
     //float max
     //float maxTransfer
     public SimpleEnergyComponent(CompContextProvider contextProvider) {
-        max = (float) contextProvider.getCompContext(getId())[0];
-        maxTransfer = (float) contextProvider.getCompContext(getId())[1];
+        max = (int) contextProvider.getCompContext(getId())[0];
+        maxTransfer = (int) contextProvider.getCompContext(getId())[1];
         checkInit();
     }
 
@@ -36,7 +36,7 @@ public class SimpleEnergyComponent implements EnergyComponent {
 
     @Override
     public void setCur(float cur) {
-        this.cur = cur;
+        this.cur = (int) cur;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class SimpleEnergyComponent implements EnergyComponent {
 
     @Override
     public void setBalance(float bal) {
-        this.bal = bal;
+        this.bal = (int) bal;
     }
 
     @Override
@@ -56,6 +56,6 @@ public class SimpleEnergyComponent implements EnergyComponent {
 
     @Override
     public void setMaxTransfer(Number maxTransfer) {
-        this.maxTransfer = maxTransfer.floatValue();
+        this.maxTransfer = maxTransfer.intValue();
     }
 }
