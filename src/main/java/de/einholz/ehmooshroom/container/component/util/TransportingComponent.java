@@ -7,24 +7,37 @@ import net.minecraft.util.math.Direction;
 
 //here Number is used
 public interface TransportingComponent<C extends TransportingComponent<C>> extends CustomComponent {
-    //return null if not applicable
+    /**
+     * @return the SideConfigComponent or null if not applicable
+     */
     SideConfigComponent getSideConfig();
     Number getMaxTransfer();
     void setMaxTransfer(Number maxTransfer);
-    //assumes transportation is allowed
+    /**
+     * assumes transportation is allowed
+     * @param from
+     * @param to
+     * @return how much was actually transported
+     */
     Number transport(C from, C to);
 
-    //here Direction is always from the perspective of the block performing the action
+    default boolean allowsTransport(Direction dir, SideConfigBehavior behavior) {
+        return getSideConfig() == null ? true : getSideConfig().allows(getId(), dir, behavior);
+    }
+
+    /**
+     * @param from
+     * @param dir always from the perspective of the block performing the action
+     * @return
+     */
     @SuppressWarnings("unchecked")
     default Number pull(C from, Direction dir) {
-        if (!getSideConfig().allows(getId(), dir, SideConfigBehavior.SELF_INPUT) || !from.getSideConfig().allows(from.getId(), dir.getOpposite(), SideConfigBehavior.FOREIGN_INPUT)) return 0;
-        return transport(from, (C) this);
+        return !allowsTransport(dir, SideConfigBehavior.SELF_INPUT) || !from.allowsTransport(dir.getOpposite(), SideConfigBehavior.FOREIGN_INPUT) ? 0 : transport(from, (C) this);
     }
 
     @SuppressWarnings("unchecked")
     default Number push(C to, Direction dir) {
-        if (!getSideConfig().allows(getId(), dir, SideConfigBehavior.SELF_OUTPUT) || !to.getSideConfig().allows(to.getId(), dir.getOpposite(), SideConfigBehavior.FOREIGN_OUTPUT)) return 0;
-        return transport((C) this, to);
+        return !allowsTransport(dir, SideConfigBehavior.SELF_OUTPUT) || !to.allowsTransport(dir.getOpposite(), SideConfigBehavior.FOREIGN_OUTPUT) ? 0 : transport((C) this, to);
     }
 
     @SuppressWarnings("unchecked")
