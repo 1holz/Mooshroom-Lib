@@ -76,6 +76,7 @@ public interface ItemComponent extends TransportingComponent<ItemComponent> {
         Collections.addAll(getSlots(), slots);
     }
 
+    //make variables for types like NbtTypes?
     /**
      * <p> Types:
      * <p> 0 = Internal
@@ -305,6 +306,32 @@ public interface ItemComponent extends TransportingComponent<ItemComponent> {
             if (id == null) return slots.get(i);
             else for (Slot slot : slots) if (id.equals(slot.getId())) return slot;
             return null;
+        }
+    }
+
+    public static class SlotFactory {
+        private Slot[] slots;
+
+        public SlotFactory(short t, String tag, Identifier... ids) {
+            Slot[] a = new Slot[ids.length];
+            for (int i = 0; i < a.length; i++) a[i] = new Slot().withType(t).addTag(tag).withId(ids[i]);
+            slots = a;
+        }
+    
+        public SlotFactory(short t, String[] tags, Identifier... ids) {
+            Slot[] a = new Slot[ids.length];
+            for (int i = 0; i < a.length; i++) a[i] = new Slot().withType(t).addTags(tags).withId(ids[i]);
+            slots = a;
+        }
+    
+        public SlotFactory(Slot pattern, int amount) {
+            Slot[] a = new Slot[amount];
+            Arrays.fill(a, pattern);
+            slots = a;
+        }
+
+        public Slot[] getSlots() {
+            return slots;
         }
     }
 

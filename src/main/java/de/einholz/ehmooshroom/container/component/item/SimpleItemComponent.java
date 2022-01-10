@@ -17,6 +17,7 @@ public class SimpleItemComponent implements ItemComponent {
      * <p> OLD: short 0: internal, 1: input, 2: output, 3: storage
      * <p> OLD: int size
      * <p> int maxTransfer
+     * <p> SlotFactory... inv:
      * @param contextProvider
      */
     public SimpleItemComponent(CompContextProvider contextProvider) {
@@ -24,6 +25,7 @@ public class SimpleItemComponent implements ItemComponent {
         //type = s == 0 ? ItemComponent.ITEM_INTERNAL : s == 1 ? ItemComponent.ITEM_INPUT : s == 2 ? ItemComponent.ITEM_OUTPUT : ItemComponent.ITEM_STORAGE;
         maxTransfer = (int) contextProvider.getCompContext(getId())[0];
         sideConfig = contextProvider.getSideConfig();
+        for (Object slot : contextProvider.getCompContext(getId())) if (slot instanceof SlotFactory) addSlots(((SlotFactory) slot).getSlots());
     }
 
     @Override

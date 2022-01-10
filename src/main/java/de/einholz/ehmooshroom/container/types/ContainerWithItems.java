@@ -9,7 +9,7 @@ public interface ContainerWithItems {
     static boolean containsItems(AdvancedContainerBE<?> container, ItemIngredient... ingredients) {
         for (ItemIngredient ingredient : ingredients) {
             int amount = ingredient.amount;
-            for (ItemStack stack : ItemComponent.ITEM_INPUT_LOOKUP.find(container.getWorld(), container.getPos(), container.getWorld().getBlockState(container.getPos()), container, null).getStacks()) {
+            for (ItemStack stack : ItemComponent.ITEM_LOOKUP.find(container.getWorld(), container.getPos(), container.getWorld().getBlockState(container.getPos()), container, null).getStacks((short) 1)) {
                 if (ingredient.matches(stack)) amount -= stack.getCount();
                 if (amount <= 0) break;
             }

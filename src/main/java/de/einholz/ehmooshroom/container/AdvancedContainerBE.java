@@ -60,11 +60,11 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
         super(blockEntityType);
         this.clientHandlerFactory = clientHandlerFactory;
         compFactory = (Builder<T>) Factory.builder(getClass());
-        addComponent(this, SideConfigComponent.SIDE_CONFIG, SimpleSideConfigComponent::new, null);
+        addComponent(this, SideConfigComponent.SIDE_CONFIG, SimpleSideConfigComponent::new);
         createCache(SideConfigComponent.SIDE_CONFIG, SideConfigComponent.SIDE_CONFIG_LOOKUP);
     }
 
-    protected static <C extends Component, T extends AdvancedContainerBE<T>> void addComponent(AdvancedContainerBE<T> be, ComponentKey<C> key, Function<T, C> factory, Object[] context) {
+    protected static <C extends Component, T extends AdvancedContainerBE<T>> void addComponent(AdvancedContainerBE<T> be, ComponentKey<C> key, Function<T, C> factory, Object... context) {
         be.compFactory.component(key, factory);
         if (context != null && context.length > 0) be.compContexts.put(key.getId(), context);
     }
@@ -93,7 +93,7 @@ public abstract class AdvancedContainerBE<T extends AdvancedContainerBE<T>> exte
     }
 
     @SuppressWarnings("unchecked")
-    public void finish() {
+    public void build() {
         compContainer = compFactory.build().createContainer((T) this);
         for (ComponentKey<?> key : getComponentContainer().keys()) if (TransportingComponent.class.isAssignableFrom(key.getComponentClass())) getSideConfigComp().addSideConfig(key.getId());
     }
