@@ -6,7 +6,7 @@
     "icon": "assets/ehmooshroom/icon.png",
     "description": "This is a libary for my minecraft mods.",
     "authors": [
-        "Albert_Einholz"
+        "Einholz"
     ],
     "contact": {
         "homepage": "Lorem ipsum",
@@ -27,9 +27,9 @@
     },
     "mixins": [],
     "depends": {
-        "fabricloader": ">=0.7.4",
+        "fabricloader": ">=0.14.7",
         "fabric": "*",
-        "minecraft": ">=1.15.0"
+        "minecraft": ">=1.19.x"
     },
     "suggests": {
         "flamingo": "*"

@@ -6,12 +6,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 public class ItemIngredient {
     public final Identifier id;
-    public final Tag<Item> ingredient;
+    public final TagKey<Item> ingredient;
     public final int amount;
     public final NbtCompound nbt;
 

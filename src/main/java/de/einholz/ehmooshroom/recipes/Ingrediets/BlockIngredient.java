@@ -3,13 +3,13 @@ package de.einholz.ehmooshroom.recipes.Ingrediets;
 import net.minecraft.block.Block;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 //also for BlockEntities etc.?
 public class BlockIngredient {
     public final Identifier id;
-    public final Tag<Block> ingredient;
+    public final TagKey<Block> ingredient;
 
     public BlockIngredient(Identifier id) {
         this.id = id;

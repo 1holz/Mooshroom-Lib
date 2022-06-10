@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.container.AdvancedContainerBE;
 import de.einholz.ehmooshroom.recipes.Ingrediets.BlockIngredient;
 import de.einholz.ehmooshroom.recipes.Ingrediets.DataIngredient;
 import de.einholz.ehmooshroom.recipes.Ingrediets.EntityIngredient;
@@ -74,10 +73,14 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     }
 
     public boolean matches(BlockPos pos, World world) {
-        AdvancedContainerBE<?> be = (AdvancedContainerBE<?>) world.getBlockEntity(pos);
+        RecipeHolder be = (RecipeHolder) world.getBlockEntity(pos);
         //TODO: convert generate & consume to data ingredient or own ErnergyIngredient
         //if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
-        return input == null || (input.items == null || be.containsItemIngredients(input.items)) && (input.fluids == null || be.containsFluidIngredients(input.fluids)) && (input.blocks == null || be.containsBlockIngredients(input.blocks)) && (input.entities == null || be.containsEntityIngredients(input.entities)) && (input.data == null || be.containsDataIngredients(input.data));
+        return input == null || (input.items == null || input.items.length == 0 || be.containsItemIngredients(input.items))
+            && (input.fluids == null || input.fluids.length == 0 || be.containsFluidIngredients(input.fluids))
+            && (input.blocks == null || input.blocks.length == 0 || be.containsBlockIngredients(input.blocks))
+            && (input.entities == null || input.entities.length == 0 || be.containsEntityIngredients(input.entities))
+            && (input.data == null || input.data.length == 0 || be.containsDataIngredients(input.data));
     }
 
     public static class Serializer implements RecipeSerializer<AdvancedRecipe> {

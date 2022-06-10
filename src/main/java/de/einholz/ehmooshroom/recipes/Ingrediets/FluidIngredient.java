@@ -5,12 +5,12 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 
 public class FluidIngredient {
     public final Identifier id;
-    public final Tag<Fluid> ingredient;
+    public final TagKey<Fluid> ingredient;
     public final float amount;
     public final NbtCompound nbt;
 
