@@ -25,8 +25,8 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - OS:
  - Java version:
-- Fabric version:
-- Dependencies versions:
+ - Fabric version:
+ - Dependencies versions:
  - This mod version:
 
 **Additional context**
