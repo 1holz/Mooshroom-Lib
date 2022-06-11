@@ -1,10 +1,11 @@
 package de.einholz.ehmooshroom.recipes.Ingrediets;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 //also for BlockEntities etc.?
 public class BlockIngredient {
@@ -13,11 +14,11 @@ public class BlockIngredient {
 
     public BlockIngredient(Identifier id) {
         this.id = id;
-        this.ingredient = ServerTagManagerHolder.getTagManager().getBlocks().getTag(id);
+        this.ingredient = TagKey.of(Registry.BLOCK_KEY, id);
     }
 
-    public boolean matches(Block block) {
-        return ingredient.contains(block);
+    public boolean matches(BlockState state) {
+        return state.isIn(ingredient);
     }
 
     public void write(PacketByteBuf buf) {

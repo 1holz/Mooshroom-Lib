@@ -1,12 +1,12 @@
 package de.einholz.ehmooshroom.recipes.Ingrediets;
 
-import de.einholz.ehmooshroom.MooshroomLib;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class FluidIngredient {
     public final Identifier id;
@@ -16,15 +16,13 @@ public class FluidIngredient {
 
     public FluidIngredient(Identifier id, float amount, NbtCompound nbt) {
         this.id = id;
-        this.ingredient = ServerTagManagerHolder.getTagManager().getFluids().getTag(id);
+        this.ingredient = TagKey.of(Registry.FLUID_KEY, id);
         this.amount = amount;
         this.nbt = nbt;
     }
 
-    //TODO
-    public boolean matches(Void fluid) {
-        MooshroomLib.LOGGER.wip("Containment Check for " + id);
-        return false;
+    public boolean matches(FluidState state) {
+        return state.isIn(ingredient);
     }
 
     public void write(PacketByteBuf buf) {

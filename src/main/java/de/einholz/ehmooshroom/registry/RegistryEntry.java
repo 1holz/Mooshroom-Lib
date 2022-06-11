@@ -1,23 +1,16 @@
 package de.einholz.ehmooshroom.registry;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry.Factory;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.BlockEntityType.Builder;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -26,8 +19,6 @@ import net.minecraft.item.Item.Settings;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -38,12 +29,12 @@ public class RegistryEntry {
     public Item item;
     public ItemGroup itemGroup;
     public BlockEntityType<? extends BlockEntity> blockEntityType;
-    public ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
-    public Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory;
+    //public ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
+    //public Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory;
     public RecipeType<? extends Recipe<?>> recipeType;
     public RecipeSerializer<? extends Recipe<?>> recipeSerializer;
     //created:
-    public ScreenHandlerType<? extends ScreenHandler> screenHandlerType;
+    //public ScreenHandlerType<? extends ScreenHandler> screenHandlerType;
 
     protected RegistryEntry(Identifier id) {
         this.id = id;
@@ -110,12 +101,12 @@ public class RegistryEntry {
         return this;
     }
 
-    public RegistryEntry withBlockEntityBuild(Supplier<? extends BlockEntity> blockEntitySupplier) {
+    public RegistryEntry withBlockEntityBuild(Factory<? extends BlockEntity> blockEntitySupplier) {
         if (block == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Block before BlockEntityBuild for " + id.toString()));
             return this;
         }
-        return withBlockEntity(Builder.create(blockEntitySupplier, this.block).build(null));
+        return withBlockEntity(FabricBlockEntityTypeBuilder.create(blockEntitySupplier, this.block).build(null));
     }
 
     public RegistryEntry withBlockEntity(BlockEntityType<? extends BlockEntity> blockEntityType) {
@@ -124,6 +115,7 @@ public class RegistryEntry {
         return this;
     }
 
+    /*
     public RegistryEntry withGui(ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         this.clientHandlerFactory = clientHandlerFactory;
         if (this.clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, this.clientHandlerFactory);
@@ -146,6 +138,7 @@ public class RegistryEntry {
         if (screenHandlerType != null && this.screenFactory != null) ScreenRegistry.<ScreenHandler, HandledScreen<ScreenHandler>>register(screenHandlerType, this.screenFactory);
         return this;
     }
+    */
 
     public RegistryEntry withRecipe(RecipeType<? extends Recipe<?>> recipeType) {
         this.recipeType = recipeType;

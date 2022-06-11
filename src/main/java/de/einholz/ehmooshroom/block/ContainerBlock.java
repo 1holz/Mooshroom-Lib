@@ -1,11 +1,9 @@
 package de.einholz.ehmooshroom.block;
 
-import de.einholz.ehmooshroom.registry.RegistryHelper;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.InventoryProvider;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
@@ -17,7 +15,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
@@ -40,22 +37,25 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockEn
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (world.isClient) super.onBreak(world, pos, state, player);
         ItemStack itemStack = new ItemStack(asItem());
-        NbtCompound nbtCompound = world.getBlockEntity(pos).writeNbt(new NbtCompound());
+        NbtCompound nbtCompound = new NbtCompound();
+        world.getBlockEntity(pos).readNbt(nbtCompound);
         nbtCompound.remove("x");
         nbtCompound.remove("y");
         nbtCompound.remove("z");
         nbtCompound.remove("id");
-        if (!nbtCompound.isEmpty()) itemStack.putSubTag("BlockEntityTag", nbtCompound);
+        if (!nbtCompound.isEmpty()) itemStack.setSubNbt("BlockEntityTag", nbtCompound);
         ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), itemStack);
         itemEntity.setToDefaultPickupDelay();
         world.spawnEntity(itemEntity);
         super.onBreak(world, pos, state, player);
     }
 
+    /* FIXME
     @Override
     public BlockEntity createBlockEntity(BlockView view) {
         return RegistryHelper.getEntry(id).blockEntityType.instantiate();
     }
+     */
 
     @Override
     public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {

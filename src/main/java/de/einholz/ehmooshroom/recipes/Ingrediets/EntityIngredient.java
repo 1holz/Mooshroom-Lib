@@ -5,9 +5,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class EntityIngredient {
     public final Identifier id;
@@ -17,13 +17,13 @@ public class EntityIngredient {
 
     public EntityIngredient(Identifier id, int amount, NbtCompound nbt) {
         this.id = id;
-        this.ingredient = ServerTagManagerHolder.getTagManager().getEntityTypes().getTag(id);
+        this.ingredient = TagKey.of(Registry.ENTITY_TYPE_KEY, id);
         this.amount = amount;
         this.nbt = nbt;
     }
 
     public boolean matches(Entity entity) {
-        return ingredient.contains(entity.getType()) && NbtHelper.matches(nbt, entity.writeNbt(new NbtCompound()), true);
+        return entity.getType().isIn(ingredient) && NbtHelper.matches(nbt, entity.writeNbt(new NbtCompound()), true);
     }
 
     public void write(PacketByteBuf buf) {
