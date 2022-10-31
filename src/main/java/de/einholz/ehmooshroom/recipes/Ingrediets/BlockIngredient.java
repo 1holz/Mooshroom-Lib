@@ -3,18 +3,20 @@ package de.einholz.ehmooshroom.recipes.Ingrediets;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.tag.TagKey;
+import net.minecraft.tag.RequiredTagListRegistry;
+import net.minecraft.tag.Tag.Identified;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 //also for BlockEntities etc.?
 public class BlockIngredient {
     public final Identifier id;
-    public final TagKey<Block> ingredient;
+    public final Identified<Block> ingredient;
 
     public BlockIngredient(Identifier id) {
         this.id = id;
-        this.ingredient = TagKey.of(Registry.BLOCK_KEY, id);
+        this.ingredient = RequiredTagListRegistry.register(Registry.BLOCK_KEY, "tags/blocks").add(id.toString());
+        //this.ingredient = TagKey.of(Registry.BLOCK_KEY, id);
     }
 
     public boolean matches(BlockState state) {
