@@ -10,9 +10,10 @@
     ],
     "contact": {
         "homepage": "Lorem ipsum",
-        "sources": "https://github.com/Albert-Einholz/Mooshroom-Lib"
+        "sources": "https://github.com/Albert-Einholz/Mooshroom-Lib",
+        "issues": "https://github.com/Albert-Einholz/Mooshroom-Lib/issues"
     },
-    "license": "Apache-2.0 Licence",
+    "license": "Apache-2.0",
     "environment": "*",
     "entrypoints": {
         "main": [
@@ -29,10 +30,11 @@
     "depends": {
         "fabricloader": ">=0.14.7",
         "fabric": "*",
-        "minecraft": ">=1.19.x"
+        "minecraft": "~1.19",
+        "java": ">=17"
     },
     "suggests": {
-        "flamingo": "*"
+        "nochatreports": "*"
     },
     "custom": {
         "cardinal-components": [
@@ -43,6 +45,14 @@
             "ehmooshroom:item_output",
             "ehmooshroom:item_storage",
             "ehmooshroom:side_config"
-        ]
+        ],
+        "loom:injected_interfaces": {},
+        "modmenu": {
+            "links": {
+                "modmenu.discord": "https://discord.gg/VUpY7a7pqF"
+            },
+            "badges": [],
+            "parent": {}
+        }
     }
 }
