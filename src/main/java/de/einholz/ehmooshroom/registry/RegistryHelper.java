@@ -5,6 +5,7 @@ import java.util.HashMap;
 import de.einholz.ehmooshroom.MooshroomLib;
 import net.minecraft.util.Identifier;
 
+@Deprecated
 public class RegistryHelper {
     protected static final HashMap<Identifier, RegistryEntry> ENTRIES = new HashMap<>();
 

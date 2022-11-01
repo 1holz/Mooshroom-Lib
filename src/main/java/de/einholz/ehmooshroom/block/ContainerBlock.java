@@ -28,22 +28,25 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockEn
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) player.openHandledScreen((NamedScreenHandlerFactory) world.getBlockEntity(pos));
-        return ActionResult.SUCCESS;
+        if (world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory) { 
+            if (!world.isClient()) player.openHandledScreen((NamedScreenHandlerFactory) world.getBlockEntity(pos));
+            return ActionResult.SUCCESS;
+        }
+        return ActionResult.PASS;
     }
 
     //FIXME: two times super method???
     @Override
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (world.isClient) super.onBreak(world, pos, state, player);
+        //if (world.isClient) super.onBreak(world, pos, state, player);
         ItemStack itemStack = new ItemStack(asItem());
         NbtCompound nbtCompound = new NbtCompound();
-        world.getBlockEntity(pos).readNbt(nbtCompound);
+        world.getBlockEntity(pos).writeNbt(nbtCompound);
         nbtCompound.remove("x");
         nbtCompound.remove("y");
         nbtCompound.remove("z");
         nbtCompound.remove("id");
-        if (!nbtCompound.isEmpty()) itemStack.setSubNbt("BlockEntityTag", nbtCompound);
+        if (!nbtCompound.isEmpty()) itemStack.setSubNbt("BlockEntityNbt", nbtCompound);
         ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), itemStack);
         itemEntity.setToDefaultPickupDelay();
         world.spawnEntity(itemEntity);
@@ -55,10 +58,10 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockEn
     public BlockEntity createBlockEntity(BlockView view) {
         return RegistryHelper.getEntry(id).blockEntityType.instantiate();
     }
-     */
+    */
 
     @Override
     public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
-        return null;//TODO
+        return null; //TODO
     }
 }

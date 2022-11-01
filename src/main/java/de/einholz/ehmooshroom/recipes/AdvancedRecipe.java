@@ -13,7 +13,6 @@ import de.einholz.ehmooshroom.recipes.Ingrediets.DataIngredient;
 import de.einholz.ehmooshroom.recipes.Ingrediets.EntityIngredient;
 import de.einholz.ehmooshroom.recipes.Ingrediets.FluidIngredient;
 import de.einholz.ehmooshroom.recipes.Ingrediets.ItemIngredient;
-import de.einholz.ehmooshroom.registry.RegistryHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -64,12 +63,12 @@ public class AdvancedRecipe implements Recipe<Inventory> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RegistryHelper.getEntry(typeId).recipeSerializer;
+        return Registry.RECIPE_SERIALIZER.get(typeId);
     }
 
     @Override
     public RecipeType<?> getType() {
-        return RegistryHelper.getEntry(typeId).recipeType;
+        return Registry.RECIPE_TYPE.get(typeId);
     }
 
     public boolean matches(BlockPos pos, World world) {

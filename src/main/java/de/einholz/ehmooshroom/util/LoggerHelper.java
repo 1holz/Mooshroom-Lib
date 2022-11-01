@@ -67,14 +67,14 @@ public class LoggerHelper {
     }
 
     public void test(String msg) {
-        warn("This is a message from the developer for testing. This shouldn't be in a release version.");
+        warn("This is a message from the developer for testing. This shouldn't be in a release version");
         fatal(msg);
         info("at: "+ new Throwable().getStackTrace()[1]);
         smallBug();
     }
 
     public void wip(String feature) {
-        warn(feature + " is/are in a work in progress state.");
+        warn(feature + " is/are in a work in progress state");
         warn("This feature may not work properly");
     }
 }

@@ -5,7 +5,7 @@ This is the lite version of this mod.
 It currently does this:
 - easier logger
 - easier and more advanced recipe handling
-- easier block (+ block entity, recipe, etc.) and item registering
+- easier block (+ block entity, recipe, etc.) and item registering (deprecated)
 - some very small utility stuff
 
 The deprecated full version additionally did this:

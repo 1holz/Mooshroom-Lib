@@ -22,6 +22,7 @@ import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+@Deprecated
 public class RegistryEntry {
     public final Identifier id;
     //supplied:
