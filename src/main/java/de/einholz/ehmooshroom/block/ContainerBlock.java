@@ -1,9 +1,9 @@
 package de.einholz.ehmooshroom.block;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.InventoryProvider;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
@@ -15,21 +15,22 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
-public abstract class ContainerBlock extends DirectionalBlock implements BlockEntityProvider, InventoryProvider {
+public class ContainerBlock extends DirectionalBlock implements BlockEntityProvider, InventoryProvider {
     public Identifier id;
 
-    public ContainerBlock(FabricBlockSettings settings, Identifier id) {
+    public ContainerBlock(Settings settings, Identifier id) {
         super(settings);
         this.id = id;
     }
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory) { 
-            if (!world.isClient()) player.openHandledScreen((NamedScreenHandlerFactory) world.getBlockEntity(pos));
+        if (world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory screenFactory) { 
+            if (!world.isClient()) player.openHandledScreen(screenFactory);
             return ActionResult.SUCCESS;
         }
         return ActionResult.PASS;
@@ -53,12 +54,10 @@ public abstract class ContainerBlock extends DirectionalBlock implements BlockEn
         super.onBreak(world, pos, state, player);
     }
 
-    /* FIXME
     @Override
-    public BlockEntity createBlockEntity(BlockView view) {
-        return RegistryHelper.getEntry(id).blockEntityType.instantiate();
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return Registry.BLOCK_ENTITY_TYPE.get(id).instantiate(pos, state);
     }
-    */
 
     @Override
     public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {

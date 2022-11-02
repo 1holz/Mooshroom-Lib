@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipes;
+package de.einholz.ehmooshroom.recipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +8,11 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.recipes.Ingrediets.BlockIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.DataIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.EntityIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.FluidIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.ItemIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.BlockIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.DataIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.EntityIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.FluidIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.ItemIngredient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;

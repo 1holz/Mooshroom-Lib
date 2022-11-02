@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipes.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingrediets;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

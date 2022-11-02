@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipes.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingrediets;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;

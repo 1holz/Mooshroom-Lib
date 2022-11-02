@@ -1,10 +1,10 @@
-package de.einholz.ehmooshroom.recipes;
+package de.einholz.ehmooshroom.recipe;
 
-import de.einholz.ehmooshroom.recipes.Ingrediets.BlockIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.DataIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.EntityIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.FluidIngredient;
-import de.einholz.ehmooshroom.recipes.Ingrediets.ItemIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.BlockIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.DataIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.EntityIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.FluidIngredient;
+import de.einholz.ehmooshroom.recipe.Ingrediets.ItemIngredient;
 
 public interface RecipeHolder {
 
