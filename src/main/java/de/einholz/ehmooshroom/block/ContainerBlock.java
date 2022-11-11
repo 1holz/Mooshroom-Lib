@@ -1,9 +1,13 @@
 package de.einholz.ehmooshroom.block;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.InventoryProvider;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
@@ -20,11 +24,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 public class ContainerBlock extends DirectionalBlock implements BlockEntityProvider, InventoryProvider {
-    public Identifier id;
+    private Identifier id;
+    private BlockEntityType<? extends BlockEntity> blockEntityType;
+    private BlockEntityTicker<? extends BlockEntity> ticker;
 
-    public ContainerBlock(Settings settings, Identifier id) {
+    public ContainerBlock(Settings settings, Identifier id, BlockEntityTicker<? extends BlockEntity> ticker) {
         super(settings);
         this.id = id;
+        this.ticker = ticker;
     }
 
     @Override
@@ -56,11 +63,25 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return Registry.BLOCK_ENTITY_TYPE.get(id).instantiate(pos, state);
+        return getBlockEntityType().instantiate(pos, state);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    @Nullable
+    //FIXME better way then the ugly casting?
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        if (getBlockEntityType() != type) return null;
+        return (@Nullable BlockEntityTicker<T>) ticker;
     }
 
     @Override
     public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
         return null; //TODO
+    }
+
+    protected BlockEntityType<? extends BlockEntity> getBlockEntityType() {
+        if (blockEntityType == null) blockEntityType = Registry.BLOCK_ENTITY_TYPE.get(id);
+        return blockEntityType;
     }
 }
