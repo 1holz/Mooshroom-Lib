@@ -8,6 +8,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+@Deprecated
 public interface BlockEntityTypeReg extends Reg {
     public static <T extends BlockEntity> BlockEntityType<T> registerRaw(Identifier id, BlockEntityType<T> blockEntityType) {
         return Registry.register(Registry.BLOCK_ENTITY_TYPE, id, blockEntityType);

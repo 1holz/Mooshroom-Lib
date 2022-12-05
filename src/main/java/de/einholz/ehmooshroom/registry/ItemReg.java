@@ -10,6 +10,7 @@ import net.minecraft.item.Item.Settings;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+@Deprecated
 public interface ItemReg extends Reg {
     public static Item registerRaw(Identifier id, Item item) {
         return Registry.register(Registry.ITEM, id, item);

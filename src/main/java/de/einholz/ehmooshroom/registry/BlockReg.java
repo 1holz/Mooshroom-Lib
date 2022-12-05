@@ -9,6 +9,7 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+@Deprecated
 public interface BlockReg extends Reg {
     public static Block registerRaw(Identifier id, Block block) {
         return Registry.register(Registry.BLOCK, id, block);
