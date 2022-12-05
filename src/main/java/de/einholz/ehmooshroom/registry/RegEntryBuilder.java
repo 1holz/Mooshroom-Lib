@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier;
 
 public class RegEntryBuilder {
     private Identifier id;
-    protected final LoggerHelper logger = MooshroomLib.LOGGER;
     private Function<RegEntryBuilder, Block> blockFunc = (entry) -> null;
     private Block block;
     private Function<RegEntryBuilder, BlockEntityType<? extends BlockEntity>> blockEntityTypeFunc = (entry) -> null;
@@ -39,6 +38,15 @@ public class RegEntryBuilder {
 
     public RegEntryBuilder applyTemplate(Function<RegEntryBuilder, ? extends RegEntryBuilder> template) {
         return template.apply(this);
+    }
+
+    protected LoggerHelper getLogger() {
+        return MooshroomLib.LOGGER;
+    }
+
+    public Identifier getId() {
+        if (id == null) getLogger().smallBug(new NullPointerException("Identifier is null! Probably it wasn't assigned yet"));
+        return id;
     }
 
     // BLOCKS:
@@ -105,7 +113,7 @@ public class RegEntryBuilder {
 
     public RegEntryBuilder withBlockItemBuild(Item.Settings settings) {
         if (block == null) {
-            logger.smallBug(new NullPointerException("You must add a Block before BlockItemBuild for " + id.toString()));
+            getLogger().smallBug(new NullPointerException("You must add a Block before BlockItemBuild for " + id.toString()));
             return this;
         }
         return withItemRaw((entry) -> new BlockItem(block, settings));
@@ -187,7 +195,7 @@ public class RegEntryBuilder {
         blockEntityType = blockEntityTypeFunc.apply(this);
         item = itemFunc.apply(this);
         if (fuelTicks != null) {
-            if (item == null) logger.smallBug(new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
+            if (item == null) getLogger().smallBug(new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
             else FuelRegistry.INSTANCE.add(item, fuelTicks.apply(this));
         }
         return new RegEntry(id, block, blockEntityType, item);
