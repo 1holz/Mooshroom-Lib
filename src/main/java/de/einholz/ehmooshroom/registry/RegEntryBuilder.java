@@ -1,11 +1,19 @@
 package de.einholz.ehmooshroom.registry;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
+
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.util.LoggerHelper;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,13 +21,18 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 public class RegEntryBuilder {
     private Identifier id;
     private Function<RegEntryBuilder, Block> blockFunc = (entry) -> null;
     private Block block;
+    private Function<RegEntryBuilder, BlockApiProvider<Storage<ItemVariant>, Direction>> blockItemStorageProvFunc = (entry) -> null;
+    private Function<RegEntryBuilder, BlockApiProvider<Storage<FluidVariant>, Direction>> blockFluidStorageProvFunc = (entry) -> null;
     private Function<RegEntryBuilder, BlockEntityType<? extends BlockEntity>> blockEntityTypeFunc = (entry) -> null;
     private BlockEntityType<? extends BlockEntity> blockEntityType;
+    private Function<RegEntryBuilder, BiFunction<? super BlockEntity, Direction, Storage<ItemVariant>>> blockEntityItemStorageProvFunc = (entry) -> null;
+    private Function<RegEntryBuilder, BiFunction<? super BlockEntity, Direction, Storage<FluidVariant>>> blockEntityFluidStorageProvFunc = (entry) -> null;
     //private Factory<? extends BlockEntity> blockEntityTypeFactory;
     private Function<RegEntryBuilder, Item> itemFunc = (entry) -> null;
     private Item item;
@@ -50,6 +63,10 @@ public class RegEntryBuilder {
     }
 
     // BLOCKS:
+    public Block getBlock() {
+        return block;
+    }
+
     public RegEntryBuilder withBlockRaw(Function<RegEntryBuilder, Block> blockFunc) {
         this.blockFunc = blockFunc;
         return this;
@@ -68,7 +85,29 @@ public class RegEntryBuilder {
         return withBlockRaw((entry) -> factory.create(settings));
     }
 
+    public RegEntryBuilder withBlockItemStorageProvRaw(Function<RegEntryBuilder, BlockApiProvider<Storage<ItemVariant>, Direction>> blockItemStorageProvFunc) {
+        this.blockItemStorageProvFunc = blockItemStorageProvFunc;
+        return this;
+    }
+
+    public RegEntryBuilder withBlockItemStorageProvNull() {
+        return withBlockItemStorageProvRaw(entry -> null);
+    }
+
+    public RegEntryBuilder withBlockFluidStorageProvRaw(Function<RegEntryBuilder, BlockApiProvider<Storage<FluidVariant>, Direction>> blockFluidStorageProvFunc) {
+        this.blockFluidStorageProvFunc = blockFluidStorageProvFunc;
+        return this;
+    }
+
+    public RegEntryBuilder withBlockFluidStorageProvNull() {
+        return withBlockFluidStorageProvRaw(entry -> null);
+    }
+
     // BLOCK ENTITIES:
+    public BlockEntityType<? extends BlockEntity> getBlockEntityType() {
+        return blockEntityType;
+    }
+
     public RegEntryBuilder withBlockEntityRaw(Function<RegEntryBuilder, BlockEntityType<? extends BlockEntity>> blockEntityTypeFunc) {
         this.blockEntityTypeFunc = blockEntityTypeFunc;
         return this;
@@ -86,7 +125,29 @@ public class RegEntryBuilder {
         return withBlockEntityCustomBlocksBuild(blockEntityTypeFactory, this.blockFunc.apply(this));
     }
 
+    public RegEntryBuilder withBlockEntityItemStorageProvRaw(Function<RegEntryBuilder, BiFunction<? super BlockEntity, Direction, Storage<ItemVariant>>> blockEntityItemStorageProvFunc) {
+        this.blockEntityItemStorageProvFunc = blockEntityItemStorageProvFunc;
+        return this;
+    }
+
+    public RegEntryBuilder withBlockEntityItemStorageProvNull() {
+        return withBlockEntityItemStorageProvRaw(entry -> null);
+    }
+
+    public RegEntryBuilder withBlockEntityFluidStorageProvRaw(Function<RegEntryBuilder, BiFunction<? super BlockEntity, Direction, Storage<FluidVariant>>> blockEntityFluidStorageProvFunc) {
+        this.blockEntityFluidStorageProvFunc = blockEntityFluidStorageProvFunc;
+        return this;
+    }
+
+    public RegEntryBuilder withBlockEntityFluidStorageProvNull() {
+        return withBlockEntityFluidStorageProvRaw(entry -> null);
+    }
+
     // ITEMS:
+    public Item getItem() {
+        return item;
+    }
+
     public RegEntryBuilder withItemRaw(Function<RegEntryBuilder, Item> itemFunc) {
         this.itemFunc = itemFunc;
         return this;
@@ -192,7 +253,17 @@ public class RegEntryBuilder {
     public RegEntry build(Identifier id) {
         this.id = id;
         block = blockFunc.apply(this);
+        if (block != null) {
+            // XXX faster if registerForBlockEntities is used?
+            ItemStorage.SIDED.registerForBlocks(blockItemStorageProvFunc.apply(this), block);
+            FluidStorage.SIDED.registerForBlocks(blockFluidStorageProvFunc.apply(this), block);
+        }
         blockEntityType = blockEntityTypeFunc.apply(this);
+        if (blockEntityType != null) {
+            // XXX faster if registerForBlockEntities is used?
+            ItemStorage.SIDED.registerForBlockEntity(blockEntityItemStorageProvFunc.apply(this), blockEntityType);
+            FluidStorage.SIDED.registerForBlockEntity(blockEntityFluidStorageProvFunc.apply(this), blockEntityType);
+        }
         item = itemFunc.apply(this);
         if (fuelTicks != null) {
             if (item == null) getLogger().smallBug(new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
