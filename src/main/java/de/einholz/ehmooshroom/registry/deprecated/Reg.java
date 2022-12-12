@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.registry;
+package de.einholz.ehmooshroom.registry.deprecated;
 
 @Deprecated
 public interface Reg {

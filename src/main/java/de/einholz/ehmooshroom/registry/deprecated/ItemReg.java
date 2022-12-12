@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.registry;
+package de.einholz.ehmooshroom.registry.deprecated;
 
 import de.einholz.ehmooshroom.item.Tool;
 import net.fabricmc.fabric.api.registry.FuelRegistry;

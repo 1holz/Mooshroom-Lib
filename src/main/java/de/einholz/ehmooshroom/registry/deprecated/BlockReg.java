@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.registry;
+package de.einholz.ehmooshroom.registry.deprecated;
 
 import de.einholz.ehmooshroom.block.ContainerBlock;
 import de.einholz.ehmooshroom.block.DirectionalBlock;

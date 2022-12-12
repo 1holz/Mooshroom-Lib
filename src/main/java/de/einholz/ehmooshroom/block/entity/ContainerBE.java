@@ -1,5 +1,7 @@
 package de.einholz.ehmooshroom.block.entity;
 
+import org.jetbrains.annotations.Nullable;
+
 import de.einholz.ehmooshroom.storage.DummyStorage;
 import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
 import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
@@ -19,6 +21,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {
@@ -34,12 +37,12 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @Override
-    public Storage<ItemVariant> getItemStorage() {
+    public Storage<ItemVariant> getItemStorage(@Nullable Direction dir) {
         return itemStorage;
     }
 
     @Override
-    public Storage<FluidVariant> getFluidStorage() {
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction dir) {
         return fluidStorage;
     }
 

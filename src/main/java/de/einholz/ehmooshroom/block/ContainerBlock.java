@@ -67,11 +67,11 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
     }
 
     public BlockApiProvider<Storage<ItemVariant>, Direction> getItemStorageProv(RegEntryBuilder entry) {
-        return (world, pos, state, null_be, dir) -> ((ItemStorageProv) blockEntityType.get(world, pos)).getItemStorage();
+        return (world, pos, state, null_be, dir) -> ((ItemStorageProv) blockEntityType.get(world, pos)).getItemStorage(dir);
     }
 
     public BlockApiProvider<Storage<FluidVariant>, Direction> getFluidStorageProv(RegEntryBuilder entry) {
-        return (world, pos, state, null_be, dir) -> ((FluidStorageProv) blockEntityType.get(world, pos)).getFluidStorage();
+        return (world, pos, state, null_be, dir) -> ((FluidStorageProv) blockEntityType.get(world, pos)).getFluidStorage(dir);
     }
 
     @Override
