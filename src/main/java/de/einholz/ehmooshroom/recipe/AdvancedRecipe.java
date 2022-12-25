@@ -36,18 +36,18 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     public final Identifier typeId;
     public final Identifier id;
     public final Input input;
-    public final float consumes;
+    //public final float consumes;
     public final Output output;
-    public final float generates;
+    //public final float generates;
     public final float timeModifier;
 
-    public AdvancedRecipe(Identifier id, Input input, float consumes, Output output, float generates, float timeModifier) {
+    public AdvancedRecipe(Identifier id, Input input, Output output, float timeModifier) {
         this.typeId = new Identifier(id.getNamespace(), id.getPath().split("/")[1]);
         this.id = id;
         this.input = input;
-        this.consumes = consumes;
+        //this.consumes = consumes;
         this.output = output;
-        this.generates = generates;
+        //this.generates = generates;
         this.timeModifier = timeModifier;
     }
 
@@ -71,6 +71,8 @@ public class AdvancedRecipe implements Recipe<Inventory> {
         return Registry.RECIPE_TYPE.get(typeId);
     }
 
+    // FIXME redo
+    @Deprecated
     public boolean matches(BlockPos pos, World world) {
         RecipeHolder be = (RecipeHolder) world.getBlockEntity(pos);
         //TODO: convert generate & consume to data ingredient or own ErnergyIngredient

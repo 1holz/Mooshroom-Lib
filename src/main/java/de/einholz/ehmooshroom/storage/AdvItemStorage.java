@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
+// XXX is this needed?
 public interface AdvItemStorage extends InventoryStorage {
     public static AdvItemStorage of() {
         return new AdvItemStorage() {

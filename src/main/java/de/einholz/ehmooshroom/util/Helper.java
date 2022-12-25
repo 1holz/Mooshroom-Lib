@@ -1,7 +1,5 @@
 package de.einholz.ehmooshroom.util;
 
-import java.util.stream.IntStream;
-
 import net.minecraft.util.Identifier;
 
 public class Helper {
@@ -12,7 +10,9 @@ public class Helper {
     }
 
     public static int[] range(int size) {
-        return IntStream.range(0, size).toArray();
+        int[] array = new int[size];
+        for (int i = 0; i < array.length; i++) array[i] = i;
+        return array;
     }
 
     public static int min(int min, int... values) {
