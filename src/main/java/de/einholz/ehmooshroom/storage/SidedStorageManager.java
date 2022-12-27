@@ -2,7 +2,6 @@ package de.einholz.ehmooshroom.storage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,8 +11,6 @@ import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -60,8 +57,8 @@ public class SidedStorageManager implements NbtSerializable {
         return list;
     }
 
-    // XXX private? also for fields?
-    public static class StorageEntry<T> implements Storage<T> {
+    // XXX private fields?
+    public static class StorageEntry<T> {
         public final Storage<T> storage;
         public final char[] config;
         public final Class<T> clazz;
@@ -78,21 +75,6 @@ public class SidedStorageManager implements NbtSerializable {
 
         public boolean allows(SideConfigType type) {
             return Character.toUpperCase(config[type.ordinal()]) == 'T';
-        }
-
-        @Override
-        public long insert(T resource, long maxAmount, TransactionContext transaction) {
-            return storage.insert(resource, maxAmount, transaction);
-        }
-
-        @Override
-        public long extract(T resource, long maxAmount, TransactionContext transaction) {
-            return storage.extract(resource, maxAmount, transaction);
-        }
-
-        @Override
-        public Iterator<StorageView<T>> iterator(TransactionContext transaction) {
-            return storage.iterator(transaction);
         }
     }
 

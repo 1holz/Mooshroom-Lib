@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 // XXX is this needed?
+@Deprecated
 public interface AdvItemStorage extends InventoryStorage {
     public static AdvItemStorage of() {
         return new AdvItemStorage() {
