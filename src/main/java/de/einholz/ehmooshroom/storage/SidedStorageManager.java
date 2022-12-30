@@ -18,12 +18,13 @@ import net.minecraft.util.math.Direction;
 public class SidedStorageManager implements NbtSerializable {
     private final Map<Identifier, StorageEntry<?>> STORAGES = new HashMap<>();
 
-    public <T> void addStorage(Identifier id, Storage<T> storage, Class<T> clazz) {
-        addStorage(id, storage, clazz, null);
+    public SidedStorageManager withStorage(Identifier id, S storage, Class<T> clazz) {
+        return withStorage(id, storage, clazz, null);
     }
 
-    public <T> void addStorage(Identifier id, Storage<T> storage, Class<T> clazz, BlockApiLookup<? extends Storage<T>, Direction> lookup) {
+    public SidedStorageManager withStorage(Identifier id, S storage, Class<T> clazz, BlockApiLookup<? extends Storage<T>, Direction> lookup) {
         STORAGES.put(id, new StorageEntry<>(storage, SideConfigType.getDefaultArray(), clazz, lookup));
+        return this;
     }
 
     public Storage<?> removeStorage(Identifier id) {
@@ -34,10 +35,8 @@ public class SidedStorageManager implements NbtSerializable {
         return STORAGES.get(id);
     }
 
-    public <T> List<Storage<T>> getStorages(@Nullable Class<T> type, @Nullable SideConfigType... configType) {
-        List<Storage<T>> list = new ArrayList<>();
-        for (StorageEntry<T> entry : getStorageEntries(type, configType)) list.add(entry.storage);
-        return list;
+    public <T, S extends Storage<T>> AdvCombinedStorage<T, S> getCombinedStorage(@Nullable Class<T> type, @Nullable SideConfigType... configType) {
+        return new AdvCombinedStorage<T, S>(getStorageEntries(type, configType));
     }
 
     // XXX private? to hacky?

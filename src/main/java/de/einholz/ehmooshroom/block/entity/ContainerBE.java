@@ -2,7 +2,6 @@ package de.einholz.ehmooshroom.block.entity;
 
 import org.jetbrains.annotations.Nullable;
 
-import de.einholz.ehmooshroom.storage.AdvCombinedStorage;
 import de.einholz.ehmooshroom.storage.SidedStorageManager;
 import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
 import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
@@ -47,12 +46,12 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     @Override
     public Storage<ItemVariant> getItemStorage(@Nullable Direction dir) {
-        return new AdvCombinedStorage<>(storageMgr.getStorages(ItemVariant.class, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir)));
+        return storageMgr.getCombinedStorage(ItemVariant.class, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
     }
 
     @Override
     public Storage<FluidVariant> getFluidStorage(@Nullable Direction dir) {
-        return new AdvCombinedStorage<>(storageMgr.getStorages(FluidVariant.class, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir)));
+        return storageMgr.getCombinedStorage(FluidVariant.class, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
     }
 
     @Override
