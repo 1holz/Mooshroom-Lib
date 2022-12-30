@@ -2,6 +2,7 @@ package de.einholz.ehmooshroom.block.entity;
 
 import java.util.Optional;
 
+import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageManager.StorageEntry;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -78,7 +79,7 @@ public class ProcessingBE extends ContainerBE {
 //            }
         }
         //TODO: only for early development replace with proper creative battery
-        if (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(TechMod.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK) && getMachineCapacitorComp().getCurrentEnergy() < getMachineCapacitorComp().getMaxEnergy()) getMachineCapacitorComp().generateEnergy(world, pos, getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
+        if (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK) && getMachineCapacitorComp().getCurrentEnergy() < getMachineCapacitorComp().getMaxEnergy()) getMachineCapacitorComp().generateEnergy(world, pos, getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
     }
 
     @SuppressWarnings("unchecked")
