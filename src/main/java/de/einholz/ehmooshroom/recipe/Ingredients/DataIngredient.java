@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingredients;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -6,6 +6,7 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 
 //should this be called NbtIngredient?
+@Deprecated
 public class DataIngredient {
     public final NbtElement nbt;
 

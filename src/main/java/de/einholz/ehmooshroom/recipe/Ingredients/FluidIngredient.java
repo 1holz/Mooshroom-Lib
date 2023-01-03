@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingredients;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -9,6 +9,7 @@ import net.minecraft.tag.Tag.Identified;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+@Deprecated
 public class FluidIngredient {
     public final Identifier id;
     public final Identified<Fluid> ingredient;

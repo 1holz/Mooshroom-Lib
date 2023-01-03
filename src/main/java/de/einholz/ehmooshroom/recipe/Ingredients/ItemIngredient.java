@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingredients;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,6 +16,7 @@ public class ItemIngredient {
     public final int amount;
     public final NbtCompound nbt;
 
+    @Deprecated
     public ItemIngredient(Identifier id, int amount, NbtCompound nbt) {
         this.id = id;
         this.ingredient = RequiredTagListRegistry.register(Registry.ITEM_KEY, "tags/items").add(id.toString());

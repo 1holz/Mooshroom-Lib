@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingredients;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -9,6 +9,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 //also for BlockEntities etc.?
+@Deprecated
 public class BlockIngredient {
     public final Identifier id;
     public final Identified<Block> ingredient;

@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingrediets;
+package de.einholz.ehmooshroom.recipe.Ingredients;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,6 +10,7 @@ import net.minecraft.tag.Tag.Identified;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+@Deprecated
 public class EntityIngredient {
     public final Identifier id;
     public final Identified<EntityType<?>> ingredient;
