@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingredients;
+package de.einholz.ehmooshroom.recipe.deprecated;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;

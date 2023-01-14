@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingredients;
+package de.einholz.ehmooshroom.recipe;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -79,10 +79,6 @@ public class Ingredient<T> {
         buf.writeNbt(nbt).writeLong(amount);
     }
 
-    public long getAmount() {
-        return amount;
-    }
-
     public boolean matches(T test, NbtCompound testNbt) {
         if (type == null && tag == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("Attempted to perform match test on Ingredient with null type and tag. This Ingredient will be skiped!"));
@@ -91,5 +87,13 @@ public class Ingredient<T> {
         if (!NbtHelper.matches(nbt, testNbt, true)) return false;
         if (tag == null) return type.isAssignableFrom(test.getClass());
         return tag.contains(test);
+    }
+
+    public Class<T> getType() {
+        return type;
+    }
+
+    public long getAmount() {
+        return amount;
     }
 }

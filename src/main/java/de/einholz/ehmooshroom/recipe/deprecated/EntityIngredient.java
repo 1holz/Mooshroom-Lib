@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingredients;
+package de.einholz.ehmooshroom.recipe.deprecated;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;

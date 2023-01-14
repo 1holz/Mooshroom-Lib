@@ -6,7 +6,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -18,13 +17,13 @@ import net.minecraft.world.World;
 public class AdvancedRecipe implements Recipe<Inventory> {
     public final Identifier typeId;
     public final Identifier id;
-    public final Ingredient[] input;
+    public final Ingredient<?>[] input;
     //public final float consumes;
     public final Output output;
     //public final float generates;
     public final float timeModifier;
 
-    public AdvancedRecipe(Identifier id, Ingredient[] input, Output output, float timeModifier) {
+    public AdvancedRecipe(Identifier id, Ingredient<?>[] input, Output output, float timeModifier) {
         this.typeId = new Identifier(id.getNamespace(), id.getPath().split("/")[1]);
         this.id = id;
         this.input = input;
@@ -54,12 +53,12 @@ public class AdvancedRecipe implements Recipe<Inventory> {
         return Registry.RECIPE_TYPE.get(typeId);
     }
 
-    // FIXME redo
+    // fixme redo
     @Deprecated
     public boolean matches(BlockPos pos, World world) {
         RecipeHolder be = (RecipeHolder) world.getBlockEntity(pos);
-        
-        //TODO: convert generate & consume to data ingredient or own ErnergyIngredient
+        return be.containsIngredients(input);
+        //todo: convert generate & consume to data ingredient or own ErnergyIngredient
         //if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
         //return input == null || (input.items == null || input.items.length == 0 || be.containsItemIngredients(input.items))
         //    && (input.fluids == null || input.fluids.length == 0 || be.containsFluidIngredients(input.fluids))
@@ -71,7 +70,7 @@ public class AdvancedRecipe implements Recipe<Inventory> {
     @Deprecated
     @Override
     public boolean matches(Inventory inv, World world) {
-        if (inv instanceof PosAsInv) return matches(((PosAsInv) inv).pos, world);
+        if (inv instanceof PosAsInv) return matches(((PosAsInv) inv).POS, world);
         else return false;
     }
 
@@ -94,65 +93,71 @@ public class AdvancedRecipe implements Recipe<Inventory> {
         return (output != null && output.items != null && output.items.length > 0) ? output.items[0] : ItemStack.EMPTY;
     }
 
-    //FIXME: use instead of InventoryWrapperPos later on
-    //done maybe?
-    @Deprecated
     public static final class PosAsInv implements Inventory {
-        public BlockPos pos;
+        public final BlockPos POS;
 
-        public PosAsInv(BlockPos pos) {
-            this.pos = pos;
+        public PosAsInv(final BlockPos POS) {
+            this.POS = POS;
         }
 
         private void error() {
             MooshroomLib.LOGGER.smallBug(new UnsupportedOperationException("This inventory represents a BlockPoos."));
         }
 
+        @Deprecated
 		@Override
 		public void clear() {
             error();
         }
 
+        @Deprecated
 		@Override
 		public boolean canPlayerUse(PlayerEntity player) {
             error();
             return false;
         }
 
+        @Deprecated
 		@Override
 		public ItemStack getStack(int slot) {
             error();
             return ItemStack.EMPTY;
 		}
 
+        @Deprecated
 		@Override
 		public boolean isEmpty() {
             error();
             return true;
 		}
 
+        @Deprecated
 		@Override
 		public void markDirty() {
             error();
 		}
 
+        @Deprecated
 		@Override
 		public ItemStack removeStack(int slot) {
             error();
             return ItemStack.EMPTY;
         }
 
+        @Deprecated
 		@Override
 		public ItemStack removeStack(int slot, int amount) {
             error();
             return ItemStack.EMPTY;
 		}
 
+        @Deprecated
 		@Override
 		public void setStack(int slot, ItemStack stack) {
             error();
         }
 
+        @Deprecated
 		@Override
 		public int size() {
             error();

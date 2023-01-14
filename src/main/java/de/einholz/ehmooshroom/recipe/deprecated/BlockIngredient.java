@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe.Ingredients;
+package de.einholz.ehmooshroom.recipe.deprecated;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

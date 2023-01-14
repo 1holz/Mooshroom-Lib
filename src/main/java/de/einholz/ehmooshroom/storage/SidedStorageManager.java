@@ -73,7 +73,7 @@ public class SidedStorageManager implements NbtSerializable {
         }
 
         public boolean allows(SideConfigType type) {
-            return Character.toUpperCase(config[type.ordinal()]) == 'T';
+            return ((type.ordinal() / Direction.values().length) & 1) == 0 ? storage.supportsInsertion() : storage.supportsExtraction() && Character.toUpperCase(config[type.ordinal()]) == 'T';
         }
     }
 

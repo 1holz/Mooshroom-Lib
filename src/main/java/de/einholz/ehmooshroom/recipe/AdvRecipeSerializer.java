@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import de.einholz.ehmooshroom.recipe.Ingredients.Ingredient;
+import de.einholz.ehmooshroom.recipe.deprecated.Input;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.StringNbtReader;

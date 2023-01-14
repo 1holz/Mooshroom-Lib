@@ -1,6 +1,6 @@
-package de.einholz.ehmooshroom.recipe;
+package de.einholz.ehmooshroom.recipe.deprecated;
 
-import de.einholz.ehmooshroom.recipe.Ingredients.Ingredient;
+import de.einholz.ehmooshroom.recipe.Ingredient;
 import net.minecraft.network.PacketByteBuf;
 
 @Deprecated
