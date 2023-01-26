@@ -2,7 +2,9 @@ package de.einholz.ehmooshroom.block.entity;
 
 import java.util.Optional;
 import de.einholz.ehmooshroom.recipe.AdvancedRecipe;
-import de.einholz.ehmooshroom.recipe.AdvancedRecipe.PosAsInv;
+import de.einholz.ehmooshroom.recipe.Ingredient;
+import de.einholz.ehmooshroom.recipe.PosAsInv;
+import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.recipe.Recipe;
@@ -29,7 +31,7 @@ public class ProcessingBE extends ContainerBE {
         isProcessing = progress > progressMin && isActivated();
         //powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
         //lastPower = getMachineCapacitorComp().getCurrentEnergy();
-        transfer();
+        boolean dirty = transfer();
         if (!isProcessing && isActivated()) isProcessing = checkForRecipe();
         if (isProcessing) {
             if (progress == progressMin) start();
@@ -48,18 +50,12 @@ public class ProcessingBE extends ContainerBE {
     }
 
     public void start() {
-        /*
         for (Ingredient<?> ingredient : recipe.input) {
-            if (getStorageMgr().)
-            switch (ingredient.getType()) {
-                case value:
-                    
-                    break;
-                default:
-                    break;
-            }
+            if (ingredient.getAmount() == 0) continue;
+            getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.getFromParams(false, false, null));
         }
 
+        /*
         // OLD:
         boolean consumerRecipe = (recipe.consumes == Double.NaN ? 0.0 : recipe.consumes) > (recipe.generates == Double.NaN ? 0.0 : recipe.generates);
         int consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * recipe.consumes);

@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.recipe;
+package de.einholz.ehmooshroom.recipe.deprecated;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -8,7 +8,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.registry.Registry;
 
-//TODO remake fluids
+// todo remake fluids
+@Deprecated
 public class Output {
     public final ItemStack[] items;
     //public final FluidVolume[] fluids;

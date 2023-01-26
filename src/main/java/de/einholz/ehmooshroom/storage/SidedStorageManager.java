@@ -73,7 +73,7 @@ public class SidedStorageManager implements NbtSerializable {
         }
 
         public boolean allows(SideConfigType type) {
-            return ((type.ordinal() / Direction.values().length) & 1) == 0 ? storage.supportsInsertion() : storage.supportsExtraction() && Character.toUpperCase(config[type.ordinal()]) == 'T';
+            return (type.side == null || type.output ? storage.supportsExtraction() : storage.supportsInsertion()) && Character.toUpperCase(config[type.ordinal()]) == 'T';
         }
     }
 
@@ -93,37 +93,43 @@ public class SidedStorageManager implements NbtSerializable {
     //RESTRICTED_TRUE -> t
     //RESTRICTED_FALSE -> f
     public static enum SideConfigType {
-        SELF_IN_D('F', Direction.DOWN),
-        SELF_IN_U('F', Direction.UP),
-        SELF_IN_N('F', Direction.NORTH),
-        SELF_IN_S('F', Direction.SOUTH),
-        SELF_IN_W('F', Direction.WEST),
-        SELF_IN_E('F', Direction.EAST),
-        SELF_OUT_D('F', Direction.DOWN),
-        SELF_OUT_U('F', Direction.UP),
-        SELF_OUT_N('F', Direction.NORTH),
-        SELF_OUT_S('F', Direction.SOUTH),
-        SELF_OUT_W('F', Direction.WEST),
-        SELF_OUT_E('F', Direction.EAST),
-        FOREIGN_IN_D('T', Direction.DOWN),
-        FOREIGN_IN_U('T', Direction.UP),
-        FOREIGN_IN_N('T', Direction.NORTH),
-        FOREIGN_IN_S('T', Direction.SOUTH),
-        FOREIGN_IN_W('T', Direction.WEST),
-        FOREIGN_IN_E('T', Direction.EAST),
-        FOREIGN_OUT_D('T', Direction.DOWN),
-        FOREIGN_OUT_U('T', Direction.UP),
-        FOREIGN_OUT_N('T', Direction.NORTH),
-        FOREIGN_OUT_S('T', Direction.SOUTH),
-        FOREIGN_OUT_W('T', Direction.WEST),
-        FOREIGN_OUT_E('T', Direction.EAST);
+        IN_IN('T', false, false, null),
+        OUT_IN('T', false, true, null),
+        SELF_IN_D('F', false, false, Direction.DOWN),
+        SELF_IN_U('F', false, false, Direction.UP),
+        SELF_IN_N('F', false, false, Direction.NORTH),
+        SELF_IN_S('F', false, false, Direction.SOUTH),
+        SELF_IN_W('F', false, false, Direction.WEST),
+        SELF_IN_E('F', false, false, Direction.EAST),
+        SELF_OUT_D('F', false, true, Direction.DOWN),
+        SELF_OUT_U('F', false, true, Direction.UP),
+        SELF_OUT_N('F', false, true, Direction.NORTH),
+        SELF_OUT_S('F', false, true, Direction.SOUTH),
+        SELF_OUT_W('F', false, true, Direction.WEST),
+        SELF_OUT_E('F', false, true, Direction.EAST),
+        FOREIGN_IN_D('T', true, false, Direction.DOWN),
+        FOREIGN_IN_U('T', true, false, Direction.UP),
+        FOREIGN_IN_N('T', true, false, Direction.NORTH),
+        FOREIGN_IN_S('T', true, false, Direction.SOUTH),
+        FOREIGN_IN_W('T', true, false, Direction.WEST),
+        FOREIGN_IN_E('T', true, false, Direction.EAST),
+        FOREIGN_OUT_D('T', true, true, Direction.DOWN),
+        FOREIGN_OUT_U('T', true, true, Direction.UP),
+        FOREIGN_OUT_N('T', true, true, Direction.NORTH),
+        FOREIGN_OUT_S('T', true, true, Direction.SOUTH),
+        FOREIGN_OUT_W('T', true, true, Direction.WEST),
+        FOREIGN_OUT_E('T', true, true, Direction.EAST);
 
         public final char def;
-        public final Direction dir;
+        public final boolean foreign;
+        public final boolean output;
+        public final Direction side;
 
-        private SideConfigType(char def, Direction dir) {
+        private SideConfigType(char def, boolean foreign, boolean output, Direction side) {
             this.def = def;
-            this.dir = dir;
+            this.foreign = foreign;
+            this.output = output;
+            this.side = side;
         }
 
         public static char[] getDefaultArray() {
@@ -133,6 +139,7 @@ public class SidedStorageManager implements NbtSerializable {
             return array;
         }
 
+        @Deprecated
         public boolean isDefaultChar(char c) {
             return getDefaultChar() == c;
         }
@@ -141,9 +148,11 @@ public class SidedStorageManager implements NbtSerializable {
             return def;
         }
 
-        public static SideConfigType getFromParams(boolean foreign, boolean output, Direction dir) {
+        public static SideConfigType getFromParams(boolean foreign, boolean output, @Nullable Direction dir) {
             int dirsAmount = Direction.values().length;
-            return SideConfigType.values()[(foreign ? 2 * dirsAmount : 0) + (output ? dirsAmount : 0) + dir.ordinal()];
+            SideConfigType[] values = SideConfigType.values();
+            if (dir == null) return values[output ? 1 : 0];
+            return values[(foreign ? 2 * dirsAmount : 0) + (output ? dirsAmount : 0) + dir.ordinal() + 2];
         }
     }
 

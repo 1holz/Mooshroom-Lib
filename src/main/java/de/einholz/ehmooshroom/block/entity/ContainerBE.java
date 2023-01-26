@@ -55,10 +55,11 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
-        transfer();
+        if (transfer()) markDirty();
     }
 
-    public void transfer() {
+    public boolean transfer() {
+        boolean dirty = false;
         resetTransfer();
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
@@ -67,37 +68,35 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
                 if (entry.lookup == null) continue;
                 Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
-                transfer(targetStorage, entry.storage, this::getTransfer, this::reduceTransfer);
+                if (transfer(targetStorage, entry.storage, this::getTransfer, this::reduceTransfer)) dirty = true;
             }
             // self input / push
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
-                try (Transaction trans = Transaction.openOuter()) {
-                    if (entry.lookup == null) continue;
-                    Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
-                    transfer(entry.storage, targetStorage, this::getTransfer, this::reduceTransfer);
-                }
+                if (entry.lookup == null) continue;
+                Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
+                if (transfer(entry.storage, targetStorage, this::getTransfer, this::reduceTransfer)) dirty = true;
             }
-//                @SuppressWarnings("unchecked")
-//                TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
-//                BlockComponentHook hook = BlockComponentHook.INSTANCE;
-//                if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_INPUT, dir)) {
-//                    if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//                    if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.pull(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//                    if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.pull(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//                }
-//                if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_OUTPUT, dir)) {
-//                    if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//                    if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.push(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//                    if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.push(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//                }
-//            }
+//          @SuppressWarnings("unchecked")
+//          TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
+//          BlockComponentHook hook = BlockComponentHook.INSTANCE;
+//          if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_INPUT, dir)) {
+//              if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+//              if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.pull(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+//              if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.pull(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+//          }
+//          if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_OUTPUT, dir)) {
+//              if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+//              if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.push(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+//              if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.push(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+//          }
         }
         // TODO: only for early development replace with proper creative battery
         //if (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK) && getMachineCapacitorComp().getCurrentEnergy() < getMachineCapacitorComp().getMaxEnergy()) getMachineCapacitorComp().generateEnergy(world, pos, getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
+        return dirty;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> void transfer(final Storage<?> fromRaw, final Storage<?> toRaw, ToLongFunction<T> transGetter, BiConsumer<T, Long> transReducer) {
+    public static <T> Boolean transfer(final Storage<?> fromRaw, final Storage<?> toRaw, ToLongFunction<T> transGetter, BiConsumer<T, Long> transReducer) {
         final Storage<T> from;
         final Storage<T> to;
         try {
@@ -105,9 +104,10 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             to = (Storage<T>) toRaw;
         } catch (ClassCastException e) {
             MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("Types of storages do not match. Probably due to wrong BlockApiLookup."));
-            return;
+            return false;
         }
-        if (!from.supportsExtraction() || !to.supportsInsertion()) return;
+        if (!from.supportsExtraction() || !to.supportsInsertion()) return false;
+        boolean dirty = false;
         try (Transaction trans = Transaction.openOuter()) {
             Iterator<StorageView<T>> it = from.iterator(trans);
             while (it.hasNext()) {
@@ -126,11 +126,13 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
                         continue;
                     }
                     transReducer.accept(resource, inserted);
+                    dirty = true;
                     inTrans.commit();
                 }
             }
             trans.commit();
         }
+        return dirty;
     }
 
     public void setMaxTransfer(Map<Class<?>, Long> maxTransfer) {

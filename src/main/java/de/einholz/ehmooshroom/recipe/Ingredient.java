@@ -30,7 +30,7 @@ public class Ingredient<T> {
         try {
             clazz = (Class<T>) Class.forName(type);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            MooshroomLib.LOGGER.bigBug(e);
         }
         if (clazz == null) MooshroomLib.LOGGER.bigBug(new NullPointerException("Ingredient with null type was created. tagRegId: " + tagRegId == null ? "null" : tagRegId.toString() + " dataType: " + dataType == null ? "null" : dataType + " tagId: " + tagId == null ? "null" : tagId.toString() + " nbt: " + nbt == null ? "null" : nbt.asString() + " amount: " + amount));
         this.type = clazz;
@@ -62,21 +62,22 @@ public class Ingredient<T> {
     public static Ingredient<?> read(PacketByteBuf buf) {
         String type = buf.readString();
         boolean bl = buf.readBoolean();
-        return new Ingredient<>(type, bl ? null : buf.readIdentifier(), bl ? null : buf.readString(), bl ? null : buf.readIdentifier(), buf.readBoolean() ? new NbtCompound() : buf.readNbt(), buf.readLong());
+        return new Ingredient<>(type, bl ? buf.readIdentifier() : null, bl ? buf.readString() : null, bl ? buf.readIdentifier() : null, buf.readBoolean() ? buf.readNbt() : null, buf.readVarLong());
     }
 
     public void write(PacketByteBuf buf) {
         buf.writeString(type.getName());
-        if (tag == null) {
-            buf.writeBoolean(false);
+        if (tag == null) buf.writeBoolean(false);
+        else {
+            buf.writeBoolean(true);
             buf.writeIdentifier(tagRegId).writeString(dataType).writeIdentifier(tag.getId());
-        } else buf.writeBoolean(false);
-        if (nbt.isEmpty()) {
+        }
+        if (nbt.isEmpty()) buf.writeBoolean(false);
+        else {
             buf.writeBoolean(true);
             buf.writeNbt(nbt);
         }
-        else buf.writeBoolean(false);
-        buf.writeNbt(nbt).writeLong(amount);
+        buf.writeNbt(nbt).writeVarLong(amount);
     }
 
     public boolean matches(T test, NbtCompound testNbt) {

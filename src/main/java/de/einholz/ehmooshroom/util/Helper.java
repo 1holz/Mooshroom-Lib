@@ -28,4 +28,15 @@ public class Helper {
     public Identifier makeId(String name) {
         return new Identifier(MOD_ID, name);
     }
+
+    @Deprecated
+    public static void name() {
+        concatArrays(new String[0], new String[0]);
+    }
+
+    @SafeVarargs
+    @Deprecated
+    public static <T> T[] concatArrays(T... objs) {
+        return objs;
+    }
 }

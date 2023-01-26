@@ -1,5 +1,7 @@
 package de.einholz.ehmooshroom.util;
 
+import java.util.Arrays;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,28 +43,31 @@ public class LoggerHelper {
     }
 
     public void smallBug() {
+        warn("at: "+ new Throwable().getStackTrace()[1]);
         warn("If you see this please report this as a bug at:", bugTracker);
     }
 
-    public Throwable smallBug(Throwable e) {
+    public void smallBug(Object... objs) {
         smallBug();
-        logger.warn("Post this error here:", e);
+        warn("Post this error here:", objs[0]);
+        warn(Arrays.copyOfRange(objs, 1, objs.length));
+    }
+
+    public Throwable smallBug(Throwable e, String... strs) {
+        smallBug(e.getLocalizedMessage(), strs);
         for (StackTraceElement stackTrace : e.getStackTrace()) debug(stackTrace);
         return e;
     }
 
     public void bigBug() {
         error("This is a critical bug! This can lead to malfunctions!");
+        error("at: "+ new Throwable().getStackTrace()[1]);
         error("Please report this as a bug at:", bugTracker);
     }
 
     public Throwable bigBug(Throwable e) {
         bigBug();
-        try {
-            throw e;
-        } catch (Throwable e1) {
-            e1.printStackTrace();
-        }
+        e.printStackTrace();
         return e;
     }
 
@@ -77,7 +82,7 @@ public class LoggerHelper {
         warn(feature, "is/are in a work in progress state and may not work properly");
     }
 
-    protected String concatObj(Object... objs) {
+    protected static String concatObj(Object... objs) {
         String msg = "";
         for (Object obj : objs) msg = msg + " " + obj;
         return msg;
