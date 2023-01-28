@@ -1,12 +1,19 @@
 package de.einholz.ehmooshroom.block.entity;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
-import de.einholz.ehmooshroom.recipe.AdvancedRecipe;
+import de.einholz.ehmooshroom.recipe.AdvRecipe;
+import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
 import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
+import de.einholz.ehmooshroom.storage.SidedStorageManager.StorageEntry;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.math.BlockPos;
@@ -14,12 +21,13 @@ import net.minecraft.world.World;
 
 public class ProcessingBE extends ContainerBE {
     private final RecipeType<? extends Recipe<?>> recipeType;
-    private AdvancedRecipe recipe;
+    private AdvRecipe recipe;
     private boolean isProcessing = false;
     private ActivationState activationState = ActivationState.REDSTONE_OFF;
     private double progressMin = 0.0;
     private double progress = 0.0;
     private double progressMax = 1000.0;
+    private double speed = 1;
 
     public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -28,10 +36,11 @@ public class ProcessingBE extends ContainerBE {
 
     @Override
     public void tick(World world, BlockPos pos, BlockState state) {
+        resetDitry();
         isProcessing = progress > progressMin && isActivated();
         //powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
         //lastPower = getMachineCapacitorComp().getCurrentEnergy();
-        boolean dirty = transfer();
+        transfer();
         if (!isProcessing && isActivated()) isProcessing = checkForRecipe();
         if (isProcessing) {
             if (progress == progressMin) start();
@@ -39,21 +48,42 @@ public class ProcessingBE extends ContainerBE {
             if (progress == progressMax) complete();
         } else idle();
         correct();
-        markDirty();
+        if (isDirty()) markDirty();
     }
 
     @SuppressWarnings("unchecked")
     public boolean checkForRecipe() {
-        Optional<AdvancedRecipe> optional = world.getRecipeManager().getFirstMatch((RecipeType<AdvancedRecipe>) recipeType, new PosAsInv(pos), world);
+        Optional<AdvRecipe> optional = world.getRecipeManager().getFirstMatch((RecipeType<AdvRecipe>) recipeType, new PosAsInv(pos), world);
         recipe = optional.orElse(null);
         return optional.isPresent();
     }
 
     public void start() {
+        Transaction trans = Transaction.openOuter();
+        for (int i = 0; i < recipe.input.length; i++) if (!consume(trans, i)) {
+            trans.abort();
+            break;
+        }
+        if (Transaction.isOpen()) {
+            trans.commit();
+            setDirty();
+        } else cancel();
+
+        /*
         for (Ingredient<?> ingredient : recipe.input) {
             if (ingredient.getAmount() == 0) continue;
-            getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.getFromParams(false, false, null));
+            long amount = ingredient.getAmount();
+            List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_IN);
+            for (StorageEntry<Object> entry : (List<StorageEntry<Object>>) entries) {
+                if (!ingredient.getType().isAssignableFrom(entry.clazz)) continue;
+                Iterator<StorageView<Object>> iter = entry.storage.iterator(trans);
+                while (iter.hasNext()) {
+                    StorageView<Object> view = iter.next();
+                    if (ingredient.matches(view.getResource(), new NbtCompound())) continue;
+                }
+            }
         }
+        */
 
         /*
         // OLD:
@@ -79,6 +109,27 @@ public class ProcessingBE extends ContainerBE {
         */
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T> boolean consume(Transaction trans, int i) {
+        Ingredient<T> ingredient = (Ingredient<T>) recipe.input[i];
+        if (ingredient.getAmount() == 0) return true;
+        long amount = ingredient.getAmount();
+        List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_IN);
+        for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
+            if (!ingredient.getType().isAssignableFrom(entry.clazz)) continue;
+            Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
+            while (iter.hasNext()) {
+                StorageView<T> view = iter.next();
+                if (!ingredient.matches(view.getResource(), new NbtCompound())) continue;
+                amount -= entry.storage.extract(view.getResource(), amount, trans);
+                if (amount == 0) break;
+            }
+            if (amount > 0) return false;
+            else setDirty();
+        }
+        return true;
+    }
+
     public boolean process() {
         /*
         boolean doConsum = recipe.consumes != Double.NaN && recipe.consumes > 0.0;
@@ -88,7 +139,7 @@ public class ProcessingBE extends ContainerBE {
         boolean canGenerate = true;
         int generate = 0;
         */
-        boolean canProcess = true;
+        boolean canProcess = isProcessing;
         /*
         if (doConsum) {
             consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * recipe.consumes);
@@ -106,15 +157,55 @@ public class ProcessingBE extends ContainerBE {
             if (canConsum && canGenerate) getMachineCapacitorComp().generateEnergy(world, pos, generate);
             else canProcess = false;
         }
-        if (canProcess) getMachineDataComp().addProgress(recipe.timeModifier * getMachineDataComp().getSpeed());
         */
+        if (canProcess) progress = recipe.timeModifier * getSpeed();
         return canProcess;
     }
 
     public void task() {}
 
     public void complete() {
+        Transaction trans = Transaction.openOuter();
+        for (int i = 0; i < recipe.output.length; i++) if (!generate(trans, i)) {
+            trans.abort();
+            break;
+        }
+        if (Transaction.isOpen()) {
+            trans.commit();
+            setDirty();
+        } else cancel();
+
+        /*
+        for (Exgredient<?> exgredient : recipe.output) {
+            List<?> entries = getStorageMgr().getStorageEntries(exgredient.getClass(), SideConfigType.OUT_IN);
+            for (StorageEntry<?> object : (List<StorageEntry<?>>) entries) {
+                
+            }
+        }
         cancel();
+        */
+    }
+
+    // combine with consume?
+    @SuppressWarnings("unchecked")
+    protected <T> boolean generate(Transaction trans, int i) {
+        Exgredient<T> exgredient = (Exgredient<T>) recipe.output[i];
+        if (exgredient.getAmount() == 0) return true;
+        long amount = exgredient.getAmount();
+        List<?> entries = getStorageMgr().getStorageEntries(exgredient.getType(), SideConfigType.OUT_IN);
+        for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
+            if (!exgredient.getType().isAssignableFrom(entry.clazz)) continue;
+            Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
+            while (iter.hasNext()) {
+                StorageView<T> view = iter.next();
+                //if (!exgredient.matches(view.getResource(), new NbtCompound())) continue;
+                amount -= entry.storage.insert(view.getResource(), amount, trans);
+                if (amount == 0) break;
+            }
+            if (amount > 0) return false;
+            else setDirty();
+        }
+        return true;
     }
 
     public void cancel() {
@@ -126,6 +217,14 @@ public class ProcessingBE extends ContainerBE {
     public void idle() {}
 
     public void correct() {}
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
 
     public boolean isActivated() {
         if (activationState == ActivationState.ALWAYS_ON) return true;

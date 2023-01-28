@@ -16,12 +16,12 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
-public class AdvRecipeSerializer implements RecipeSerializer<AdvancedRecipe> {
-    private Factory factory = AdvancedRecipe::new;
+public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
+    private Factory factory = AdvRecipe::new;
     
     // from file to server
     @Override
-    public AdvancedRecipe read(Identifier id, JsonObject json) {
+    public AdvRecipe read(Identifier id, JsonObject json) {
         // INPUT:
         Ingredient<?>[] ingredients = new Ingredient[0];
         if (json.has("input")) {
@@ -60,7 +60,7 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvancedRecipe> {
     // from server to packet
     @Environment(EnvType.SERVER)
     @Override
-    public void write(PacketByteBuf buf, AdvancedRecipe recipe) {
+    public void write(PacketByteBuf buf, AdvRecipe recipe) {
         buf.writeVarInt(recipe.input.length);
         for (Ingredient<?> ingredient : recipe.input) ingredient.write(buf);
         buf.writeVarInt(recipe.output.length);
@@ -71,7 +71,7 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvancedRecipe> {
     // from packet to client
     @Environment(EnvType.CLIENT)
     @Override
-    public AdvancedRecipe read(Identifier id, PacketByteBuf buf) {
+    public AdvRecipe read(Identifier id, PacketByteBuf buf) {
         Ingredient<?>[] ingredients = new Ingredient[buf.readVarInt()];
         for (int i = 0; i < ingredients.length; i++) ingredients[i] = Ingredient.read(buf);
         Exgredient<?>[] exgredients = new Exgredient[buf.readVarInt()];
@@ -80,6 +80,6 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvancedRecipe> {
     }
 
     private interface Factory {
-        AdvancedRecipe create(Identifier id, Ingredient<?>[] input, Exgredient<?>[] output, float timeModifier);
+        AdvRecipe create(Identifier id, Ingredient<?>[] input, Exgredient<?>[] output, float timeModifier);
     }
 }

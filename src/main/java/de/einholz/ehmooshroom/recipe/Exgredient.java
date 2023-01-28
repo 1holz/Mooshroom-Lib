@@ -93,14 +93,10 @@ public class Exgredient<T> {
         //return tag.contains(test);
     }
 
-    // TODO delete if not used
-    @Deprecated
     public Class<T> getType() {
         return type;
     }
 
-    // TODO delete if not used
-    @Deprecated
     public long getAmount() {
         return amount;
     }

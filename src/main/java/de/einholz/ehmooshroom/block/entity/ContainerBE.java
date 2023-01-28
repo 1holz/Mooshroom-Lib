@@ -40,6 +40,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     private SidedStorageManager storageMgr = new SidedStorageManager();
     private Map<Class<?>, Long> transfer = new HashMap<>();
     private Map<Class<?>, Long> maxTransfer = new HashMap<>();
+    private boolean dirty = false;
     
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -55,11 +56,12 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
-        if (transfer()) markDirty();
+        resetDitry();
+        transfer();
+        if (isDirty()) markDirty();
     }
 
-    public boolean transfer() {
-        boolean dirty = false;
+    public void transfer() {
         resetTransfer();
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
@@ -68,13 +70,13 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
                 if (entry.lookup == null) continue;
                 Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
-                if (transfer(targetStorage, entry.storage, this::getTransfer, this::reduceTransfer)) dirty = true;
+                if (transfer(targetStorage, entry.storage, this::getTransfer, this::reduceTransfer)) setDirty();;
             }
             // self input / push
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
                 if (entry.lookup == null) continue;
                 Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
-                if (transfer(entry.storage, targetStorage, this::getTransfer, this::reduceTransfer)) dirty = true;
+                if (transfer(entry.storage, targetStorage, this::getTransfer, this::reduceTransfer)) setDirty();;
             }
 //          @SuppressWarnings("unchecked")
 //          TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
@@ -92,7 +94,6 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         }
         // TODO: only for early development replace with proper creative battery
         //if (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK) && getMachineCapacitorComp().getCurrentEnergy() < getMachineCapacitorComp().getMaxEnergy()) getMachineCapacitorComp().generateEnergy(world, pos, getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
-        return dirty;
     }
 
     @SuppressWarnings("unchecked")
@@ -150,6 +151,18 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     public void resetTransfer() {
         transfer = maxTransfer;
+    }
+
+    protected boolean isDirty() {
+        return dirty;
+    }
+
+    protected void setDirty() {
+        dirty = true;
+    }
+
+    protected void resetDitry() {
+        dirty = false;
     }
 
     @Override

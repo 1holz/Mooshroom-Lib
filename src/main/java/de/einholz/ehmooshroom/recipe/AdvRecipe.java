@@ -13,16 +13,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
-public class AdvancedRecipe implements Recipe<Inventory> {
-    public final Identifier typeId;
-    public final Identifier id;
+public class AdvRecipe implements Recipe<Inventory> {
+    private final Identifier typeId;
+    private final Identifier id;
     public final Ingredient<?>[] input;
     //public final float consumes;
     public final Exgredient<?>[] output;
     //public final float generates;
     public final float timeModifier;
 
-    public AdvancedRecipe(Identifier id, Ingredient<?>[] input, Exgredient<?>[] output, float timeModifier) {
+    public AdvRecipe(Identifier id, Ingredient<?>[] input, Exgredient<?>[] output, float timeModifier) {
         this.typeId = new Identifier(id.getNamespace(), id.getPath().split("/")[1]);
         this.id = id;
         this.input = input;
