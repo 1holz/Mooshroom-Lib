@@ -8,50 +8,66 @@ import java.util.Map.Entry;
 import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
-import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 public class SidedStorageManager implements NbtSerializable {
-    private final Map<Identifier, StorageEntry<?>> STORAGES = new HashMap<>();
+    private final Map<Transferable<?>, StorageEntry<?>> STORAGES = new HashMap<>();
 
-    public <T> SidedStorageManager withStorage(Identifier id, Storage<T> storage, Class<T> clazz) {
-        return withStorage(id, storage, clazz, null);
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <T> SidedStorageManager withStorage(Identifier id, Storage<T> storage) {
+        return this.<T>withStorage(TransferablesReg.TRANSFERABLE.get(id), storage);
     }
 
-    public <T> SidedStorageManager withStorage(Identifier id, Storage<T> storage, Class<T> clazz, BlockApiLookup<? extends Storage<T>, Direction> lookup) {
-        STORAGES.put(id, new StorageEntry<>(storage, SideConfigType.getDefaultArray(), clazz, lookup));
+    public <T> SidedStorageManager withStorage(Transferable<T> trans, Storage<T> storage) {
+        STORAGES.put(trans, new StorageEntry<>(storage, SideConfigType.getDefaultArray(), trans));
         return this;
     }
 
-    public Storage<?> removeStorage(Identifier id) {
-        return STORAGES.remove(id).storage;
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <T> Storage<T> removeStorage(Identifier id) {
+        return this.<T>removeStorage(TransferablesReg.TRANSFERABLE.get(id));
     }
 
-    public StorageEntry<?> getStorageEntry(Identifier id) {
-        return STORAGES.get(id);
+    @SuppressWarnings("unchecked")
+    public <T> Storage<T> removeStorage(Transferable<T> trans) {
+        return (Storage<T>) STORAGES.remove(trans).storage;
     }
 
-    public <T, S extends Storage<T>> AdvCombinedStorage<T, S> getCombinedStorage(@Nullable Class<T> type, @Nullable SideConfigType... configType) {
-        return new AdvCombinedStorage<T, S>(getStorageEntries(type, configType));
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <T> StorageEntry<T> getStorageEntry(Identifier id) {
+        return this.<T>getStorageEntry(TransferablesReg.TRANSFERABLE.get(id));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> StorageEntry<T> getStorageEntry(Transferable<T> trans) {
+        return (StorageEntry<T>) STORAGES.get(trans);
+    }
+
+    public <T, S extends Storage<T>> AdvCombinedStorage<T, S> getCombinedStorage(@Nullable Transferable<T> trans, @Nullable SideConfigType... configTypes) {
+        return new AdvCombinedStorage<T, S>(getStorageEntries(trans, configTypes));
     }
 
     // XXX private? to hacky?
     @SuppressWarnings("unchecked")
-    public <T> List<StorageEntry<T>> getStorageEntries(@Nullable Class<T> type, @Nullable SideConfigType... configTypes) {
+    public <T> List<StorageEntry<T>> getStorageEntries(@Nullable Transferable<T> trans, @Nullable SideConfigType... configTypes) {
         List<StorageEntry<T>> list = new ArrayList<>();
-        for (Entry<Identifier, StorageEntry<?>> entry : STORAGES.entrySet()) {
+        for (Entry<Transferable<?>, StorageEntry<?>> entry : STORAGES.entrySet()) {
             StorageEntry<?> storageEntry = entry.getValue();
-            if (type == null || type.isAssignableFrom(storageEntry.clazz)) {
-                if (configTypes == null) {
-                    list.add((StorageEntry<T>) storageEntry);
-                    continue;
-                }
-                for (SideConfigType configType : configTypes) if (storageEntry.allows(configType)) list.add((StorageEntry<T>) storageEntry);
+            if (trans != null && !trans.equals(storageEntry.trans)) continue;
+            if (configTypes == null) {
+                list.add((StorageEntry<T>) storageEntry);
+                continue;
             }
+            for (SideConfigType configType : configTypes) if (storageEntry.allows(configType)) list.add((StorageEntry<T>) storageEntry);
         }
         return list;
     }
@@ -60,16 +76,13 @@ public class SidedStorageManager implements NbtSerializable {
     public static class StorageEntry<T> {
         public final Storage<T> storage;
         public final char[] config;
-        public final Class<T> clazz;
-        @Nullable
-        public final BlockApiLookup<? extends Storage<T>, Direction> lookup;
+        public final Transferable<T> trans;
 
-        public StorageEntry(Storage<T> storage, char[] config, Class<T> clazz, BlockApiLookup<? extends Storage<T>, Direction> lookup) {
+        public StorageEntry(Storage<T> storage, char[] config, Transferable<T> trans) {
             this.storage = storage;
             if (config.length != SideConfigType.values().length) MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("The config char array should have a lenght of " + SideConfigType.values().length));
             this.config = config;
-            this.clazz = clazz;
-            this.lookup = lookup;
+            this.trans = trans;
         }
 
         public boolean allows(SideConfigType type) {

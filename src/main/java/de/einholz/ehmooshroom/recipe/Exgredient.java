@@ -6,10 +6,9 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -19,8 +18,8 @@ import net.minecraft.util.registry.Registry;
 
 // XXX: anotate constructor with only server?
 public class Exgredient<T> {
-    public static final Map<Class<?>, ExgredientFactory<?>> FACTORIES = new HashMap<>();
-    private final Class<T> type;
+    public static final Map<Transferable<?>, ExgredientFactory<?>> FACTORIES = new HashMap<>();
+    private final Transferable<T> type;
     @Nullable 
     private final T output;
     @Nullable
@@ -30,39 +29,32 @@ public class Exgredient<T> {
     private final long amount;
 
     @SuppressWarnings("unchecked")
-    public Exgredient(String type, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
-        Class<T> clazz = null;
-        try {
-            clazz = (Class<T>) Class.forName(type);
-        } catch (ClassNotFoundException e) {
-            MooshroomLib.LOGGER.bigBug(e);
-        }
-        if (clazz == null) MooshroomLib.LOGGER.bigBug(new NullPointerException("Exgredient with null type was created. id: " + id == null ? "null" : id.toString() + " nbt: " + nbt == null ? "null" : nbt.asString() + " amount: " + amount));
-        this.type = clazz;
+    public Exgredient(Identifier type, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
+        this.type = TransferablesReg.TRANSFERABLE.get(type);
         this.id = id;
         this.nbt = nbt == null ? new NbtCompound() : nbt;
         this.amount = amount;
-        output = (@Nullable T) FACTORIES.get(clazz).build(id, amount, nbt);
+        output = (@Nullable T) FACTORIES.get(this.type).build(id, amount, nbt);
     }
 
-    public Exgredient(String type, @Nullable Identifier id, long amount) {
+    public Exgredient(Identifier type, @Nullable Identifier id, long amount) {
         this(type, id, null, amount);
     }
 
-    public Exgredient(String type, @Nullable NbtCompound nbt, long amount) {
+    public Exgredient(Identifier type, @Nullable NbtCompound nbt, long amount) {
         this(type, null, nbt, amount);
     }
 
-    public Exgredient(String type, long amount) {
+    public Exgredient(Identifier type, long amount) {
         this(type, null, null, amount);
     }
 
     public static Exgredient<?> read(PacketByteBuf buf) {
-        return new Exgredient<>(buf.readString(), buf.readBoolean() ? buf.readIdentifier() : null, buf.readBoolean() ? new NbtCompound() : buf.readNbt(), buf.readVarLong());
+        return new Exgredient<>(buf.readIdentifier(), buf.readBoolean() ? buf.readIdentifier() : null, buf.readBoolean() ? new NbtCompound() : buf.readNbt(), buf.readVarLong());
     }
 
     public void write(PacketByteBuf buf) {
-        buf.writeString(type.getName());
+        buf.writeIdentifier(type.getId());
         if (id == null) buf.writeBoolean(false);
         else {
             buf.writeBoolean(true);
@@ -88,12 +80,12 @@ public class Exgredient<T> {
             return true;
         }
         if (!NbtHelper.matches(nbt, testNbt, true)) return false;
-        return type.isAssignableFrom(test.getClass());
-        //if (tag == null) return type.isAssignableFrom(test.getClass());
+        return type.getStoredType().equals(test);
+        //if (tag == null) return type.getStoredType().equals(test);
         //return tag.contains(test);
     }
 
-    public Class<T> getType() {
+    public Transferable<T> getType() {
         return type;
     }
 
@@ -107,15 +99,16 @@ public class Exgredient<T> {
     }
 
     static {
-        FACTORIES.putIfAbsent(ItemStack.class, (id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferablesReg.ITEMS, (id, amount, nbt) -> {
             ItemStack stack = new ItemStack(Registry.ITEM.get(id), (int) amount);
             stack.setNbt(nbt);
             return stack;
         });
-        FACTORIES.putIfAbsent(FluidVariant.class, (id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferablesReg.FLUIDS, (id, amount, nbt) -> {
             FluidVariant fluid = FluidVariant.of(Registry.FLUID.get(id), nbt);
             return fluid;
         });
+        /*
         FACTORIES.putIfAbsent(Block.class, (id, amount, nbt) -> {
             BlockState state = Registry.BLOCK.get(id).getDefaultState();
             return state;
@@ -125,5 +118,6 @@ public class Exgredient<T> {
             if (nbt != null) entity.readNbt(nbt);
             return entity;
         });
+        */
     }
 }

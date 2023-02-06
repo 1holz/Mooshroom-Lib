@@ -14,7 +14,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.util.math.Direction;
 
-// XXX is this needed?
 public class AdvCombinedStorage<T, S extends Storage<T>> extends CombinedStorage<T, S> {
     private final List<StorageEntry<T>> entries;
     @Nullable

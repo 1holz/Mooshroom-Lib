@@ -116,7 +116,7 @@ public class ProcessingBE extends ContainerBE {
         long amount = ingredient.getAmount();
         List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_IN);
         for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
-            if (!ingredient.getType().isAssignableFrom(entry.clazz)) continue;
+            if (!ingredient.getType().equals(entry.trans)) continue;
             Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<T> view = iter.next();
@@ -194,7 +194,7 @@ public class ProcessingBE extends ContainerBE {
         long amount = exgredient.getAmount();
         List<?> entries = getStorageMgr().getStorageEntries(exgredient.getType(), SideConfigType.OUT_IN);
         for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
-            if (!exgredient.getType().isAssignableFrom(entry.clazz)) continue;
+            if (!exgredient.getType().equals(entry.trans)) continue;
             Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<T> view = iter.next();

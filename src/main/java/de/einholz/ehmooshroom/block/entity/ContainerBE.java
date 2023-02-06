@@ -9,11 +9,13 @@ import java.util.function.ToLongFunction;
 import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.registry.TransferablesReg;
 import de.einholz.ehmooshroom.storage.SidedStorageManager;
 import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageManager.StorageEntry;
 import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
 import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
+import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -38,8 +40,8 @@ import net.minecraft.world.World;
 
 public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {
     private SidedStorageManager storageMgr = new SidedStorageManager();
-    private Map<Class<?>, Long> transfer = new HashMap<>();
-    private Map<Class<?>, Long> maxTransfer = new HashMap<>();
+    private Map<Transferable<?>, Long> transfer = new HashMap<>();
+    private Map<Transferable<?>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
     
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -61,6 +63,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         if (isDirty()) markDirty();
     }
 
+    @SuppressWarnings("null")
     public void transfer() {
         resetTransfer();
         for (Direction dir : Direction.values()) {
@@ -68,15 +71,15 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             Direction targetDir = dir.getOpposite();
             // self output / pull
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
-                if (entry.lookup == null) continue;
-                Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
-                if (transfer(targetStorage, entry.storage, this::getTransfer, this::reduceTransfer)) setDirty();;
+                if (entry.trans.isTransferable()) continue;
+                Storage<?> targetStorage = entry.trans.lookup.find(world, targetPos, targetDir);
+                if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer())) setDirty();;
             }
             // self input / push
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
-                if (entry.lookup == null) continue;
-                Storage<?> targetStorage = entry.lookup.find(world, targetPos, targetDir);
-                if (transfer(entry.storage, targetStorage, this::getTransfer, this::reduceTransfer)) setDirty();;
+                if (entry.trans.isTransferable()) continue;
+                Storage<?> targetStorage = entry.trans.lookup.find(world, targetPos, targetDir);
+                if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer())) setDirty();;
             }
 //          @SuppressWarnings("unchecked")
 //          TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
@@ -97,7 +100,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Boolean transfer(final Storage<?> fromRaw, final Storage<?> toRaw, ToLongFunction<T> transGetter, BiConsumer<T, Long> transReducer) {
+    public static <T> Boolean transfer(final Transferable<T> transferable, final Storage<?> fromRaw, final Storage<?> toRaw, final ToLongFunction<Transferable<?>> transGetter, final BiConsumer<Transferable<?>, Long> transReducer) {
         final Storage<T> from;
         final Storage<T> to;
         try {
@@ -115,7 +118,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
                 StorageView<T> view = it.next();
                 if (view.isResourceBlank()) continue;
                 T resource = view.getResource();
-                long remainingTransfer = transGetter.applyAsLong(resource);
+                long remainingTransfer = transGetter.applyAsLong(transferable);
                 if (remainingTransfer == 0) continue;
                 try (Transaction inTrans = trans.openNested()) {
                     long extracted = view.extract(resource, remainingTransfer, inTrans);
@@ -126,7 +129,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
                         inTrans.abort();
                         continue;
                     }
-                    transReducer.accept(resource, inserted);
+                    transReducer.accept(transferable, inserted);
                     dirty = true;
                     inTrans.commit();
                 }
@@ -136,17 +139,19 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         return dirty;
     }
 
-    public void setMaxTransfer(Map<Class<?>, Long> maxTransfer) {
+    public void setMaxTransfer(Map<Transferable<?>, Long> maxTransfer) {
         this.maxTransfer = maxTransfer;
         resetTransfer();
     }
 
-    public long getTransfer(Object resource) {
-        return transfer.getOrDefault(resource.getClass(), 0L);
+    public ToLongFunction<Transferable<?>> getTransfer() {
+        return (trans) -> transfer.getOrDefault(trans, 0L);
     }
 
-    public void reduceTransfer(Object resource, Long reduction) {
-        transfer.put(resource.getClass(), getTransfer(resource) - reduction);
+    public BiConsumer<Transferable<?>, Long> reduceTransfer() {
+        return (trans, reduction) -> {
+            if (transfer.containsKey(trans)) transfer.put(trans, getTransfer().applyAsLong(trans) - reduction);
+        };
     }
 
     public void resetTransfer() {
@@ -167,12 +172,12 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     @Override
     public Storage<ItemVariant> getItemStorage(@Nullable Direction dir) {
-        return getStorageMgr().getCombinedStorage(ItemVariant.class, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
+        return getStorageMgr().getCombinedStorage(TransferablesReg.ITEMS, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
     }
 
     @Override
     public Storage<FluidVariant> getFluidStorage(@Nullable Direction dir) {
-        return getStorageMgr().getCombinedStorage(FluidVariant.class, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
+        return getStorageMgr().getCombinedStorage(TransferablesReg.FLUIDS, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage.transferables;
+package de.einholz.ehmooshroom.storage.transferable;
 
 import org.jetbrains.annotations.Nullable;
 

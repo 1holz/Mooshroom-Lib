@@ -3,6 +3,8 @@ package de.einholz.ehmooshroom.recipe;
 import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.tag.TagFactory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -13,7 +15,7 @@ import net.minecraft.util.registry.RegistryKey;
 
 // XXX: anotate constructor with only server?
 public class Ingredient<T> {
-    private final Class<T> type;
+    private final Transferable<T> type;
     @Nullable 
     private final Identifier tagRegId;
     @Nullable 
@@ -25,15 +27,8 @@ public class Ingredient<T> {
     private final long amount;
 
     @SuppressWarnings("unchecked")
-    public Ingredient(String type, @Nullable Identifier tagRegId, @Nullable String dataType, @Nullable Identifier tagId, @Nullable NbtCompound nbt, long amount) {
-        Class<T> clazz = null;
-        try {
-            clazz = (Class<T>) Class.forName(type);
-        } catch (ClassNotFoundException e) {
-            MooshroomLib.LOGGER.bigBug(e);
-        }
-        if (clazz == null) MooshroomLib.LOGGER.bigBug(new NullPointerException("Ingredient with null type was created. tagRegId: " + tagRegId == null ? "null" : tagRegId.toString() + " dataType: " + dataType == null ? "null" : dataType + " tagId: " + tagId == null ? "null" : tagId.toString() + " nbt: " + nbt == null ? "null" : nbt.asString() + " amount: " + amount));
-        this.type = clazz;
+    public Ingredient(Identifier type, @Nullable Identifier tagRegId, @Nullable String dataType, @Nullable Identifier tagId, @Nullable NbtCompound nbt, long amount) {
+        this.type = TransferablesReg.TRANSFERABLE.get(type);
         if (tagRegId != null && dataType != null && tagId != null) {
             this.tagRegId = tagRegId;
             this.dataType = dataType;
@@ -47,26 +42,26 @@ public class Ingredient<T> {
         this.amount = amount;
     }
 
-    public Ingredient(String type, @Nullable NbtCompound nbt, long amount) {
+    public Ingredient(Identifier type, @Nullable NbtCompound nbt, long amount) {
         this(type, null, null, null, nbt, amount);
     }
 
-    public Ingredient(String type, @Nullable Identifier tagRegId, @Nullable String dataType, @Nullable Identifier tagId, long amount) {
+    public Ingredient(Identifier type, @Nullable Identifier tagRegId, @Nullable String dataType, @Nullable Identifier tagId, long amount) {
         this(type, tagRegId, dataType, tagId, null, amount);
     }
 
-    public Ingredient(String type, long amount) {
+    public Ingredient(Identifier type, long amount) {
         this(type, null, null, null, amount);
     }
 
     public static Ingredient<?> read(PacketByteBuf buf) {
-        String type = buf.readString();
+        Identifier type = buf.readIdentifier();
         boolean bl = buf.readBoolean();
         return new Ingredient<>(type, bl ? buf.readIdentifier() : null, bl ? buf.readString() : null, bl ? buf.readIdentifier() : null, buf.readBoolean() ? buf.readNbt() : null, buf.readVarLong());
     }
 
     public void write(PacketByteBuf buf) {
-        buf.writeString(type.getName());
+        buf.writeIdentifier(type.getId());
         if (tag == null) buf.writeBoolean(false);
         else {
             buf.writeBoolean(true);
@@ -86,11 +81,11 @@ public class Ingredient<T> {
             return true;
         }
         if (!NbtHelper.matches(nbt, testNbt, true)) return false;
-        if (tag == null) return type.isAssignableFrom(test.getClass());
+        if (tag == null) return type.getStoredType().equals(test);
         return tag.contains(test);
     }
 
-    public Class<T> getType() {
+    public Transferable<T> getType() {
         return type;
     }
 
