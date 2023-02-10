@@ -16,16 +16,16 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public class SidedStorageManager implements NbtSerializable {
+public class SidedStorageMgr implements NbtSerializable {
     private final Map<Transferable<?>, StorageEntry<?>> STORAGES = new HashMap<>();
 
     @Deprecated
     @SuppressWarnings("unchecked")
-    public <T> SidedStorageManager withStorage(Identifier id, Storage<T> storage) {
+    public <T> SidedStorageMgr withStorage(Identifier id, Storage<T> storage) {
         return this.<T>withStorage(TransferablesReg.TRANSFERABLE.get(id), storage);
     }
 
-    public <T> SidedStorageManager withStorage(Transferable<T> trans, Storage<T> storage) {
+    public <T> SidedStorageMgr withStorage(Transferable<T> trans, Storage<T> storage) {
         STORAGES.put(trans, new StorageEntry<>(storage, SideConfigType.getDefaultArray(), trans));
         return this;
     }
@@ -86,7 +86,7 @@ public class SidedStorageManager implements NbtSerializable {
         }
 
         public boolean allows(SideConfigType type) {
-            return (type.side == null || type.output ? storage.supportsExtraction() : storage.supportsInsertion()) && Character.toUpperCase(config[type.ordinal()]) == 'T';
+            return (type.acc == null || type.output ? storage.supportsExtraction() : storage.supportsInsertion()) && Character.toUpperCase(config[type.ordinal()]) == 'T';
         }
     }
 
@@ -101,48 +101,65 @@ public class SidedStorageManager implements NbtSerializable {
         for (StorageEntry<?> entry : STORAGES.values()) if (entry.storage instanceof NbtSerializable serializable) serializable.readNbt(nbt);
     }
 
+    public static enum SideConfigAccessor {
+        GUI,
+        PROCESS,
+        DOWN,
+        UP,
+        NORTH,
+        SOUTH,
+        WEST,
+        EAST;
+
+        public static SideConfigAccessor getFromDir(Direction dir) {
+            return dir == null ? PROCESS : SideConfigAccessor.values()[dir.ordinal() + 2];
+        }
+    }
+
     //AVAILABLE_TRUE -> T
     //AVAILABLE_FALSE -> F
     //RESTRICTED_TRUE -> t
     //RESTRICTED_FALSE -> f
     public static enum SideConfigType {
-        IN_IN('T', false, false, null),
-        OUT_IN('T', false, true, null),
-        SELF_IN_D('F', false, false, Direction.DOWN),
-        SELF_IN_U('F', false, false, Direction.UP),
-        SELF_IN_N('F', false, false, Direction.NORTH),
-        SELF_IN_S('F', false, false, Direction.SOUTH),
-        SELF_IN_W('F', false, false, Direction.WEST),
-        SELF_IN_E('F', false, false, Direction.EAST),
-        SELF_OUT_D('F', false, true, Direction.DOWN),
-        SELF_OUT_U('F', false, true, Direction.UP),
-        SELF_OUT_N('F', false, true, Direction.NORTH),
-        SELF_OUT_S('F', false, true, Direction.SOUTH),
-        SELF_OUT_W('F', false, true, Direction.WEST),
-        SELF_OUT_E('F', false, true, Direction.EAST),
-        FOREIGN_IN_D('T', true, false, Direction.DOWN),
-        FOREIGN_IN_U('T', true, false, Direction.UP),
-        FOREIGN_IN_N('T', true, false, Direction.NORTH),
-        FOREIGN_IN_S('T', true, false, Direction.SOUTH),
-        FOREIGN_IN_W('T', true, false, Direction.WEST),
-        FOREIGN_IN_E('T', true, false, Direction.EAST),
-        FOREIGN_OUT_D('T', true, true, Direction.DOWN),
-        FOREIGN_OUT_U('T', true, true, Direction.UP),
-        FOREIGN_OUT_N('T', true, true, Direction.NORTH),
-        FOREIGN_OUT_S('T', true, true, Direction.SOUTH),
-        FOREIGN_OUT_W('T', true, true, Direction.WEST),
-        FOREIGN_OUT_E('T', true, true, Direction.EAST);
+        IN_GUI('T', false, false, SideConfigAccessor.GUI),
+        OUT_GUI('T', false, true, SideConfigAccessor.GUI),
+        IN_PROC('T', false, false, SideConfigAccessor.PROCESS),
+        OUT_PROC('T', false, true, SideConfigAccessor.PROCESS),
+        SELF_IN_D('F', false, false, SideConfigAccessor.DOWN),
+        SELF_IN_U('F', false, false, SideConfigAccessor.UP),
+        SELF_IN_N('F', false, false, SideConfigAccessor.NORTH),
+        SELF_IN_S('F', false, false, SideConfigAccessor.SOUTH),
+        SELF_IN_W('F', false, false, SideConfigAccessor.WEST),
+        SELF_IN_E('F', false, false, SideConfigAccessor.EAST),
+        SELF_OUT_D('F', false, true, SideConfigAccessor.DOWN),
+        SELF_OUT_U('F', false, true, SideConfigAccessor.UP),
+        SELF_OUT_N('F', false, true, SideConfigAccessor.NORTH),
+        SELF_OUT_S('F', false, true, SideConfigAccessor.SOUTH),
+        SELF_OUT_W('F', false, true, SideConfigAccessor.WEST),
+        SELF_OUT_E('F', false, true, SideConfigAccessor.EAST),
+        FOREIGN_IN_D('T', true, false, SideConfigAccessor.DOWN),
+        FOREIGN_IN_U('T', true, false, SideConfigAccessor.UP),
+        FOREIGN_IN_N('T', true, false, SideConfigAccessor.NORTH),
+        FOREIGN_IN_S('T', true, false, SideConfigAccessor.SOUTH),
+        FOREIGN_IN_W('T', true, false, SideConfigAccessor.WEST),
+        FOREIGN_IN_E('T', true, false, SideConfigAccessor.EAST),
+        FOREIGN_OUT_D('T', true, true, SideConfigAccessor.DOWN),
+        FOREIGN_OUT_U('T', true, true, SideConfigAccessor.UP),
+        FOREIGN_OUT_N('T', true, true, SideConfigAccessor.NORTH),
+        FOREIGN_OUT_S('T', true, true, SideConfigAccessor.SOUTH),
+        FOREIGN_OUT_W('T', true, true, SideConfigAccessor.WEST),
+        FOREIGN_OUT_E('T', true, true, SideConfigAccessor.EAST);
 
         public final char def;
         public final boolean foreign;
         public final boolean output;
-        public final Direction side;
+        public final SideConfigAccessor acc;
 
-        private SideConfigType(char def, boolean foreign, boolean output, Direction side) {
+        private SideConfigType(char def, boolean foreign, boolean output, SideConfigAccessor acc) {
             this.def = def;
             this.foreign = foreign;
             this.output = output;
-            this.side = side;
+            this.acc = acc;
         }
 
         public static char[] getDefaultArray() {
@@ -161,11 +178,16 @@ public class SidedStorageManager implements NbtSerializable {
             return def;
         }
 
-        public static SideConfigType getFromParams(boolean foreign, boolean output, @Nullable Direction dir) {
-            int dirsAmount = Direction.values().length;
+        public static SideConfigType getFromParams(boolean foreign, boolean output, Direction dir) {
+            return getFromParams(foreign, output, SideConfigAccessor.getFromDir(dir));
+        }
+
+        public static SideConfigType getFromParams(boolean foreign, boolean output, SideConfigAccessor acc) {
+            int accAmount = SideConfigAccessor.values().length;
             SideConfigType[] values = SideConfigType.values();
-            if (dir == null) return values[output ? 1 : 0];
-            return values[(foreign ? 2 * dirsAmount : 0) + (output ? dirsAmount : 0) + dir.ordinal() + 2];
+            if (SideConfigAccessor.GUI.equals(acc)) return values[output ? 1 : 0];
+            if (SideConfigAccessor.PROCESS.equals(acc)) return values[output ? 4 : 3];
+            return values[(foreign ? 2 * accAmount : 0) + (output ? accAmount : 0) + acc.ordinal() + 4];
         }
     }
 

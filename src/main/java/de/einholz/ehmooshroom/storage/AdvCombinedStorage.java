@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
-import de.einholz.ehmooshroom.storage.SidedStorageManager.StorageEntry;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;

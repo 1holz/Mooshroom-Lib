@@ -49,7 +49,7 @@ dependencies {
 
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 
-	//include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}+${project.minecraft_version}")
+	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}+${project.minecraft_version}")
 
 //  TODO: del
 //	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")

@@ -10,12 +10,13 @@ import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
-import de.einholz.ehmooshroom.storage.SidedStorageManager;
-import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
-import de.einholz.ehmooshroom.storage.SidedStorageManager.StorageEntry;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
 import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
 import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -39,7 +40,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {
-    private SidedStorageManager storageMgr = new SidedStorageManager();
+    private SidedStorageMgr storageMgr = new SidedStorageMgr();
     private Map<Transferable<?>, Long> transfer = new HashMap<>();
     private Map<Transferable<?>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
@@ -48,7 +49,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         super(type, pos, state);
     }
 
-    public SidedStorageManager getStorageMgr() {
+    public SidedStorageMgr getStorageMgr() {
         return storageMgr;
     }
 
@@ -207,14 +208,14 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @Override
-    public ScreenHandler createMenu(int arg0, PlayerInventory arg1, PlayerEntity arg2) {
-        // TODO Auto-generated method stub
-        return null;
+    public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        writeScreenOpeningData((ServerPlayerEntity) player, buf);
+        return clientHandlerFactory.create(syncId, inv, buf);
     }
 
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-        // TODO Auto-generated method stub
-        
+        buf.writeBlockPos(pos);
     }
 }

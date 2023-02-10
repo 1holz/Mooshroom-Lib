@@ -1,0 +1,158 @@
+package de.einholz.ehmooshroom.gui.gui;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
+import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.block.entity.ContainerBE;
+import de.einholz.ehmooshroom.gui.screens.ContainerScreen;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr;
+import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
+import io.github.cottonmc.cotton.gui.widget.WButton;
+import io.github.cottonmc.cotton.gui.widget.WGridPanel;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.math.BlockPos;
+
+// FIXME: clean up guis in general
+public abstract class ContainerGui extends SyncedGuiDescription {
+    public BlockPos pos;
+    public List<WButton> buttonIds;
+    public ContainerScreen screen;
+    
+    protected ContainerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+        super(type, syncId, playerInv);
+        pos = buf.readBlockPos();
+
+        // TODO something else needed here?
+        // if (blockInventory != null) blockInventory.onOpen(playerInventory.player);
+    }
+
+    public static ContainerGui init(ContainerGui gui) {
+        gui.buttonIds = new ArrayList<WButton>();
+        gui.initWidgets();
+        gui.drawDefault();
+        gui.finish();
+        return gui;
+    }
+
+    protected void initWidgets() {}
+
+    protected void drawDefault() {
+        ((WGridPanel) rootPanel).add(createPlayerInventoryPanel(), 0, 7);
+    }
+
+    public void finish() {
+        rootPanel.validate(this);
+    }
+
+    protected Runnable getDefaultOnButtonClick(WButton button) {
+        return () -> {
+            MinecraftClient minecraft = screen.getMinecraftClient();
+            minecraft.interactionManager.clickButton(syncId, buttonIds.indexOf(button));
+            onButtonClick(playerInventory.player, buttonIds.indexOf(button));
+        };
+    }
+
+    @Nullable
+    protected ContainerBE getBE() {
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof ContainerBE container) return container;
+        MooshroomLib.LOGGER.smallBug(new IllegalStateException("Attempted to use a ContainerGUI on a " + be.getClass().toString()));
+        return null;
+        SimpleInventory
+    }
+
+    // TODO make faster using mixins
+    @Override
+    public void onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
+        if (!SlotActionType.QUICK_MOVE.equals(action)) super.onSlotClick(slotNumber, button, action, player);
+        if (slotNumber < 0 || slotNumber >= slots.size()) return;
+        Slot slot = slots.get(slotNumber);
+        if (slot == null || !slot.canTakeItems(player)) return;
+        ItemStack remaining = ItemStack.EMPTY;
+        if (slot == null || !slot.hasStack()) return;
+        ItemStack trans = slot.getStack();
+        remaining = trans.copy();
+
+        if (blockInventory == null) return;
+        if (slot.inventory == blockInventory) {
+            if (!insertItem(trans, playerInventory, true, player)) return;
+            else if (!insertItem(trans, blockInventory, false, player)) return;
+        } else if (!swapHotbar(trans, slotNumber, playerInventory, player)) return;
+        if (trans.isEmpty()) slot.setStack(ItemStack.EMPTY);
+        else slot.markDirty();
+    }
+
+    /*
+    private boolean insertItem(ItemStack toInsert, Inventory inventory, boolean walkBackwards, PlayerEntity player) {
+        ArrayList<Slot> inventorySlots = new ArrayList<>();
+        Iterator<Slot> iter = slots.iterator();
+        while(iter.hasNext()) {
+            Slot slot = iter.next();
+            if (slot.inventory == inventory) inventorySlots.add(slot);
+        }
+        if (inventorySlots.isEmpty()) return false;
+        else {
+            boolean inserted = false;
+            Slot curSlot;
+            int i;
+            if (walkBackwards) {
+               for(i = inventorySlots.size() - 1; i >= 0; --i) {
+                  curSlot = (Slot)inventorySlots.get(i);
+                  if (this.insertIntoExisting(toInsert, curSlot, player)) inserted = true;
+                  if (toInsert.isEmpty()) break;
+               }
+            } else {
+               for(i = 0; i < inventorySlots.size(); ++i) {
+                  curSlot = (Slot)inventorySlots.get(i);
+                  if (this.insertIntoExisting(toInsert, curSlot, player)) inserted = true;
+                  if (toInsert.isEmpty()) break;
+               }
+            }
+            if (!toInsert.isEmpty()) {
+               if (walkBackwards) {
+                  for(i = inventorySlots.size() - 1; i >= 0; --i) {
+                     curSlot = (Slot)inventorySlots.get(i);
+                     if (this.insertIntoEmpty(toInsert, curSlot)) inserted = true;
+                     if (toInsert.isEmpty()) break;
+                  }
+               } else {
+                  for(i = 0; i < inventorySlots.size(); ++i) {
+                     curSlot = (Slot)inventorySlots.get(i);
+                     if (this.insertIntoEmpty(toInsert, curSlot)) inserted = true;
+                     if (toInsert.isEmpty()) break;
+                  }
+               }
+            }
+            return inserted;
+        }
+    }
+    */
+
+    @Override
+    public boolean canUse(PlayerEntity entity) {
+        // TODO something else needed here?
+        return true; // blockInventory != null ? blockInventory.canPlayerUse(entity) : true;
+    }
+
+    @Override
+    public void close(PlayerEntity player) {
+        // TODO something else needed here?
+        return;
+        // super.close(player);
+        // if (blockInventory != null) blockInventory.onClose(player);
+    }
+}

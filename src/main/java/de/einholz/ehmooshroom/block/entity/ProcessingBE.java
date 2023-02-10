@@ -7,8 +7,8 @@ import de.einholz.ehmooshroom.recipe.AdvRecipe;
 import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
-import de.einholz.ehmooshroom.storage.SidedStorageManager.SideConfigType;
-import de.einholz.ehmooshroom.storage.SidedStorageManager.StorageEntry;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
@@ -114,7 +114,7 @@ public class ProcessingBE extends ContainerBE {
         Ingredient<T> ingredient = (Ingredient<T>) recipe.input[i];
         if (ingredient.getAmount() == 0) return true;
         long amount = ingredient.getAmount();
-        List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_IN);
+        List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_PROC);
         for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
             if (!ingredient.getType().equals(entry.trans)) continue;
             Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
@@ -192,7 +192,7 @@ public class ProcessingBE extends ContainerBE {
         Exgredient<T> exgredient = (Exgredient<T>) recipe.output[i];
         if (exgredient.getAmount() == 0) return true;
         long amount = exgredient.getAmount();
-        List<?> entries = getStorageMgr().getStorageEntries(exgredient.getType(), SideConfigType.OUT_IN);
+        List<?> entries = getStorageMgr().getStorageEntries(exgredient.getType(), SideConfigType.OUT_PROC);
         for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
             if (!exgredient.getType().equals(entry.trans)) continue;
             Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
