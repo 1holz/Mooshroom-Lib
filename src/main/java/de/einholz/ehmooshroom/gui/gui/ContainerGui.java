@@ -1,7 +1,6 @@
 package de.einholz.ehmooshroom.gui.gui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.block.entity.ContainerBE;
 import de.einholz.ehmooshroom.gui.screens.ContainerScreen;
-import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
@@ -17,8 +15,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
@@ -72,7 +68,6 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         if (be instanceof ContainerBE container) return container;
         MooshroomLib.LOGGER.smallBug(new IllegalStateException("Attempted to use a ContainerGUI on a " + be.getClass().toString()));
         return null;
-        SimpleInventory
     }
 
     // TODO make faster using mixins
@@ -88,10 +83,12 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         remaining = trans.copy();
 
         if (blockInventory == null) return;
+        /* TODO implement properly
         if (slot.inventory == blockInventory) {
             if (!insertItem(trans, playerInventory, true, player)) return;
             else if (!insertItem(trans, blockInventory, false, player)) return;
         } else if (!swapHotbar(trans, slotNumber, playerInventory, player)) return;
+        */
         if (trans.isEmpty()) slot.setStack(ItemStack.EMPTY);
         else slot.markDirty();
     }

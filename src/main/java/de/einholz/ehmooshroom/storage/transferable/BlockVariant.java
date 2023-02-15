@@ -8,7 +8,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.registry.Registry;
 
-public class BlockVariant extends CustomVariant<Block> {
+public class BlockVariant extends NbtVariant<Block> {
     private final Block block;
 
     public BlockVariant(Block block, @Nullable NbtCompound nbt) {

@@ -45,6 +45,12 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
             if (!world.isClient()) player.openHandledScreen(screenFactory);
             return ActionResult.SUCCESS;
         }
+        // TODO both needed?
+        NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
+        if (screenHandlerFactory != null) {
+            player.openHandledScreen(screenHandlerFactory);
+            return ActionResult.SUCCESS;
+        }
         return ActionResult.PASS;
     }
 

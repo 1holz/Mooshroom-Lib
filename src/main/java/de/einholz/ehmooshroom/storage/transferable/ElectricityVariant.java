@@ -3,10 +3,10 @@ package de.einholz.ehmooshroom.storage.transferable;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
-public final class HeatVariant extends NbtlessVariant<Void> {
-    public static final HeatVariant INSTANCE = new HeatVariant();
+public final class ElectricityVariant extends NbtlessVariant<Void> {
+    public static final ElectricityVariant INSTANCE = new ElectricityVariant();
 
-    private HeatVariant() {}
+    private ElectricityVariant() {}
 
     @Override
     public Void getObject() {
@@ -18,7 +18,7 @@ public final class HeatVariant extends NbtlessVariant<Void> {
         return false;
     }
 
-    public static HeatVariant fromNbt(NbtCompound nbt) {
+    public static ElectricityVariant fromNbt(NbtCompound nbt) {
         return INSTANCE;
     }
 
@@ -27,7 +27,7 @@ public final class HeatVariant extends NbtlessVariant<Void> {
         return new NbtCompound();
     }
 
-    public static HeatVariant fromPacket(PacketByteBuf buf) {
+    public static ElectricityVariant fromPacket(PacketByteBuf buf) {
         return INSTANCE;
     }
 

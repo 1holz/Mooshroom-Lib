@@ -19,6 +19,7 @@ import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -40,6 +41,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {
+    protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr();
     private Map<Transferable<?>, Long> transfer = new HashMap<>();
     private Map<Transferable<?>, Long> maxTransfer = new HashMap<>();
@@ -211,7 +213,8 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         writeScreenOpeningData((ServerPlayerEntity) player, buf);
-        return clientHandlerFactory.create(syncId, inv, buf);
+        return null;
+        // TODO implement properly return clientHandlerFactory.create(syncId, inv, buf);
     }
 
     @Override

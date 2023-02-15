@@ -6,10 +6,10 @@ import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 
-public abstract class CustomVariant<T> implements TransferVariant<T> {
+public abstract class NbtVariant<T> implements TransferVariant<T> {
 	private final @Nullable NbtCompound nbt;
 
-    protected CustomVariant(NbtCompound nbt) {
+    protected NbtVariant(NbtCompound nbt) {
         this.nbt = nbt == null ? null : nbt.copy();
     }
 

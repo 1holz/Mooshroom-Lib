@@ -204,6 +204,24 @@ public class RegEntryBuilder {
     }
     */
 
+    // GUIS:
+    public BlockEntityType<? extends BlockEntity> getGui() {
+        return blockEntityType;
+    }
+
+    public RegEntryBuilder withGuiRaw(Function<RegEntryBuilder, BlockEntityType<? extends BlockEntity>> blockEntityTypeFunc) {
+        this.blockEntityTypeFunc = blockEntityTypeFunc;
+        return this;
+    }
+
+    public RegEntryBuilder withGuiNull() {
+        return withBlockEntityRaw((entry) -> null);
+    }
+
+    public RegEntryBuilder withBlockEntityCustomBlocksBuild(Factory<? extends BlockEntity> blockEntityTypeFactory, Block... blocks) {
+        return withBlockEntityRaw((entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, blocks).build());
+    }
+
     /*
     public RegEntry withGui(ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         this.clientHandlerFactory = clientHandlerFactory;
