@@ -9,6 +9,7 @@ import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
@@ -16,6 +17,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -29,8 +31,8 @@ public class ProcessingBE extends ContainerBE {
     private double progressMax = 1000.0;
     private double speed = 1;
 
-    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
+    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+        super(type, pos, state, clientHandlerFactory);
         recipeType = null;
     }
 

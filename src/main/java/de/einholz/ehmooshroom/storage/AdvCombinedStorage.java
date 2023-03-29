@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;

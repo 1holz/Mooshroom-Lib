@@ -3,11 +3,12 @@ package de.einholz.ehmooshroom.gui.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.block.entity.ContainerBE;
 import de.einholz.ehmooshroom.gui.screens.ContainerScreen;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
@@ -22,7 +23,6 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 
-// FIXME: clean up guis in general
 public abstract class ContainerGui extends SyncedGuiDescription {
     public BlockPos pos;
     public List<WButton> buttonIds;
@@ -67,6 +67,14 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         BlockEntity be = world.getBlockEntity(pos);
         if (be instanceof ContainerBE container) return container;
         MooshroomLib.LOGGER.smallBug(new IllegalStateException("Attempted to use a ContainerGUI on a " + be.getClass().toString()));
+        return null;
+    }
+
+    @Nullable
+    protected SidedStorageMgr getStorageMgr() {
+        SidedStorageMgr mgr = getBE().getStorageMgr();
+        if (mgr != null) return mgr;
+        MooshroomLib.LOGGER.smallBug(new IllegalStateException("Can only retrieve StorageMgr from ContainerBE"));
         return null;
     }
 

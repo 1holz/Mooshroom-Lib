@@ -13,4 +13,15 @@ public class AdvInventory extends SimpleInventory {
     public void provideRecipeInputs(RecipeMatcher finder) {
         super.provideRecipeInputs(finder);
     }
+
+    /*
+    public static class Wrapper extends InventoryStorageImpl {
+
+        Wrapper(Inventory inventory) {
+            super(inventory);
+            // todo Auto-generated constructor stub
+        }
+
+    }
+    */
 }

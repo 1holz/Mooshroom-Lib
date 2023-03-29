@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.ToLongFunction;
 
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
@@ -47,8 +47,9 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     private Map<Transferable<?>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
     
-    public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state);
+        this.clientHandlerFactory = clientHandlerFactory;
     }
 
     public SidedStorageMgr getStorageMgr() {

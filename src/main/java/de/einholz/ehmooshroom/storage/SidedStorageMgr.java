@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.jetbrains.annotations.Nullable;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
@@ -57,6 +58,7 @@ public class SidedStorageMgr implements NbtSerializable {
     }
 
     // XXX private? to hacky?
+    // TODO since Transferables are keys only one storage can exist per transferable
     @SuppressWarnings("unchecked")
     public <T> List<StorageEntry<T>> getStorageEntries(@Nullable Transferable<T> trans, @Nullable SideConfigType... configTypes) {
         List<StorageEntry<T>> list = new ArrayList<>();

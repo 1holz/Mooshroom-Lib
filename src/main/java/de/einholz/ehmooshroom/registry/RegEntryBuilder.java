@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -20,6 +21,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
@@ -33,12 +36,15 @@ public class RegEntryBuilder {
     private BlockEntityType<? extends BlockEntity> blockEntityType;
     private Function<RegEntryBuilder, BiFunction<? super BlockEntity, Direction, Storage<ItemVariant>>> blockEntityItemStorageProvFunc = (entry) -> null;
     private Function<RegEntryBuilder, BiFunction<? super BlockEntity, Direction, Storage<FluidVariant>>> blockEntityFluidStorageProvFunc = (entry) -> null;
-    //private Factory<? extends BlockEntity> blockEntityTypeFactory;
     private Function<RegEntryBuilder, Item> itemFunc = (entry) -> null;
     private Item item;
+    private Function<RegEntryBuilder, ScreenHandlerType<? extends ScreenHandler>> guiFunc = (entry) -> null;
+    private ScreenHandlerType<? extends ScreenHandler> gui;
     private Function<RegEntryBuilder, Integer> fuelTicks;
 
     /*
+    private Factory<? extends BlockEntity> blockEntityTypeFactory;
+
     //supplied:
     private ItemGroup itemGroup;
     //private ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
@@ -205,21 +211,26 @@ public class RegEntryBuilder {
     */
 
     // GUIS:
-    public BlockEntityType<? extends BlockEntity> getGui() {
-        return blockEntityType;
+    public ScreenHandlerType<? extends ScreenHandler> getGui() {
+        return gui;
     }
 
-    public RegEntryBuilder withGuiRaw(Function<RegEntryBuilder, BlockEntityType<? extends BlockEntity>> blockEntityTypeFunc) {
-        this.blockEntityTypeFunc = blockEntityTypeFunc;
+    public RegEntryBuilder withGuiRaw(Function<RegEntryBuilder, ScreenHandlerType<? extends ScreenHandler>> guiFunc) {
+        this.guiFunc = guiFunc;
         return this;
     }
 
     public RegEntryBuilder withGuiNull() {
-        return withBlockEntityRaw((entry) -> null);
+        return withGuiRaw((entry) -> null);
     }
 
-    public RegEntryBuilder withBlockEntityCustomBlocksBuild(Factory<? extends BlockEntity> blockEntityTypeFactory, Block... blocks) {
-        return withBlockEntityRaw((entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, blocks).build());
+    @FunctionalInterface
+    public static interface GuiFactory<T extends ScreenHandler, I extends ScreenHandlerType<T>> {
+        I create(ExtendedClientHandlerFactory<T> factory);
+    }
+
+    public <T extends ScreenHandler, I extends ScreenHandlerType<T>> RegEntryBuilder withGuiBuild(GuiFactory<T, I> factory, ExtendedClientHandlerFactory<T> clientHandlerFactory) {
+        return withGuiRaw((entry) -> factory.create(clientHandlerFactory));
     }
 
     /*
@@ -229,7 +240,7 @@ public class RegEntryBuilder {
         return this;
     }
 
-    //FIXME: IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!
+    // fixme IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!
     @SuppressWarnings({"rawtypes", "unchecked"})
     public RegEntry withScreenHacky(Factory screenFactory) {
         return withScreen(screenFactory);
@@ -287,6 +298,7 @@ public class RegEntryBuilder {
             if (item == null) getLogger().smallBug(new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
             else FuelRegistry.INSTANCE.add(item, fuelTicks.apply(this));
         }
-        return new RegEntry(id, block, blockEntityType, item);
+        gui = guiFunc.apply(this);
+        return new RegEntry(id, block, blockEntityType, item, gui);
     }
 }
