@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.widget.Button;
+import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
@@ -17,6 +18,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
@@ -49,14 +51,14 @@ public class SideConfigGui extends ContainerGui {
     }
 
     public static SideConfigGui init(SideConfigGui gui) {
-        gui.down = new WLabel(new TranslatableText("block.ehtech.machine_config.down"));
-        gui.up = new WLabel(new TranslatableText("block.ehtech.machine_config.up"));
-        gui.north = new WLabel(new TranslatableText("block.ehtech.machine_config.north"));
-        gui.south = new WLabel(new TranslatableText("block.ehtech.machine_config.south"));
-        gui.west = new WLabel(new TranslatableText("block.ehtech.machine_config.west"));
-        gui.east = new WLabel(new TranslatableText("block.ehtech.machine_config.east"));
-        gui.internal = new WLabel(new TranslatableText("block.ehtech.machine_config.internal"));
-        gui.configIds = gui.getConfigComp().getIds();
+        gui.down = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.down"));
+        gui.up = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.up"));
+        gui.north = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.north"));
+        gui.south = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.south"));
+        gui.west = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.west"));
+        gui.east = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.east"));
+        gui.internal = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.internal"));
+        gui.configIds = gui.getBE().getStorageMgr().getIds();
         gui.configBuilder = (id, entry) -> entry.build(id);
         // XXX: WHY DOES ConfigEntry::gui.new NOT WORK INSTEAD OF gui.CONFIG_SUPPLIER??? THIS REALLY SHOULD WORK!!!!!
         gui.configPanel = new WListPanel<>(gui.configIds, gui.CONFIG_SUPPLIER, gui.configBuilder);
@@ -69,9 +71,9 @@ public class SideConfigGui extends ContainerGui {
     protected void initWidgets() {
         super.initWidgets();
         /*
-        item = new WLabel(new TranslatableText("block.ehtech.machine_config.item"));
-        fluid = new WLabel(new TranslatableText("block.ehtech.machine_config.fluid"));
-        power = new WLabel(new TranslatableText("block.ehtech.machine_config.power"));
+        item = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.item"));
+        fluid = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.fluid"));
+        power = new WLabel(new TranslatableText("block.ehmooshroom.machine_config.power"));
         for (Identifier id : ConfigType.values()) for (Direction dir : Direction.values()) for (SideConfigType behavior : SideConfigType.values()) {
             ConfigButton button = new ConfigButton(id, dir, behavior);
             buttonIds.add(button);
@@ -81,7 +83,7 @@ public class SideConfigGui extends ContainerGui {
             else button.setOnClick(getDefaultOnButtonClick(button));
         }
         */
-        cancel.tooltips.add("tooltip.ehtech.cancel_button");
+        cancel.tooltips.add("tooltip.ehmooshroom.cancel_button");
         buttonIds.add(cancel);
         cancel.setOnClick(getDefaultOnButtonClick(cancel));
     }
@@ -113,11 +115,11 @@ public class SideConfigGui extends ContainerGui {
         if (configButtons.containsKey(id)) {
             ConfigButton button = configButtons.get(id);
             if (button.isEnabled()) {
-                getConfigComp().changeConfig(button.id, button.configType, button.dir);
+                getBE().getStorageMgr().getStorageEntry(button.id).change(button.configType);
                 return true;
             }
-        } else if (id == buttonIds.indexOf(cancel)) {
-            if (!world.isClient) player.openHandledScreen((MachineBlockEntity) world.getBlockEntity(pos));
+        } else if (id == buttonIds.indexOf(cancel) && world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory screenFactory) {
+            if (!world.isClient) player.openHandledScreen(screenFactory);
             return true;
         }
         return false;
@@ -142,7 +144,7 @@ public class SideConfigGui extends ContainerGui {
 
     protected class ConfigEntry extends WGridPanel {
         public Identifier id;
-        //TODO: is this needed?
+        // TODO is this needed?
         public List<ConfigButton> buttons = new ArrayList<>();
 
         public ConfigEntry() {
@@ -155,9 +157,9 @@ public class SideConfigGui extends ContainerGui {
             for (Direction dir : Direction.values()) for (SideConfigType behavior : SideConfigType.values()) {
                 ConfigButton button = new ConfigButton(id, dir, behavior);
                 buttonIds.add(button);
-                //FIXME: delete: button.id = buttonIds.indexOf(button);
+                // FIXME delete: button.id = buttonIds.indexOf(button);
                 configButtons.put(buttonIds.indexOf(button), button);
-                if (!getConfigComp().isAvailable(id, behavior, dir)) button.setEnabled(false);
+                if (getBE().getStorageMgr().getStorageEntry(id).available(behavior));
                 else button.setOnClick(getDefaultOnButtonClick(button));
                 add(button, button.dir.ordinal() * 2 + 4 + (int) Math.floor((double) button.configType.ordinal() / 2.0), (button.configType.ordinal() + 1) % 2);
             }
@@ -183,18 +185,18 @@ public class SideConfigGui extends ContainerGui {
                 }, () -> {
                     return dir.getName();
                 }, () -> {
-                    return String.valueOf(getConfigComp().allowsConfig(id, configType, dir));
+                    return String.valueOf(getBE().getStorageMgr().getStorageEntry(id).allows(configType));
                 }, () -> {
                     return id.toString();
                 }
             };
-            advancedTooltips.put("tooltip.ehtech.config_button", (Supplier<Object>[]) suppliers);
+            advancedTooltips.put("tooltip.ehmooshroom.config_button", (Supplier<Object>[]) suppliers);
         }
 
         @Override
         public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
-            if (isEnabled()) withTint(getConfigComp().allowsConfig(id, configType, dir) ? 0xFFFFFF00 : 0xFFFF0000);
-            else advancedTooltips.remove("tooltip.ehtech.config_button");
+            if (isEnabled()) withTint(getBE().getStorageMgr().getStorageEntry(id).allows(configType) ? 0xFFFFFF00 : 0xFFFF0000);
+            else advancedTooltips.remove("tooltip.ehmooshroom.config_button");
             super.draw(matrices, x, y, mouseX, mouseY);
         }
     }

@@ -18,6 +18,12 @@ import net.minecraft.util.math.Direction;
 public class SidedStorageMgr implements NbtSerializable {
     private final Map<Transferable<?>, StorageEntry<?>> STORAGES = new HashMap<>();
 
+    public List<Identifier> getIds() {
+        List<Identifier> ids = new ArrayList<>(STORAGES.size());
+        for (Transferable<?> trans : STORAGES.keySet()) ids.add(trans.getId());
+        return ids;
+    }
+
     @Deprecated
     @SuppressWarnings("unchecked")
     public <T> SidedStorageMgr withStorage(Identifier id, Storage<T> storage) {
@@ -72,7 +78,7 @@ public class SidedStorageMgr implements NbtSerializable {
         return list;
     }
 
-    // XXX private fields?
+    // XXX private fields and getters?
     public static class StorageEntry<T> {
         public final Storage<T> storage;
         public final char[] config;
@@ -85,8 +91,20 @@ public class SidedStorageMgr implements NbtSerializable {
             this.trans = trans;
         }
 
+        public void change(SideConfigType type) {
+            for (int i = 0; i < SideConfigType.CHARS.length; i++)
+                if (SideConfigType.CHARS[i] == config[type.ordinal()]) {
+                    config[type.ordinal()] = SideConfigType.CHARS[i ^ 0x0001];
+                    return;
+                }
+        }
+
+        public boolean available(SideConfigType type) {
+            return Character.isUpperCase(type.DEF);
+        }
+
         public boolean allows(SideConfigType type) {
-            return (type.acc == null || type.output ? storage.supportsExtraction() : storage.supportsInsertion()) && Character.toUpperCase(config[type.ordinal()]) == 'T';
+            return (type.OUTPUT ? storage.supportsExtraction() : storage.supportsInsertion()) && Character.toUpperCase(config[type.ordinal()]) == 'T';
         }
     }
 
@@ -116,10 +134,6 @@ public class SidedStorageMgr implements NbtSerializable {
         }
     }
 
-    //AVAILABLE_TRUE -> T
-    //AVAILABLE_FALSE -> F
-    //RESTRICTED_TRUE -> t
-    //RESTRICTED_FALSE -> f
     public static enum SideConfigType {
         IN_GUI('T', false, false, SideConfigAccessor.GUI),
         OUT_GUI('T', false, true, SideConfigAccessor.GUI),
@@ -150,16 +164,22 @@ public class SidedStorageMgr implements NbtSerializable {
         FOREIGN_OUT_W('T', true, true, SideConfigAccessor.WEST),
         FOREIGN_OUT_E('T', true, true, SideConfigAccessor.EAST);
 
-        public final char def;
-        public final boolean foreign;
-        public final boolean output;
-        public final SideConfigAccessor acc;
+        public final static char[] CHARS = new char[]{
+            'T', // 00 AVAILABLE_TRUE
+            'F', // 01 AVAILABLE_FALSE
+            't', // 10 RESTRICTED_TRUE
+            'f'  // 11 RESTRICTED_FALSE
+        };
+        public final char DEF;
+        public final boolean FOREIGN;
+        public final boolean OUTPUT;
+        public final SideConfigAccessor ACC;
 
-        private SideConfigType(char def, boolean foreign, boolean output, SideConfigAccessor acc) {
-            this.def = def;
-            this.foreign = foreign;
-            this.output = output;
-            this.acc = acc;
+        private SideConfigType(final char DEF, final boolean FOREIGN, final boolean OUTPUT, final SideConfigAccessor ACC) {
+            this.DEF = DEF;
+            this.FOREIGN = FOREIGN;
+            this.OUTPUT = OUTPUT;
+            this.ACC = ACC;
         }
 
         public static char[] getDefaultArray() {
@@ -175,7 +195,7 @@ public class SidedStorageMgr implements NbtSerializable {
         }
 
         public char getDefaultChar() {
-            return def;
+            return DEF;
         }
 
         public static SideConfigType getFromParams(boolean foreign, boolean output, Direction dir) {
@@ -191,6 +211,7 @@ public class SidedStorageMgr implements NbtSerializable {
         }
     }
 
+    // TODO del
     @Deprecated
     public static enum SideConfig {
         SPECIAL(false, false),
@@ -214,6 +235,7 @@ public class SidedStorageMgr implements NbtSerializable {
         }
     }
 
+    // TODO del
     @Deprecated
     @SuppressWarnings("unused")
     public static enum SideConfigBehavior {
