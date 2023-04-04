@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -16,13 +14,13 @@ import net.minecraft.util.math.Direction;
 
 public class AdvCombinedStorage<T, S extends Storage<T>> extends CombinedStorage<T, S> {
     private final List<StorageEntry<T>> entries;
-    @Nullable
+    //@Nullable
     private final Direction dir;
     private final boolean blockInsertion;
     private final boolean blockExtraction;
 
     @SuppressWarnings("unchecked")
-    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, @Nullable Direction dir, List<StorageEntry<T>> parts) {
+    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, /*@Nullable*/ Direction dir, List<StorageEntry<T>> parts) {
         super((List<S>) extractStorages(parts));
         this.entries = parts;
         this.dir = dir;
@@ -34,7 +32,7 @@ public class AdvCombinedStorage<T, S extends Storage<T>> extends CombinedStorage
         this(blockInsertion, blockExtraction, null, parts);
     }
 
-    public AdvCombinedStorage(@Nullable Direction dir, List<StorageEntry<T>> parts) {
+    public AdvCombinedStorage(/*@Nullable*/ Direction dir, List<StorageEntry<T>> parts) {
         this(false, false, dir, parts);
     }
 
@@ -43,7 +41,7 @@ public class AdvCombinedStorage<T, S extends Storage<T>> extends CombinedStorage
     }
 
     @SafeVarargs
-    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, @Nullable Direction dir, StorageEntry<T>... parts) {
+    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, /*@Nullable*/ Direction dir, StorageEntry<T>... parts) {
         this(blockInsertion, blockExtraction, dir, Arrays.asList(parts));
     }
 
@@ -53,7 +51,7 @@ public class AdvCombinedStorage<T, S extends Storage<T>> extends CombinedStorage
     }
 
     @SafeVarargs
-    public AdvCombinedStorage(@Nullable Direction dir, StorageEntry<T>... parts) {
+    public AdvCombinedStorage(/*@Nullable*/ Direction dir, StorageEntry<T>... parts) {
         this(false, false, dir, parts);
     }
 

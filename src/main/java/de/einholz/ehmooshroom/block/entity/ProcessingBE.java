@@ -26,9 +26,9 @@ public class ProcessingBE extends ContainerBE {
     private AdvRecipe recipe;
     private boolean isProcessing = false;
     private ActivationState activationState = ActivationState.REDSTONE_OFF;
-    private double progressMin = 0.0;
+    public final static double PROGRESS_MIN = 0.0;
     private double progress = 0.0;
-    private double progressMax = 1000.0;
+    public final static double PROGRESS_MAX = 1000.0;
     private double speed = 1;
 
     public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
@@ -39,15 +39,15 @@ public class ProcessingBE extends ContainerBE {
     @Override
     public void tick(World world, BlockPos pos, BlockState state) {
         resetDitry();
-        isProcessing = progress > progressMin && isActivated();
+        isProcessing = progress > PROGRESS_MIN && isActivated();
         //powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
         //lastPower = getMachineCapacitorComp().getCurrentEnergy();
         transfer();
         if (!isProcessing && isActivated()) isProcessing = checkForRecipe();
         if (isProcessing) {
-            if (progress == progressMin) start();
+            if (progress == PROGRESS_MIN) start();
             if (process()) task();
-            if (progress == progressMax) complete();
+            if (progress == PROGRESS_MAX) complete();
         } else idle();
         correct();
         if (isDirty()) markDirty();
@@ -211,7 +211,7 @@ public class ProcessingBE extends ContainerBE {
     }
 
     public void cancel() {
-        progress = progressMin;
+        progress = PROGRESS_MIN;
         isProcessing = false;
         recipe = null;
     }
@@ -219,6 +219,10 @@ public class ProcessingBE extends ContainerBE {
     public void idle() {}
 
     public void correct() {}
+
+    public double getProgress() {
+        return progress;
+    }
 
     public double getSpeed() {
         return speed;
@@ -228,17 +232,33 @@ public class ProcessingBE extends ContainerBE {
         this.speed = speed;
     }
 
+    public ActivationState getActivationState() {
+        return activationState;
+    }
+
+    public void nextActivationState() {
+        ActivationState[] values = ActivationState.values();
+        activationState = values[getActivationState().ordinal() % values.length];
+    }
+
     public boolean isActivated() {
-        if (activationState == ActivationState.ALWAYS_ON) return true;
-        else if(activationState == ActivationState.REDSTONE_ON) return world.isReceivingRedstonePower(pos);
-        else if(activationState == ActivationState.REDSTONE_OFF) return !world.isReceivingRedstonePower(pos);
-        else return false;
+        switch (getActivationState()) {
+            case ON:
+                return true;
+            case REDSTONE_ON:
+                return world.isReceivingRedstonePower(pos);
+            case REDSTONE_OFF:
+                return !world.isReceivingRedstonePower(pos);
+            case OFF:
+                return false;
+        }
+        return false;
     }
 
     public static enum ActivationState {
-        ALWAYS_ON,
+        ON,
         REDSTONE_ON,
         REDSTONE_OFF,
-        ALWAYS_OFF;
+        OFF;
     }
 }

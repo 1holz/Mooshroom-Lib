@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import com.google.common.collect.MapMaker;
 
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
@@ -57,9 +55,8 @@ public class AdvItemStorage extends CombinedStorage<ItemVariant, SingleStackStor
     }
     */
  
-    public static InventoryStorage of(Inventory inventory, @Nullable Direction direction) {
+    public static InventoryStorage of(Inventory inventory, /*@Nullable*/ Direction direction) {
         AdvItemStorage storage = WRAPPERS.computeIfAbsent(inventory, (inv) -> new AdvItemStorage(inv));
-
         int inventorySize = inventory.size();
         if (inventorySize != storage.parts.size()) {
             while(true) {
@@ -85,7 +82,7 @@ public class AdvItemStorage extends CombinedStorage<ItemVariant, SingleStackStor
     }
  
     @Deprecated
-    private InventoryStorage getSidedWrapper(@Nullable Direction direction) {
+    private InventoryStorage getSidedWrapper(/*@Nullable*/ Direction direction) {
         return null; // (InventoryStorage) (inventory instanceof SidedInventory && direction != null ? new SidedAdvItemStorage(this, direction) : this);
     }
 

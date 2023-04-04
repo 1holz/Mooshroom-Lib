@@ -7,6 +7,8 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 public class ElectricityStorage implements SingleSlotStorage<ElectricityVariant> {
     private long cur = 0;
     private long max = 160000;
+    private long last = cur;
+    private long balance;
 
     @Override
     public long insert(ElectricityVariant arg0, long arg1, TransactionContext arg2) {
@@ -28,6 +30,15 @@ public class ElectricityStorage implements SingleSlotStorage<ElectricityVariant>
     @Override
     public long getCapacity() {
         return max;
+    }
+
+    public long getBal() {
+        return balance;
+    }
+
+    public void updateBal() {
+        balance = cur - last;
+        last = cur;
     }
 
     @Override

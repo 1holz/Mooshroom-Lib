@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.ToLongFunction;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.registry.Reg;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
@@ -175,12 +174,12 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @Override
-    public Storage<ItemVariant> getItemStorage(@Nullable Direction dir) {
+    public Storage<ItemVariant> getItemStorage(/*@Nullable*/ Direction dir) {
         return getStorageMgr().getCombinedStorage(TransferablesReg.ITEMS, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
     }
 
     @Override
-    public Storage<FluidVariant> getFluidStorage(@Nullable Direction dir) {
+    public Storage<FluidVariant> getFluidStorage(/*@Nullable*/ Direction dir) {
         return getStorageMgr().getCombinedStorage(TransferablesReg.FLUIDS, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
     }
 
@@ -221,5 +220,25 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(pos);
+    }
+
+    public class SideConfigScreenHandlerFactory implements ExtendedScreenHandlerFactory {
+        @Override
+        public Text getDisplayName() {
+            return ContainerBE.this.getDisplayName();
+        }
+
+        @Override
+        public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            writeScreenOpeningData((ServerPlayerEntity) player, buf);
+            return Reg.SIDE_CONFIG.GUI.create(syncId, inv);
+            //return RegistryHelper.getEntry(MooshroomLib.HELPER.makeId("side_config")).clientHandlerFactory.create(syncId, inv, buf);
+        }
+
+        @Override
+        public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+            buf.writeBlockPos(pos);
+        }
     }
 }
