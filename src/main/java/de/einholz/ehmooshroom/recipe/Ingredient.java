@@ -13,7 +13,7 @@ import net.minecraft.tag.Tag.Identified;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryKey;
 
-// XXX: anotate constructor with only server?
+// XXX anotate constructor with only server?
 public class Ingredient<T> {
     private final Transferable<T> type;
     @Nullable 

@@ -7,17 +7,25 @@ import de.einholz.ehmooshroom.recipe.AdvRecipe;
 import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
+import de.einholz.ehmooshroom.registry.Reg;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -62,7 +70,7 @@ public class ProcessingBE extends ContainerBE {
 
     public void start() {
         Transaction trans = Transaction.openOuter();
-        for (int i = 0; i < recipe.input.length; i++) if (!consume(trans, i)) {
+        for (int i = 0; i < getRecipe().input.length; i++) if (!consume(trans, i)) {
             trans.abort();
             break;
         }
@@ -72,7 +80,7 @@ public class ProcessingBE extends ContainerBE {
         } else cancel();
 
         /*
-        for (Ingredient<?> ingredient : recipe.input) {
+        for (Ingredient<?> ingredient : getRecipe().input) {
             if (ingredient.getAmount() == 0) continue;
             long amount = ingredient.getAmount();
             List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_IN);
@@ -89,10 +97,10 @@ public class ProcessingBE extends ContainerBE {
 
         /*
         // OLD:
-        boolean consumerRecipe = (recipe.consumes == Double.NaN ? 0.0 : recipe.consumes) > (recipe.generates == Double.NaN ? 0.0 : recipe.generates);
-        int consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * recipe.consumes);
+        boolean consumerRecipe = (getRecipe().consumes == Double.NaN ? 0.0 : getRecipe().consumes) > (getRecipe().generates == Double.NaN ? 0.0 : getRecipe().generates);
+        int consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * getRecipe().consumes);
         if ((consumerRecipe && getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().getPreferredType(), consum, ActionType.TEST) == consum) || !consumerRecipe) {
-            for (ItemIngredient ingredient : recipe.input.items) {
+            for (ItemIngredient ingredient : getRecipe().input.items) {
                 int consumingLeft = ingredient.amount;
                 for (Slot slot : getSlots(Type.INPUT)) {
                     if (ingredient.ingredient.contains(slot.stack.getItem()) && NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) {
@@ -113,7 +121,7 @@ public class ProcessingBE extends ContainerBE {
 
     @SuppressWarnings("unchecked")
     protected <T> boolean consume(Transaction trans, int i) {
-        Ingredient<T> ingredient = (Ingredient<T>) recipe.input[i];
+        Ingredient<T> ingredient = (Ingredient<T>) getRecipe().input[i];
         if (ingredient.getAmount() == 0) return true;
         long amount = ingredient.getAmount();
         List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_PROC);
@@ -134,10 +142,10 @@ public class ProcessingBE extends ContainerBE {
 
     public boolean process() {
         /*
-        boolean doConsum = recipe.consumes != Double.NaN && recipe.consumes > 0.0;
+        boolean doConsum = getRecipe().consumes != Double.NaN && getRecipe().consumes > 0.0;
         boolean canConsum = true;
         int consum = 0;
-        boolean doGenerate = recipe.generates != Double.NaN && recipe.generates > 0.0;
+        boolean doGenerate = getRecipe().generates != Double.NaN && getRecipe().generates > 0.0;
         boolean canGenerate = true;
         int generate = 0;
         */
@@ -160,7 +168,7 @@ public class ProcessingBE extends ContainerBE {
             else canProcess = false;
         }
         */
-        if (canProcess) progress = recipe.timeModifier * getSpeed();
+        if (canProcess) progress = getRecipe().timeModifier * getSpeed();
         return canProcess;
     }
 
@@ -168,7 +176,7 @@ public class ProcessingBE extends ContainerBE {
 
     public void complete() {
         Transaction trans = Transaction.openOuter();
-        for (int i = 0; i < recipe.output.length; i++) if (!generate(trans, i)) {
+        for (int i = 0; i < getRecipe().output.length; i++) if (!generate(trans, i)) {
             trans.abort();
             break;
         }
@@ -178,7 +186,7 @@ public class ProcessingBE extends ContainerBE {
         } else cancel();
 
         /*
-        for (Exgredient<?> exgredient : recipe.output) {
+        for (Exgredient<?> exgredient : getRecipe().output) {
             List<?> entries = getStorageMgr().getStorageEntries(exgredient.getClass(), SideConfigType.OUT_IN);
             for (StorageEntry<?> object : (List<StorageEntry<?>>) entries) {
                 
@@ -191,7 +199,7 @@ public class ProcessingBE extends ContainerBE {
     // combine with consume?
     @SuppressWarnings("unchecked")
     protected <T> boolean generate(Transaction trans, int i) {
-        Exgredient<T> exgredient = (Exgredient<T>) recipe.output[i];
+        Exgredient<T> exgredient = (Exgredient<T>) getRecipe().output[i];
         if (exgredient.getAmount() == 0) return true;
         long amount = exgredient.getAmount();
         List<?> entries = getStorageMgr().getStorageEntries(exgredient.getType(), SideConfigType.OUT_PROC);
@@ -220,8 +228,16 @@ public class ProcessingBE extends ContainerBE {
 
     public void correct() {}
 
+    public AdvRecipe getRecipe() {
+        return recipe;
+    }
+
     public double getProgress() {
         return progress;
+    }
+
+    public void setProgress(double progress) {
+        this.progress = progress;
     }
 
     public double getSpeed() {
@@ -260,5 +276,25 @@ public class ProcessingBE extends ContainerBE {
         REDSTONE_ON,
         REDSTONE_OFF,
         OFF;
+    }
+    
+    public class SideConfigScreenHandlerFactory implements ExtendedScreenHandlerFactory {
+        @Override
+        public Text getDisplayName() {
+            return ProcessingBE.this.getDisplayName();
+        }
+
+        @Override
+        public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            writeScreenOpeningData((ServerPlayerEntity) player, buf);
+            return Reg.SIDE_CONFIG.GUI.create(syncId, inv);
+            //return RegistryHelper.getEntry(MooshroomLib.HELPER.makeId("side_config")).clientHandlerFactory.create(syncId, inv, buf);
+        }
+
+        @Override
+        public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+            buf.writeBlockPos(pos);
+        }
     }
 }

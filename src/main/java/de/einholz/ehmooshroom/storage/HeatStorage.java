@@ -1,12 +1,9 @@
 package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
-public class HeatStorage implements SingleSlotStorage<HeatVariant> {
-    private long cur = 0;
-    private long max = 160000;
+public class HeatStorage extends BarStorage<HeatVariant> {
 
     @Override
     public long insert(HeatVariant arg0, long arg1, TransactionContext arg2) {
@@ -21,22 +18,20 @@ public class HeatStorage implements SingleSlotStorage<HeatVariant> {
     }
 
     @Override
-    public long getAmount() {
-        return cur;
-    }
-
-    @Override
-    public long getCapacity() {
-        return max;
-    }
-
-    @Override
     public HeatVariant getResource() {
         return HeatVariant.INSTANCE;
     }
 
     @Override
-    public boolean isResourceBlank() {
-        return cur == 0;
+    public long getMax() {
+        return 15000;
+    }
+
+    public void decrease() {
+        setAmount(Math.max(BarStorage.MIN, getAmount()));
+    }
+
+    public static double toKelvin(long l) {
+        return (double) l / 10D + 273.15D;
     }
 }

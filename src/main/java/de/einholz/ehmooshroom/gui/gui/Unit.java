@@ -29,21 +29,21 @@ public class Unit {
 
 	// Fluids
 	// TODO whatever the hell is gonna go on with fluids in Fabric
-	protected static final Unit BUCKETS_ANY = new Unit("buckets", "BU", 0x283593); //800 indigo
-	protected static final Unit BUCKETS_WATER = new Unit("buckets_water", "BU", 0x1976D2); //700 blue
-	protected static final Unit BUCKETS_LAVA  = new Unit("buckets_lava", "BU", 0xFF8F00); //800 amber
+	public static final Unit BUCKETS_ANY = new Unit("buckets", "BU", 0x283593); //800 indigo
+	public static final Unit BUCKETS_WATER = new Unit("buckets_water", "BU", 0x1976D2); //700 blue
+	public static final Unit BUCKETS_LAVA  = new Unit("buckets_lava", "BU", 0xFF8F00); //800 amber
 	// Data
-	protected static final Unit BYTES = new Unit("bytes", "B", 0x76FF03); //A400 light green
+	public static final Unit BYTES = new Unit("bytes", "B", 0x76FF03); //A400 light green
 	// Electricity
 	// TODO use custom #005A5A, Material A700 teal, or Material 800 teal?
-	protected static final Unit ELECTRICITY = new Unit("electricity", "Wh", 0x00BFA5); //A700 teal
-	protected static final Unit ELECTRICITY_PER_TICK = new Unit("electricity_per_tick", "Wh/t", 0x00BFA5); //Also A700 teal
+	public static final Unit ELECTRICITY = new Unit("electricity", "Wh", 0x00BFA5); //A700 teal
+	public static final Unit ELECTRICITY_PER_TICK = new Unit("electricity_per_tick", "Wh/t", 0x00BFA5); //Also A700 teal
 	// Temperature
-	protected static final Unit KELVIN = new Unit("kelvin", "K", 0xFF0000); //Programmer Red
+	public static final Unit KELVIN = new Unit("kelvin", "K", 0xFF0000); //Programmer Red
     // Time
-    protected static final Unit TICKS = new Unit("ticks", "ticks", 0xAAAAAA); // Terrified Grey
+    public static final Unit TICKS = new Unit("ticks", "ticks", 0xAAAAAA); // Terrified Grey
     // Other
-	protected static final Unit PERCENT = new Unit("percent", "%", NumberFormat.getIntegerInstance(), 0xAAAAAA, false); // Terrified Grey
+	public static final Unit PERCENT = new Unit("percent", "%", NumberFormat.getIntegerInstance(), 0xAAAAAA, false); // Terrified Grey
 
 	// private static final long QUETTA = 1_000_000_000_000_000_000_000_000_000_000L;
 	// private static final long RONNA  = 1_000_000_000_000_000_000_000_000_000L;
@@ -85,7 +85,7 @@ public class Unit {
         this.space = space ? " " : "";
     }
 
-	public String format(long l, boolean spaceAfter, Unit unit) {
+	public String format(long l) {
 		if (l == 0) return format.format(l) + space + abbr;
 		//else if (l == Long.MAX_VALUE) return "∞" + space + abbr;
 		//else if (l == Long.MIN_VALUE) return "-∞" + space + abbr;
