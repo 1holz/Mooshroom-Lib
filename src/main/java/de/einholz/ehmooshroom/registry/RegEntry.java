@@ -18,8 +18,8 @@ public class RegEntry {
     public RegEntry(final Identifier id, final Block BLOCK, final BlockEntityType<? extends BlockEntity> BLOCK_ENTITY_TYPE, final Item ITEM, final ScreenHandlerType<? extends ScreenHandler> GUI) {
         this.BLOCK = BLOCK == null ? null : Registry.register(Registry.BLOCK, id, BLOCK);
         this.BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPE == null ? null : Registry.register(Registry.BLOCK_ENTITY_TYPE, id, BLOCK_ENTITY_TYPE);
-        this.ITEM = ITEM != null ? null : Registry.register(Registry.ITEM, id, ITEM);
-        this.GUI = GUI != null ? null : Registry.register(Registry.SCREEN_HANDLER, id, GUI);
+        this.ITEM = ITEM == null ? null : Registry.register(Registry.ITEM, id, ITEM);
+        this.GUI = GUI == null ? null : Registry.register(Registry.SCREEN_HANDLER, id, GUI);
         // TODO HandledScreens.register
         //if (EnvType.CLIENT.equals(FabricLoader.getInstance().getEnvironmentType())) {
             //HandledScreens.register

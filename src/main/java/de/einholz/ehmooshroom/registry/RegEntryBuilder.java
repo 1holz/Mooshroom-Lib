@@ -284,14 +284,18 @@ public class RegEntryBuilder {
         block = blockFunc.apply(this);
         if (block != null) {
             // XXX faster if registerForBlockEntities is used?
-            ItemStorage.SIDED.registerForBlocks(blockItemStorageProvFunc.apply(this), block);
-            FluidStorage.SIDED.registerForBlocks(blockFluidStorageProvFunc.apply(this), block);
+            if (blockItemStorageProvFunc.apply(this) != null)
+                ItemStorage.SIDED.registerForBlocks(blockItemStorageProvFunc.apply(this), block);
+            if (blockFluidStorageProvFunc.apply(this) != null)
+                FluidStorage.SIDED.registerForBlocks(blockFluidStorageProvFunc.apply(this), block);
         }
         blockEntityType = blockEntityTypeFunc.apply(this);
         if (blockEntityType != null) {
             // XXX faster if registerForBlockEntities is used?
-            ItemStorage.SIDED.registerForBlockEntity(blockEntityItemStorageProvFunc.apply(this), blockEntityType);
-            FluidStorage.SIDED.registerForBlockEntity(blockEntityFluidStorageProvFunc.apply(this), blockEntityType);
+            if (blockEntityItemStorageProvFunc.apply(this) != null)
+                ItemStorage.SIDED.registerForBlockEntity(blockEntityItemStorageProvFunc.apply(this), blockEntityType);
+            if (blockEntityFluidStorageProvFunc.apply(this) != null)
+                FluidStorage.SIDED.registerForBlockEntity(blockEntityFluidStorageProvFunc.apply(this), blockEntityType);
         }
         item = itemFunc.apply(this);
         if (fuelTicks != null) {
