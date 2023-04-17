@@ -60,13 +60,17 @@ public class LoggerHelper {
     }
 
     public void bigBug() {
+        bigBug(0);
+    }
+
+    public void bigBug(int add) {
         error("This is a critical bug! This can lead to malfunctions!");
-        error("at: "+ new Throwable().getStackTrace()[1]);
+        error("at: "+ new Throwable().getStackTrace()[1 + add]);
         error("Please report this as a bug at:", bugTracker);
     }
 
     public Throwable bigBug(Throwable e) {
-        bigBug();
+        bigBug(1);
         e.printStackTrace();
         return e;
     }

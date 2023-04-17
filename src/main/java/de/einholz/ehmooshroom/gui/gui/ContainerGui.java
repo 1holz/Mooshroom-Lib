@@ -5,7 +5,7 @@ import java.util.List;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.block.entity.ContainerBE;
-import de.einholz.ehmooshroom.gui.screens.ContainerScreen;
+import de.einholz.ehmooshroom.gui.screen.ContainerScreen;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WButton;
@@ -22,13 +22,13 @@ import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class ContainerGui extends SyncedGuiDescription {
-    public BlockPos pos;
+    public final BlockPos POS;
     public List<WButton> buttonIds;
-    public ContainerScreen screen;
+    private ContainerScreen<? extends ContainerGui> screen;
     
-    protected ContainerGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+    protected ContainerGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv);
-        pos = buf.readBlockPos();
+        POS = buf.readBlockPos();
 
         // TODO something else needed here?
         // if (blockInventory != null) blockInventory.onOpen(playerInventory.player);
@@ -54,7 +54,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
 
     protected Runnable getDefaultOnButtonClick(WButton button) {
         return () -> {
-            MinecraftClient minecraft = screen.getMinecraftClient();
+            MinecraftClient minecraft = getScreen().getMinecraftClient();
             minecraft.interactionManager.clickButton(syncId, buttonIds.indexOf(button));
             onButtonClick(playerInventory.player, buttonIds.indexOf(button));
         };
@@ -62,7 +62,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
 
     //@Nullable
     protected ContainerBE getBE() {
-        BlockEntity be = world.getBlockEntity(pos);
+        BlockEntity be = world.getBlockEntity(POS);
         if (be instanceof ContainerBE container) return container;
         MooshroomLib.LOGGER.smallBug(new IllegalStateException("Attempted to use a ContainerGUI on a " + be.getClass().toString()));
         return null;
@@ -157,5 +157,13 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         return;
         // super.close(player);
         // if (blockInventory != null) blockInventory.onClose(player);
+    }
+
+    public ContainerScreen<? extends ContainerGui> getScreen() {
+        return screen;
+    }
+
+    public void setScreen(ContainerScreen<? extends ContainerGui> screen) {
+        this.screen = screen;
     }
 }

@@ -2,13 +2,6 @@ package de.einholz.ehmooshroom.block;
 
 import org.jetbrains.annotations.Nullable;
 
-import de.einholz.ehmooshroom.registry.RegEntryBuilder;
-import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
-import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
-import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -24,12 +17,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class ContainerBlock extends DirectionalBlock implements BlockEntityProvider {
     private Identifier id;
+    @Deprecated // TODO del if unused
     private BlockEntityType<? extends BlockEntity> blockEntityType;
     private BlockEntityTicker<? extends BlockEntity> ticker;
 
@@ -72,14 +65,6 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
         super.onBreak(world, pos, state, player);
     }
 
-    public BlockApiProvider<Storage<ItemVariant>, Direction> getItemStorageProv(RegEntryBuilder entry) {
-        return (world, pos, state, null_be, dir) -> ((ItemStorageProv) blockEntityType.get(world, pos)).getItemStorage(dir);
-    }
-
-    public BlockApiProvider<Storage<FluidVariant>, Direction> getFluidStorageProv(RegEntryBuilder entry) {
-        return (world, pos, state, null_be, dir) -> ((FluidStorageProv) blockEntityType.get(world, pos)).getFluidStorage(dir);
-    }
-
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return getBlockEntityType().instantiate(pos, state);
@@ -88,12 +73,13 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
     @Override
     @SuppressWarnings("unchecked")
     @Nullable
-    //FIXME better way then the ugly casting?
+    // FIXME better way then the ugly casting?
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if (getBlockEntityType() != type) return null;
         return (@Nullable BlockEntityTicker<T>) ticker;
     }
 
+    @Deprecated // TODO del if unused
     protected BlockEntityType<? extends BlockEntity> getBlockEntityType() {
         if (blockEntityType == null) blockEntityType = Registry.BLOCK_ENTITY_TYPE.get(id);
         return blockEntityType;

@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.gui.screens;
+package de.einholz.ehmooshroom.gui.screen;
 
 import de.einholz.ehmooshroom.gui.gui.ContainerGui;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
@@ -8,18 +8,18 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class ContainerScreen extends CottonInventoryScreen<SyncedGuiDescription> {
-    public ContainerScreen(ScreenHandler description, PlayerInventory inventory, Text title) {
-        this((ContainerGui) description, inventory.player, title);
+public class ContainerScreen<G extends SyncedGuiDescription> extends CottonInventoryScreen<G> {
+    public ContainerScreen(G gui, PlayerInventory inventory, Text title) {
+        this(gui, inventory.player, title);
     }
 
-    public ContainerScreen(ContainerGui gui, PlayerEntity player, Text title) {
+    @SuppressWarnings("unchecked")
+    public ContainerScreen(G gui, PlayerEntity player, Text title) {
         super(gui, player, title);
-        gui.screen = this;
+        if (gui instanceof ContainerGui containerGui) containerGui.setScreen((ContainerScreen<? extends ContainerGui>) this);
     }
 
     public MinecraftClient getMinecraftClient() {

@@ -14,17 +14,13 @@ import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WListPanel;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
@@ -45,7 +41,7 @@ public class SideConfigGui extends ContainerGui {
     protected Button cancel;
 
     // FIXME buttons and/or labels are misaligned
-    protected SideConfigGui(ScreenHandlerType<SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+    protected SideConfigGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv, buf);
     }
 
@@ -122,7 +118,7 @@ public class SideConfigGui extends ContainerGui {
                 getBE().getStorageMgr().getStorageEntry(button.id).change(button.configType);
                 return true;
             }
-        } else if (id == buttonIds.indexOf(cancel) && world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory screenFactory) {
+        } else if (id == buttonIds.indexOf(cancel) && world.getBlockEntity(POS) instanceof NamedScreenHandlerFactory screenFactory) {
             if (!world.isClient) player.openHandledScreen(screenFactory);
             return true;
         }
