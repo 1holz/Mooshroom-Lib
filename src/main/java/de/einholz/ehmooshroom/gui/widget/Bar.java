@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
+import de.einholz.ehmooshroom.MooshroomLib;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
 import io.github.cottonmc.cotton.gui.widget.WBar;
@@ -32,7 +33,11 @@ public class Bar extends WBar implements AdvancedTooltip {
 	private final Map<String, Supplier<Object>[]> advancedTooltips = new LinkedHashMap<String, Supplier<Object>[]>();
 
     public Bar(Identifier bg, Identifier fg, int color, long min, LongSupplier cur, long max, Direction dir) {
-        super(bg, fg, 0, 0, dir);
+        super(bg, fg, (int) cur.getAsLong(), (int) (max <= min ? min + 1 : max), dir);
+        if (max <= min) {
+            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("Max value of " + max + " of bar with textures " + fg + " and " + bg + " has to be larger than the min of " + min + ". Max will be set to " + (min + 1)));
+            max = min + 1;
+        }
         this.color = color;
         this.max = max;
         this.cur = cur;
@@ -80,7 +85,7 @@ public class Bar extends WBar implements AdvancedTooltip {
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
 		if (bg!=null) ScreenDrawing.texturedRect(matrices, x, y, getWidth(), getHeight(), bg, 0xFFFFFFFF);
 		else ScreenDrawing.coloredRect(matrices, x, y, getWidth(), getHeight(), ScreenDrawing.colorAtOpacity(0x000000, 0.25f));
-		float percent = (cur.getAsLong() - min) / (max - min);
+        float percent = (cur.getAsLong() - min) / (max - min);
 		int barMax;
 		if (Direction.RIGHT.equals(direction) || Direction.LEFT.equals(direction)) barMax = getWidth();
         else barMax = getHeight();

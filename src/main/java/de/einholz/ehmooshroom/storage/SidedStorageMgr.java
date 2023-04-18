@@ -46,7 +46,6 @@ public class SidedStorageMgr implements NbtSerializable {
         return (Storage<T>) STORAGES.remove(trans).storage;
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     public <T> StorageEntry<T> getStorageEntry(Identifier id) {
         return this.<T>getStorageEntry(TransferablesReg.TRANSFERABLE.get(id));
