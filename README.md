@@ -1,14 +1,13 @@
-This is a library for my minecraft mods.
+# Mooshroom Lib
 
-This is the lite version of this mod.
+[![Gradle](https://github.com/Albert-Einholz/Mooshroom-Lib/actions/workflows/gradle.yml/badge.svg)](https://github.com/Albert-Einholz/Mooshroom-Lib/actions/workflows/gradle.yml)
+[![Linter](https://github.com/Albert-Einholz/Mooshroom-Lib/actions/workflows/linter.yml/badge.svg)](https://github.com/Albert-Einholz/Mooshroom-Lib/actions/workflows/linter.yml)
+
+This is a library for my minecraft mods.
 
 It currently does this:
 - easier logger
 - easier and more advanced recipe handling
-- easier block (+ block entity, recipe, etc.) and item registering
-- some very small utility stuff
-
-The deprecated full version additionally did this:
-- easier gui registering
+- easier registering
 - easier and more advanced handling of containers
-- some [CCA](https://github.com/OnyxStudios/Cardinal-Components-API) Component management
+- some very small utility stuff

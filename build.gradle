@@ -20,18 +20,19 @@ repositories {
         name = "CottonMC"
         url = "https://server.bbkr.space/artifactory/libs-release"
     }
-    maven {
-        name = "Ladysnake Libs"
-        url = "https://ladysnake.jfrog.io/artifactory/mods"
-    }
+//  TODO: del
+//    maven {
+//        name = "Ladysnake Libs"
+//        url = "https://ladysnake.jfrog.io/artifactory/mods"
+//    }
 //    maven {
 //        name = "Ladysnake Libs Alt"
 //        url = "https://dl.bintray.com/ladysnake/libs"
 //    }
-    maven {
-        name = "OnyxStudios Alt Alt"
-        url = "https://maven.onyxstudios.dev"
-    }
+//    maven {
+//        name = "OnyxStudios Alt Alt"
+//        url = "https://maven.onyxstudios.dev"
+//    }
 }
 
 dependencies {
@@ -48,10 +49,13 @@ dependencies {
 
 	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
 
-	//include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}+${project.minecraft_version}")
-	//include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")
-	//include modImplementation("io.github.onyxstudios:Cardinal-Components-API:cardinal-components-base:${project.cardinal_components_api_version}")
-	//include modImplementation("io.github.onyxstudios:Cardinal-Components-API:cardinal-components-block:${project.cardinal_components_api_version}")
+	include modImplementation("io.github.cottonmc:LibGui:${project.lib_gui_version}+${project.minecraft_version}")
+
+//  TODO: del
+//	include modImplementation("io.github.onyxstudios:Cardinal-Components-API:${project.cardinal_components_api_version}")
+//	include modImplementation("dev.onyxstudios:cardinal-components-api:cardinal-components-api:${project.cardinal_components_api_version}")
+//	include modImplementation("dev.onyxstudios:cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}")
+//	include modImplementation("dev.onyxstudios:cardinal-components-api:cardinal-components-block:${project.cardinal_components_api_version}")
 }
 
 processResources {
