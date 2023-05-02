@@ -3,6 +3,8 @@ package de.einholz.ehmooshroom.block.entity;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+
+import de.einholz.ehmooshroom.gui.gui.SideConfigGui;
 import de.einholz.ehmooshroom.recipe.AdvRecipe;
 import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
@@ -15,6 +17,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -288,7 +291,7 @@ public class ProcessingBE extends ContainerBE {
         public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             writeScreenOpeningData((ServerPlayerEntity) player, buf);
-            return Reg.SIDE_CONFIG.GUI.create(syncId, inv);
+            return ((ExtendedScreenHandlerType<SideConfigGui>) Reg.SIDE_CONFIG.GUI).create(syncId, inv, buf);
             //return RegistryHelper.getEntry(MooshroomLib.HELPER.makeId("side_config")).clientHandlerFactory.create(syncId, inv, buf);
         }
 

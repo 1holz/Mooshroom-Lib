@@ -1,0 +1,17 @@
+{
+    "block.ehmooshroom.side_config.acc": " |G|P| ↓ | ↑ | N | S | W | O |",
+    "block.ehmooshroom.side_config.item": "Gegenstände",
+    "block.ehmooshroom.side_config.fluid": "Flüssigkeiten",
+    "block.ehmooshroom.side_config.power": "Strom",
+
+    "chat.ehmooshroom.wip": "An diesem Feature wird noch gearbeitet",
+
+    "tooltip.ehmooshroom.activation_button": "%s",
+    "tooltip.ehmooshroom.cancel_button": "Zurück zum Hauptscreen",
+    "tooltip.ehmooshroom.coal_generator.heat_bar": "Hitze: %s / %s / %s",
+    "tooltip.ehmooshroom.config_button": "%s mit Zugriff von %s ist %s (%s)",
+    "tooltip.ehmooshroom.configuration_button": "Seitenconfiguration",
+    "tooltip.ehmooshroom.maschine.power_bar_amount": "Strom: %2$s / %3$s",
+    "tooltip.ehmooshroom.machine.power_bar_trend": "%d%s",
+    "tooltip.ehmooshroom.maschine.progress_bar": "%2$s"
+}

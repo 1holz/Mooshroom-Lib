@@ -23,7 +23,6 @@ public class Button extends WButton implements AdvancedTooltip {
     public int tint = 0xFFFFFFFF;
 	public List<String> tooltips = new ArrayList<String>();
 	public Map<String, Supplier<Object>[]> advancedTooltips = new HashMap<String, Supplier<Object>[]>();
-    public boolean resizeability = true;
 
     public Button() {
         super();
@@ -92,7 +91,7 @@ public class Button extends WButton implements AdvancedTooltip {
 
     @Override
     public boolean canResize() {
-        return resizeability;
+        return true;
     }
 
     @Override
