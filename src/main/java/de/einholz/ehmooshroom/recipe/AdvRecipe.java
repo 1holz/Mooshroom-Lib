@@ -1,5 +1,6 @@
 package de.einholz.ehmooshroom.recipe;
 
+import de.einholz.ehmooshroom.registry.Reg;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
@@ -44,7 +45,7 @@ public class AdvRecipe implements Recipe<Inventory> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return Registry.RECIPE_SERIALIZER.get(typeId);
+        return Reg.ADV_RECIPE_SERIALIZER.RECIPE_SERIALIZER;
     }
 
     @Override
@@ -57,7 +58,6 @@ public class AdvRecipe implements Recipe<Inventory> {
         BlockEntity be = world.getBlockEntity(pos);
         if (be instanceof RecipeHolder rh) return rh.containsIngredients(input);
         return false;
-        //todo: convert generate & consume to data ingredient or own ErnergyIngredient
         //if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
         //return input == null || (input.items == null || input.items.length == 0 || be.containsItemIngredients(input.items))
         //    && (input.fluids == null || input.fluids.length == 0 || be.containsFluidIngredients(input.fluids))
@@ -89,7 +89,7 @@ public class AdvRecipe implements Recipe<Inventory> {
     @Deprecated
     @Override
     public ItemStack getOutput() {
-        for (Object out : output) if (out instanceof ItemStack stack) return stack;
+        for (Exgredient<?> out : output) if (out.getOutput() instanceof ItemStack stack) return stack;
         return ItemStack.EMPTY;
     }
 }

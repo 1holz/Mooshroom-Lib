@@ -16,13 +16,15 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
+// TODO use jankson
 public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
-    private Factory factory = AdvRecipe::new;
+    public final static AdvRecipeSerializer INSTANCE = new AdvRecipeSerializer();
+    protected final static Factory FACTORY = AdvRecipe::new;
     
     // from file to server
     @Override
     public AdvRecipe read(Identifier id, JsonObject json) {
-        // INPUT:
+        // INPUT
         Ingredient<?>[] ingredients = new Ingredient[0];
         if (json.has("input")) {
             JsonArray jsonInput = JsonHelper.getArray(json, "input");
@@ -37,7 +39,7 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
             }
             ingredients = ingredientList.toArray(new Ingredient[ingredientList.size()]);
         }
-        // OUTPUT:
+        // OUTPUT
         Exgredient<?>[] exgredients = new Exgredient[0];
         if (json.has("output")) {
             JsonArray jsonOutput = JsonHelper.getArray(json, "output");
@@ -52,9 +54,9 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
             }
             exgredients = exgredientList.toArray(new Exgredient[exgredientList.size()]);
         }
-        // TIMEMODIFIER
+        // TIME MODIFIER
         float timeModifier = JsonHelper.getFloat(json, "timeModifier", 1);
-        return factory.create(id, ingredients, exgredients, timeModifier);
+        return FACTORY.create(id, ingredients, exgredients, timeModifier);
     }
 
     // from server to packet
@@ -76,7 +78,7 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
         for (int i = 0; i < ingredients.length; i++) ingredients[i] = Ingredient.read(buf);
         Exgredient<?>[] exgredients = new Exgredient[buf.readVarInt()];
         for (int i = 0; i < exgredients.length; i++) exgredients[i] = Exgredient.read(buf);
-        return factory.create(id, ingredients, exgredients, buf.readFloat());
+        return FACTORY.create(id, ingredients, exgredients, buf.readFloat());
     }
 
     private interface Factory {

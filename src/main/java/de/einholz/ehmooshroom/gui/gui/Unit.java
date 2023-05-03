@@ -29,21 +29,21 @@ public class Unit {
 
 	// Fluids
 	// TODO whatever the hell is gonna go on with fluids in Fabric
-	public static final Unit BUCKETS_ANY = new Unit("buckets", "BU", 0x283593); //800 indigo
-	public static final Unit BUCKETS_WATER = new Unit("buckets_water", "BU", 0x1976D2); //700 blue
-	public static final Unit BUCKETS_LAVA  = new Unit("buckets_lava", "BU", 0xFF8F00); //800 amber
+	public static final Unit BUCKETS_ANY = new Unit("BU", 0x283593); //800 indigo
+	public static final Unit BUCKETS_WATER = new Unit("BU", 0x1976D2); //700 blue
+	public static final Unit BUCKETS_LAVA  = new Unit("BU", 0xFF8F00); //800 amber
 	// Data
-	public static final Unit BYTES = new Unit("bytes", "B", 0x76FF03); //A400 light green
+	public static final Unit BYTES = new Unit("B", 0x76FF03); //A400 light green
 	// Electricity
 	// TODO use custom #005A5A, Material A700 teal, or Material 800 teal?
-	public static final Unit ELECTRICITY = new Unit("electricity", "Wh", 0x00BFA5); //A700 teal
-	public static final Unit ELECTRICITY_PER_TICK = new Unit("electricity_per_tick", "Wh/t", 0x00BFA5); //Also A700 teal
+	public static final Unit ELECTRICITY = new Unit("Wh", 0x00BFA5); //A700 teal
+	public static final Unit ELECTRICITY_PER_TICK = new Unit("Wh/t", 0x00BFA5); //Also A700 teal
 	// Temperature
-	public static final Unit KELVIN = new Unit("kelvin", "K", 0xFF0000); //Programmer Red
+	public static final Unit KELVIN = new Unit("K", 0xFF0000); //Programmer Red
     // Time
-    public static final Unit TICKS = new Unit("ticks", "ticks", 0xAAAAAA); // Terrified Grey
+    public static final Unit TICKS = new Unit("ticks", 0xAAAAAA); // Terrified Grey
     // Other
-	public static final Unit PERCENT = new Unit("percent", "%", NumberFormat.getIntegerInstance(), 0xAAAAAA, false); // Terrified Grey
+	public static final Unit PERCENT = new Unit("%", NumberFormat.getIntegerInstance(), 0xAAAAAA, false); // Terrified Grey
 
 	// private static final long QUETTA = 1_000_000_000_000_000_000_000_000_000_000L;
 	// private static final long RONNA  = 1_000_000_000_000_000_000_000_000_000L;
@@ -67,18 +67,16 @@ public class Unit {
 	// private static final long RONTO  = 1/1_000_000_000_000_000_000_000_000_000L;
 	// private static final long QUECTO = 1/1_000_000_000_000_000_000_000_000_000_000L;
     
-    private final String name;
     private final String abbr;
     private final NumberFormat format;
     private final int color;
     private final String space;
 
-    public Unit(String name, String abbr, int color) {
-        this(name, abbr, FORMAT_STANDARD, color, true);
+    public Unit(String abbr, int color) {
+        this(abbr, FORMAT_STANDARD, color, true);
     }
 
-    public Unit(String name, String abbr, NumberFormat format, int color, boolean space) {
-        this.name = name;
+    public Unit(String abbr, NumberFormat format, int color, boolean space) {
         this.abbr = abbr;
         this.format = format;
         this.color = color;

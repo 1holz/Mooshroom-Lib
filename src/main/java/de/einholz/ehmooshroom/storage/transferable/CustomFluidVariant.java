@@ -7,6 +7,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
+// TODO del if unneeded
 @Deprecated
 public class CustomFluidVariant implements FluidVariant {
 

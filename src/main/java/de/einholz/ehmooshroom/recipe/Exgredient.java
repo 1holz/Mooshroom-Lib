@@ -7,8 +7,11 @@ import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
+import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -20,7 +23,7 @@ import net.minecraft.util.registry.Registry;
 public class Exgredient<T> {
     public static final Map<Transferable<?>, ExgredientFactory<?>> FACTORIES = new HashMap<>();
     private final Transferable<T> type;
-    @Nullable 
+    @Nullable
     private final T output;
     @Nullable
     private final Identifier id;
@@ -108,16 +111,23 @@ public class Exgredient<T> {
             FluidVariant fluid = FluidVariant.of(Registry.FLUID.get(id), nbt);
             return fluid;
         });
-        /*
-        FACTORIES.putIfAbsent(Block.class, (id, amount, nbt) -> {
-            BlockState state = Registry.BLOCK.get(id).getDefaultState();
-            return state;
+        FACTORIES.putIfAbsent(TransferablesReg.BLOCKS, (id, amount, nbt) -> {
+            // TODO nbt
+            return Registry.BLOCK.get(id).getDefaultState();
         });
-        FACTORIES.putIfAbsent(Entity.class, (id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferablesReg.ENTITIES, (id, amount, nbt) -> {
+            // TODO getWorld or return EntityType
             Entity entity = Registry.ENTITY_TYPE.get(id).create(null);
             if (nbt != null) entity.readNbt(nbt);
             return entity;
         });
-        */
+        FACTORIES.putIfAbsent(TransferablesReg.ELECTRICITY, (id, amount, nbt) -> {
+            ElectricityVariant electricity = ElectricityVariant.INSTANCE;
+            return electricity;
+        });
+        FACTORIES.putIfAbsent(TransferablesReg.HEAT, (id, amount, nbt) -> {
+            HeatVariant heat = HeatVariant.INSTANCE;
+            return heat;
+        });
     }
 }

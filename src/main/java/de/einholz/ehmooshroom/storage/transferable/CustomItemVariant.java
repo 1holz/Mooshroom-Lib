@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
+// TODO del if unneeded
 @Deprecated
 public class CustomItemVariant implements ItemVariant {
 
