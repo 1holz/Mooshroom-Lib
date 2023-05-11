@@ -74,14 +74,16 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             Direction targetDir = dir.getOpposite();
             // self output / pull
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
-                if (entry.trans.isTransferable()) continue;
+                if (!entry.trans.isTransferable()) continue;
                 Storage<?> targetStorage = entry.trans.lookup.find(world, targetPos, targetDir);
+                if (targetStorage == null) continue;
                 if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer())) setDirty();;
             }
             // self input / push
             for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
-                if (entry.trans.isTransferable()) continue;
+                if (!entry.trans.isTransferable()) continue;
                 Storage<?> targetStorage = entry.trans.lookup.find(world, targetPos, targetDir);
+                if (targetStorage == null) continue;
                 if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer())) setDirty();;
             }
 //          @SuppressWarnings("unchecked")

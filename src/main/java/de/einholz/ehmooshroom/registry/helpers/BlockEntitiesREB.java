@@ -34,7 +34,8 @@ public interface BlockEntitiesREB<B extends BlockEntity, G extends ScreenHandler
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityBuild(Factory<B> blockEntityTypeFactory) {
-        return withBlockEntityCustomBlocksBuild(blockEntityTypeFactory, getBlock());
+        return withBlockEntityRaw((entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, getBlock()).build());
+        //return withBlockEntityCustomBlocksBuild(blockEntityTypeFactory, getBlock());
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityItemStorageProvNull() {

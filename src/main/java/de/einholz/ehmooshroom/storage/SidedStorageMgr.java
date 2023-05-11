@@ -202,11 +202,11 @@ public class SidedStorageMgr implements NbtSerializable {
         }
 
         public static SideConfigType getFromParams(boolean foreign, boolean output, SideConfigAccessor acc) {
-            int accAmount = SideConfigAccessor.values().length;
+            int dirLen = Direction.values().length;
             SideConfigType[] values = SideConfigType.values();
             if (SideConfigAccessor.GUI.equals(acc)) return values[output ? 1 : 0];
-            if (SideConfigAccessor.PROCESS.equals(acc)) return values[output ? 4 : 3];
-            return values[(foreign ? 2 * accAmount : 0) + (output ? accAmount : 0) + acc.ordinal() + 4];
+            if (SideConfigAccessor.PROCESS.equals(acc)) return values[output ? 3 : 2];
+            return values[(foreign ? 2 * dirLen : 0) + (output ? dirLen : 0) + acc.ordinal() + 2];
         }
     }
 

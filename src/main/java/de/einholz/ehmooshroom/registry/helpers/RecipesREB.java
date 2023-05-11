@@ -2,8 +2,6 @@ package de.einholz.ehmooshroom.registry.helpers;
 
 import java.util.function.Function;
 
-import de.einholz.ehmooshroom.recipe.AdvRecipe;
-import de.einholz.ehmooshroom.registry.Reg;
 import de.einholz.ehmooshroom.registry.RegEntryBuilder;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -38,10 +36,5 @@ public interface RecipesREB<B extends BlockEntity, G extends ScreenHandler, S ex
 
     default RegEntryBuilder<B, G, S, R> withRecipeSerializerBuild(RecipeSerializer<R> recipeSerializer) {
         return withRecipeSerializerRaw((entry) -> recipeSerializer);
-    }
-
-    @SuppressWarnings("unchecked")
-    default RegEntryBuilder<B, G, S, AdvRecipe> withAdvRecipeBuild() {
-        return (RegEntryBuilder<B, G, S, AdvRecipe>) withGenericRecipeTypeBuild().withRecipeSerializerBuild((RecipeSerializer<R>) Reg.ADV_RECIPE_SERIALIZER.RECIPE_SERIALIZER);
     }
 }
