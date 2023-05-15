@@ -10,19 +10,20 @@ import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
 import de.einholz.ehmooshroom.registry.Reg;
-import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
-import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
+import de.einholz.ehmooshroom.storage.SideConfigType;
+import de.einholz.ehmooshroom.storage.StorageEntry;
+import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
@@ -42,9 +43,9 @@ public class ProcessingBE extends ContainerBE {
     public final static double PROGRESS_MAX = 1000.0;
     private double speed = 1;
 
-    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, RecipeType<? extends Recipe<?>> recipeType) {
         super(type, pos, state, clientHandlerFactory);
-        recipeType = null;
+        this.recipeType = recipeType;
     }
 
     @Override
@@ -123,17 +124,17 @@ public class ProcessingBE extends ContainerBE {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> boolean consume(Transaction trans, int i) {
+    protected <T, V extends TransferVariant<T>> boolean consume(Transaction trans, int i) {
         Ingredient<T> ingredient = (Ingredient<T>) getRecipe().input[i];
         if (ingredient.getAmount() == 0) return true;
         long amount = ingredient.getAmount();
-        List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_PROC);
-        for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
+        List<StorageEntry<T, V>> entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) ingredient.getType(), SideConfigType.IN_PROC);
+        for (StorageEntry<T, V> entry : entries) {
             if (!ingredient.getType().equals(entry.trans)) continue;
-            Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
+            Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
-                StorageView<T> view = iter.next();
-                if (!ingredient.matches(view.getResource(), new NbtCompound())) continue;
+                StorageView<V> view = iter.next();
+                if (!ingredient.matches(view.getResource(), ingredient.getNbt())) continue;
                 amount -= entry.storage.extract(view.getResource(), amount, trans);
                 if (amount == 0) break;
             }
@@ -199,19 +200,19 @@ public class ProcessingBE extends ContainerBE {
         */
     }
 
-    // combine with consume?
+    // TODO combine with consume?
     @SuppressWarnings("unchecked")
-    protected <T> boolean generate(Transaction trans, int i) {
+    protected <T, V extends TransferVariant<T>> boolean generate(Transaction trans, int i) {
         Exgredient<T> exgredient = (Exgredient<T>) getRecipe().output[i];
         if (exgredient.getAmount() == 0) return true;
         long amount = exgredient.getAmount();
-        List<?> entries = getStorageMgr().getStorageEntries(exgredient.getType(), SideConfigType.OUT_PROC);
-        for (StorageEntry<T> entry : (List<StorageEntry<T>>) entries) {
+        List<StorageEntry<T, V>> entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) exgredient.getType(), SideConfigType.OUT_PROC);
+        for (StorageEntry<T, V> entry : entries) {
             if (!exgredient.getType().equals(entry.trans)) continue;
-            Iterator<StorageView<T>> iter = entry.storage.iterator(trans);
+            Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
-                StorageView<T> view = iter.next();
-                //if (!exgredient.matches(view.getResource(), new NbtCompound())) continue;
+                StorageView<V> view = iter.next();
+                if (!exgredient.matches(view.getResource(), exgredient.getNbt())) continue;
                 amount -= entry.storage.insert(view.getResource(), amount, trans);
                 if (amount == 0) break;
             }
@@ -257,7 +258,8 @@ public class ProcessingBE extends ContainerBE {
 
     public void nextActivationState() {
         ActivationState[] values = ActivationState.values();
-        activationState = values[getActivationState().ordinal() % values.length];
+        activationState = values[(getActivationState().ordinal() + 1) % values.length];
+        setDirty();
     }
 
     public boolean isActivated() {

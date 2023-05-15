@@ -14,11 +14,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.math.BlockPos;
 
 public abstract class ContainerGui extends SyncedGuiDescription {
@@ -77,6 +74,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
     }
 
     // TODO make faster using mixins
+    /*
     @Override
     public void onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
         if (!SlotActionType.QUICK_MOVE.equals(action)) super.onSlotClick(slotNumber, button, action, player);
@@ -89,15 +87,15 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         remaining = trans.copy();
 
         if (blockInventory == null) return;
-        /* TODO implement properly
-        if (slot.inventory == blockInventory) {
-            if (!insertItem(trans, playerInventory, true, player)) return;
-            else if (!insertItem(trans, blockInventory, false, player)) return;
-        } else if (!swapHotbar(trans, slotNumber, playerInventory, player)) return;
-        */
+        // TODO implement properly
+        // if (slot.inventory == blockInventory) {
+        //     if (!insertItem(trans, playerInventory, true, player)) return;
+        //     else if (!insertItem(trans, blockInventory, false, player)) return;
+        // } else if (!swapHotbar(trans, slotNumber, playerInventory, player)) return;
         if (trans.isEmpty()) slot.setStack(ItemStack.EMPTY);
         else slot.markDirty();
     }
+    */
 
     /*
     private boolean insertItem(ItemStack toInsert, Inventory inventory, boolean walkBackwards, PlayerEntity player) {

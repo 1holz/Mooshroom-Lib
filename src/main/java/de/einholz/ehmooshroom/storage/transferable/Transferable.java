@@ -4,21 +4,23 @@ import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.registry.TransferablesReg;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
+import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-public class Transferable<T/*, V extends TransferVariant<T>*/> {
+public class Transferable<T, V extends TransferVariant<T>> {
     private Identifier id;
-    private final Class<T> storedType;
-    //@Deprecated
-    //public final Class<V> variantType;
+    private final Class<V> variantType;
     @Nullable
-    public final BlockApiLookup<? extends Storage<T>, Direction> lookup;
+    private final TagFactory<T> tagFactory;
+    @Nullable
+    private final BlockApiLookup<? extends Storage<V>, Direction> lookup;
 
-    public Transferable(Class<T> storedType, /*Class<? extends TransferVariant<T>> variantType, */BlockApiLookup<? extends Storage<T>, Direction> lookup) {
-        this.storedType = storedType;
-        //this.variantType = variantType;
+    public Transferable(final Class<V> variantType, final @Nullable TagFactory<T> tagFactory, final @Nullable BlockApiLookup<? extends Storage<V>, Direction> lookup) {
+        this.variantType = variantType;
+        this.tagFactory = tagFactory;
         this.lookup = lookup;
     }
 
@@ -30,8 +32,18 @@ public class Transferable<T/*, V extends TransferVariant<T>*/> {
         return id == null ? TransferablesReg.TRANSFERABLE.getId(this) : id;
     }
 
-    public Class<T> getStoredType() {
-        return storedType;
+    public Class<V> getVariantType() {
+        return variantType;
+    }
+
+    @Nullable
+    public TagFactory<T> getTagFactory() {
+        return tagFactory;
+    }
+
+    @Nullable
+    public BlockApiLookup<? extends Storage<V>, Direction> getLookup() {
+        return lookup;
     }
 
     public boolean isTransferable() {

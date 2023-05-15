@@ -3,7 +3,7 @@ package de.einholz.ehmooshroom.recipe;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
@@ -11,6 +11,7 @@ import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
 import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -21,8 +22,8 @@ import net.minecraft.util.registry.Registry;
 
 // XXX: anotate constructor with only server?
 public class Exgredient<T> {
-    public static final Map<Transferable<?>, ExgredientFactory<?>> FACTORIES = new HashMap<>();
-    private final Transferable<T> type;
+    public static final Map<Transferable<?, ? extends TransferVariant<?>>, ExgredientFactory<?>> FACTORIES = new HashMap<>();
+    private final Transferable<T, ? extends TransferVariant<T>> type;
     @Nullable
     private final T output;
     @Nullable
@@ -37,7 +38,7 @@ public class Exgredient<T> {
         this.id = id;
         this.nbt = nbt == null ? new NbtCompound() : nbt;
         this.amount = amount;
-        output = (@Nullable T) FACTORIES.get(this.type).build(id, amount, nbt);
+        output = (T) FACTORIES.get(this.type).build(id, amount, nbt);
     }
 
     public Exgredient(Identifier type, @Nullable Identifier id, long amount) {
@@ -56,6 +57,7 @@ public class Exgredient<T> {
         return new Exgredient<>(buf.readIdentifier(), buf.readBoolean() ? buf.readIdentifier() : null, buf.readBoolean() ? new NbtCompound() : buf.readNbt(), buf.readVarLong());
     }
 
+    @SuppressWarnings("null")
     public void write(PacketByteBuf buf) {
         buf.writeIdentifier(type.getId());
         if (id == null) buf.writeBoolean(false);
@@ -63,7 +65,7 @@ public class Exgredient<T> {
             buf.writeBoolean(true);
             buf.writeIdentifier(id);
         }
-        if (nbt.isEmpty()) buf.writeBoolean(false);
+        if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
         else {
             buf.writeBoolean(true);
             buf.writeNbt(nbt);
@@ -75,21 +77,23 @@ public class Exgredient<T> {
         return output;
     }
 
-    // TODO delete if not used
-    @Deprecated
-    public boolean matches(T test, NbtCompound testNbt) {
+    public boolean matches(TransferVariant<T> test, NbtCompound testNbt) {
         if (type == null/* && tag == null*/) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("Attempted to perform match test on Exgredient with null type and tag. This Exgredient will be skiped!"));
             return true;
         }
         if (!NbtHelper.matches(nbt, testNbt, true)) return false;
-        return type.getStoredType().equals(test);
-        //if (tag == null) return type.getStoredType().equals(test);
+        return type.getVariantType().equals(test.getObject());
+        //if (tag == null) return type.getVariantType().equals(test.getObject());
         //return tag.contains(test);
     }
 
-    public Transferable<T> getType() {
+    public Transferable<T, ? extends TransferVariant<T>> getType() {
         return type;
+    }
+
+    public NbtCompound getNbt() {
+        return nbt;
     }
 
     public long getAmount() {

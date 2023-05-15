@@ -8,10 +8,16 @@ import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -20,20 +26,20 @@ public final class TransferablesReg {
     public static final Identifier TRANSFERABLE_ID = MooshroomLib.HELPER.makeId("transferables");
     @SuppressWarnings("rawtypes") // FIXME is there a way to do this without suppressings warnings
     public static final Registry<Transferable> TRANSFERABLE = FabricRegistryBuilder.createSimple(Transferable.class, TRANSFERABLE_ID).attribute(RegistryAttribute.SYNCED).buildAndRegister();
-    public static final RegistryKey<Registry<Transferable<?>>> TRANSFERABLE_KEY = RegistryKey.ofRegistry(TRANSFERABLE_ID);
+    public static final RegistryKey<Registry<Transferable<?, ? extends TransferVariant<?>>>> TRANSFERABLE_KEY = RegistryKey.ofRegistry(TRANSFERABLE_ID);
 
-    public static final Transferable<ItemVariant> ITEMS = registerMooshroom("items", new Transferable<ItemVariant>(ItemVariant.class, ItemStorage.SIDED));
-    public static final Transferable<FluidVariant> FLUIDS = registerMooshroom("fluids", new Transferable<FluidVariant>(FluidVariant.class, FluidStorage.SIDED));
-    public static final Transferable<BlockVariant> BLOCKS = registerMooshroom("blocks", new Transferable<BlockVariant>(BlockVariant.class, null));
-    public static final Transferable<EntityVariant> ENTITIES = registerMooshroom("entities", new Transferable<EntityVariant>(EntityVariant.class, null));
-    public static final Transferable<ElectricityVariant> ELECTRICITY = registerMooshroom("electricity", new Transferable<ElectricityVariant>(ElectricityVariant.class, null));
-    public static final Transferable<HeatVariant> HEAT = registerMooshroom("heat", new Transferable<HeatVariant>(HeatVariant.class, null));
+    public static final Transferable<Item, ItemVariant> ITEMS = registerMooshroom("items", new Transferable<Item, ItemVariant>(ItemVariant.class, TagFactory.ITEM, ItemStorage.SIDED));
+    public static final Transferable<Fluid, FluidVariant> FLUIDS = registerMooshroom("fluids", new Transferable<Fluid, FluidVariant>(FluidVariant.class, TagFactory.FLUID, FluidStorage.SIDED));
+    public static final Transferable<Block, BlockVariant> BLOCKS = registerMooshroom("blocks", new Transferable<Block, BlockVariant>(BlockVariant.class, TagFactory.BLOCK, null));
+    public static final Transferable<EntityType<?>, EntityVariant> ENTITIES = registerMooshroom("entities", new Transferable<EntityType<?>, EntityVariant>(EntityVariant.class, TagFactory.ENTITY_TYPE, null));
+    public static final Transferable<Void, ElectricityVariant> ELECTRICITY = registerMooshroom("electricity", new Transferable<Void, ElectricityVariant>(ElectricityVariant.class, null, null));
+    public static final Transferable<Void, HeatVariant> HEAT = registerMooshroom("heat", new Transferable<Void, HeatVariant>(HeatVariant.class, null, null));
 
-    private static <T> Transferable<T> registerMooshroom(String str, Transferable<T> trans) {
+    private static <T, U extends TransferVariant<T>> Transferable<T, U> registerMooshroom(String str, Transferable<T, U> trans) {
         return register(MooshroomLib.HELPER.makeId(str), trans);
     }
 
-    public static <T> Transferable<T> register(Identifier id, Transferable<T> trans) {
+    public static <T, U extends TransferVariant<T>> Transferable<T, U> register(Identifier id, Transferable<T, U> trans) {
         trans = Registry.register(TRANSFERABLE, id, trans);
         trans.setId(id);
         return trans;

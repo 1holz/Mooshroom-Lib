@@ -4,213 +4,109 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
-import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.registry.TransferablesReg;
+import javax.annotation.Nullable;
+
+import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 
 public class SidedStorageMgr implements NbtSerializable {
-    private final Map<Transferable<?>, StorageEntry<?>> STORAGES = new HashMap<>();
+    private final Map<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> STORAGES = new HashMap<>();
+
+    public Set<Identifier> getIdSet() {
+        return STORAGES.keySet();
+    }
 
     public List<Identifier> getIds() {
-        List<Identifier> ids = new ArrayList<>(STORAGES.size());
-        for (Transferable<?> trans : STORAGES.keySet()) ids.add(trans.getId());
-        return ids;
+        return new ArrayList<>(getIdSet());
     }
 
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public <T> SidedStorageMgr withStorage(Identifier id, Storage<T> storage) {
-        return this.<T>withStorage(TransferablesReg.TRANSFERABLE.get(id), storage);
-    }
-
-    public <T> SidedStorageMgr withStorage(Transferable<T> trans, Storage<T> storage) {
-        STORAGES.put(trans, new StorageEntry<>(storage, SideConfigType.getDefaultArray(), trans));
+    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Transferable<T, V> trans, Storage<V> storage) {
+        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), trans));
         return this;
     }
 
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public <T> Storage<T> removeStorage(Identifier id) {
-        return this.<T>removeStorage(TransferablesReg.TRANSFERABLE.get(id));
+    public SidedStorageMgr removeStorage(Identifier id) {
+        STORAGES.remove(id);
+        return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> Storage<T> removeStorage(Transferable<T> trans) {
-        return (Storage<T>) STORAGES.remove(trans).storage;
+    public StorageEntry<?, ? extends TransferVariant<?>> getEntry(Identifier id) {
+        return STORAGES.get(id);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> StorageEntry<T> getStorageEntry(Identifier id) {
-        return this.<T>getStorageEntry(TransferablesReg.TRANSFERABLE.get(id));
+    /* TODO del if not needed
+    public <T, U extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Storage<U> storage) {
+        return this.<T, U>withStorage(TransferablesReg.TRANSFERABLE.get(id), storage);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> StorageEntry<T> getStorageEntry(Transferable<T> trans) {
-        return (StorageEntry<T>) STORAGES.get(trans);
+    public <T, U extends TransferVariant<T>> SidedStorageMgr withStorage(Transferable<T, U> trans, Storage<U> storage) {
+        STORAGES.put((Transferable<?, TransferVariant<?>>) trans, new StorageEntry<T, U>(storage, SideConfigType.getDefaultArray(), trans));
+        return this;
     }
 
-    public <T, S extends Storage<T>> AdvCombinedStorage<T, S> getCombinedStorage(/*@Nullable*/ Transferable<T> trans, /*@Nullable*/ SideConfigType... configTypes) {
-        return new AdvCombinedStorage<T, S>(getStorageEntries(trans, configTypes));
+    public <T, U extends TransferVariant<T>> Storage<U> removeStorage(Identifier id) {
+        return this.<T, U>removeStorage(TransferablesReg.TRANSFERABLE.get(id));
+    }
+
+    public <T, U extends TransferVariant<T>> Storage<U> removeStorage(Transferable<T, U> trans) {
+        return (Storage<U>) STORAGES.remove(trans).storage;
+    }
+
+    public <T, U extends TransferVariant<T>> StorageEntry<T, U> getStorageEntry(Identifier id) {
+        return this.<T, U>getStorageEntry(TransferablesReg.TRANSFERABLE.get(id));
+    }
+
+    public <T, U extends TransferVariant<T>> StorageEntry<T, U> getStorageEntry(Transferable<T, U> trans) {
+        return (StorageEntry<T, U>) STORAGES.get(trans);
+    }
+    */
+
+    public <T, V extends TransferVariant<T>, S extends Storage<V>> AdvCombinedStorage<T, V, S> getCombinedStorage(@Nullable Transferable<T, V> trans, SideConfigAccessor acc, @Nullable SideConfigType... configTypes) {
+        return new AdvCombinedStorage<T, V, S>(acc, getStorageEntries(trans, configTypes));
     }
 
     // XXX private? to hacky?
-    // TODO since Transferables are keys only one storage can exist per transferable
+    /*
+     * If trans or configTypes are null they will accept all Transferables/SideConfigTypes
+     */
     @SuppressWarnings("unchecked")
-    public <T> List<StorageEntry<T>> getStorageEntries(/*@Nullable*/ Transferable<T> trans, /*@Nullable*/ SideConfigType... configTypes) {
-        List<StorageEntry<T>> list = new ArrayList<>();
-        for (Entry<Transferable<?>, StorageEntry<?>> entry : STORAGES.entrySet()) {
-            StorageEntry<?> storageEntry = entry.getValue();
+    public <T, V extends TransferVariant<T>> List<StorageEntry<T, V>> getStorageEntries(@Nullable Transferable<T, V> trans, @Nullable SideConfigType... configTypes) {
+        List<StorageEntry<T, V>> list = new ArrayList<>();
+        for (StorageEntry<?, ? extends TransferVariant<?>> storageEntry : STORAGES.values()) {
             if (trans != null && !trans.equals(storageEntry.trans)) continue;
             if (configTypes == null) {
-                list.add((StorageEntry<T>) storageEntry);
+                list.add((StorageEntry<T, V>) storageEntry);
                 continue;
             }
-            for (SideConfigType configType : configTypes) if (storageEntry.allows(configType)) list.add((StorageEntry<T>) storageEntry);
+            for (SideConfigType configType : configTypes) if (storageEntry.allows(configType)) {
+                list.add((StorageEntry<T, V>) storageEntry);
+                continue;
+            }
         }
         return list;
     }
 
-    // XXX private fields and getters?
-    public static class StorageEntry<T> {
-        public final Storage<T> storage;
-        public final char[] config;
-        public final Transferable<T> trans;
-
-        public StorageEntry(Storage<T> storage, char[] config, Transferable<T> trans) {
-            this.storage = storage;
-            if (config.length != SideConfigType.values().length) MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("The config char array should have a lenght of " + SideConfigType.values().length));
-            this.config = config;
-            this.trans = trans;
-        }
-
-        public void change(SideConfigType type) {
-            for (int i = 0; i < SideConfigType.CHARS.length; i++)
-                if (SideConfigType.CHARS[i] == config[type.ordinal()]) {
-                    config[type.ordinal()] = SideConfigType.CHARS[i ^ 0x0001];
-                    return;
-                }
-        }
-
-        public boolean available(SideConfigType type) {
-            return Character.isUpperCase(type.DEF);
-        }
-
-        public boolean allows(SideConfigType type) {
-            return (type.OUTPUT ? storage.supportsExtraction() : storage.supportsInsertion()) && Character.toUpperCase(config[type.ordinal()]) == 'T';
-        }
-    }
-
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        for (StorageEntry<?> entry : STORAGES.values()) if (entry.storage instanceof NbtSerializable serializable) nbt = serializable.writeNbt(nbt);
+        for (StorageEntry<?, ? extends TransferVariant<?>> entry : STORAGES.values())
+            if (entry.storage instanceof NbtSerializable seri) nbt = seri.writeNbt(nbt);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        for (StorageEntry<?> entry : STORAGES.values()) if (entry.storage instanceof NbtSerializable serializable) serializable.readNbt(nbt);
+        for (StorageEntry<?, ? extends TransferVariant<?>> entry : STORAGES.values())
+            if (entry.storage instanceof NbtSerializable seri) seri.readNbt(nbt);
     }
 
-    public static enum SideConfigAccessor {
-        GUI,
-        PROCESS,
-        DOWN,
-        UP,
-        NORTH,
-        SOUTH,
-        WEST,
-        EAST;
-
-        public static SideConfigAccessor getFromDir(Direction dir) {
-            return dir == null ? PROCESS : SideConfigAccessor.values()[dir.ordinal() + 2];
-        }
-    }
-
-    public static enum SideConfigType {
-        IN_GUI('T', false, false, SideConfigAccessor.GUI),
-        OUT_GUI('T', false, true, SideConfigAccessor.GUI),
-        IN_PROC('T', false, false, SideConfigAccessor.PROCESS),
-        OUT_PROC('T', false, true, SideConfigAccessor.PROCESS),
-        SELF_IN_D('F', false, false, SideConfigAccessor.DOWN),
-        SELF_IN_U('F', false, false, SideConfigAccessor.UP),
-        SELF_IN_N('F', false, false, SideConfigAccessor.NORTH),
-        SELF_IN_S('F', false, false, SideConfigAccessor.SOUTH),
-        SELF_IN_W('F', false, false, SideConfigAccessor.WEST),
-        SELF_IN_E('F', false, false, SideConfigAccessor.EAST),
-        SELF_OUT_D('F', false, true, SideConfigAccessor.DOWN),
-        SELF_OUT_U('F', false, true, SideConfigAccessor.UP),
-        SELF_OUT_N('F', false, true, SideConfigAccessor.NORTH),
-        SELF_OUT_S('F', false, true, SideConfigAccessor.SOUTH),
-        SELF_OUT_W('F', false, true, SideConfigAccessor.WEST),
-        SELF_OUT_E('F', false, true, SideConfigAccessor.EAST),
-        FOREIGN_IN_D('T', true, false, SideConfigAccessor.DOWN),
-        FOREIGN_IN_U('T', true, false, SideConfigAccessor.UP),
-        FOREIGN_IN_N('T', true, false, SideConfigAccessor.NORTH),
-        FOREIGN_IN_S('T', true, false, SideConfigAccessor.SOUTH),
-        FOREIGN_IN_W('T', true, false, SideConfigAccessor.WEST),
-        FOREIGN_IN_E('T', true, false, SideConfigAccessor.EAST),
-        FOREIGN_OUT_D('T', true, true, SideConfigAccessor.DOWN),
-        FOREIGN_OUT_U('T', true, true, SideConfigAccessor.UP),
-        FOREIGN_OUT_N('T', true, true, SideConfigAccessor.NORTH),
-        FOREIGN_OUT_S('T', true, true, SideConfigAccessor.SOUTH),
-        FOREIGN_OUT_W('T', true, true, SideConfigAccessor.WEST),
-        FOREIGN_OUT_E('T', true, true, SideConfigAccessor.EAST);
-
-        public final static char[] CHARS = new char[]{
-            'T', // 00 AVAILABLE_TRUE
-            'F', // 01 AVAILABLE_FALSE
-            't', // 10 RESTRICTED_TRUE
-            'f'  // 11 RESTRICTED_FALSE
-        };
-        public final char DEF;
-        public final boolean FOREIGN;
-        public final boolean OUTPUT;
-        public final SideConfigAccessor ACC;
-
-        private SideConfigType(final char DEF, final boolean FOREIGN, final boolean OUTPUT, final SideConfigAccessor ACC) {
-            this.DEF = DEF;
-            this.FOREIGN = FOREIGN;
-            this.OUTPUT = OUTPUT;
-            this.ACC = ACC;
-        }
-
-        public static char[] getDefaultArray() {
-            final SideConfigType[] values = SideConfigType.values();
-            char[] array = new char[values.length];
-            for (int i = 0; i < array.length; i++) array[i] = values[i].getDefaultChar();
-            return array;
-        }
-
-        @Deprecated
-        public boolean isDefaultChar(char c) {
-            return getDefaultChar() == c;
-        }
-
-        public char getDefaultChar() {
-            return DEF;
-        }
-
-        public static SideConfigType getFromParams(boolean foreign, boolean output, Direction dir) {
-            return getFromParams(foreign, output, SideConfigAccessor.getFromDir(dir));
-        }
-
-        public static SideConfigType getFromParams(boolean foreign, boolean output, SideConfigAccessor acc) {
-            int dirLen = Direction.values().length;
-            SideConfigType[] values = SideConfigType.values();
-            if (SideConfigAccessor.GUI.equals(acc)) return values[output ? 1 : 0];
-            if (SideConfigAccessor.PROCESS.equals(acc)) return values[output ? 3 : 2];
-            return values[(foreign ? 2 * dirLen : 0) + (output ? dirLen : 0) + acc.ordinal() + 2];
-        }
-    }
-
-    // TODO del
+    /* TODO del
     @Deprecated
     public static enum SideConfig {
         SPECIAL(false, false),
@@ -234,7 +130,6 @@ public class SidedStorageMgr implements NbtSerializable {
         }
     }
 
-    // TODO del
     @Deprecated
     @SuppressWarnings("unused")
     public static enum SideConfigBehavior {
@@ -249,4 +144,5 @@ public class SidedStorageMgr implements NbtSerializable {
             this.def = def;
         }
     }
+    */
 }

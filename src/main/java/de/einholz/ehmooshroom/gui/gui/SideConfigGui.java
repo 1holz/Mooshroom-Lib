@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.widget.Button;
-import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
+import de.einholz.ehmooshroom.storage.SideConfigType;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
@@ -69,7 +69,7 @@ public class SideConfigGui extends ContainerGui {
         gui.west = new WLabel(new TranslatableText("block.ehmooshroom.side_config.west"));
         gui.east = new WLabel(new TranslatableText("block.ehmooshroom.side_config.east"));
         */
-        gui.configIds = gui.getBE().getStorageMgr().getIds();
+        gui.configIds = gui.getStorageMgr().getIds();
         // XXX: WHY DOES ConfigEntry::gui.new NOT WORK??? THIS REALLY SHOULD WORK!!!
         gui.configPanel = new WListPanel<>(gui.configIds, () -> gui.new ConfigEntry(), (id, entry) -> entry.build(id));
         //gui.scrollPanel = new WScrollPanel(gui.configPanel);
@@ -129,7 +129,7 @@ public class SideConfigGui extends ContainerGui {
         if (configButtons.containsKey(id)) {
             ConfigButton button = configButtons.get(id);
             if (button.isEnabled()) {
-                getBE().getStorageMgr().getStorageEntry(button.storageId).change(button.type);
+                getStorageMgr().getEntry(button.storageId).change(button.type);
                 return true;
             }
         } else if (id == buttonIds.indexOf(cancel) && world.getBlockEntity(POS) instanceof NamedScreenHandlerFactory screenFactory) {
@@ -167,7 +167,7 @@ public class SideConfigGui extends ContainerGui {
                 ConfigButton button = new ConfigButton(buttonIds.size(), id, type);
                 buttonIds.add(button);
                 configButtons.put(buttonIds.indexOf(button), button);
-                if (getStorageMgr().getStorageEntry(id).available(type));
+                if (getStorageMgr().getEntry(id).available(type));
                 else button.setOnClick(getDefaultOnButtonClick(button));
                 final int ACC_NO = button.type.ACC.ordinal();
                 add(button, (ACC_NO > 1 ? 2 * (ACC_NO - 1) : ACC_NO) + 4 + (button.type.FOREIGN ? 1 : 0), button.type.OUTPUT ? 1 : 0);
@@ -193,7 +193,7 @@ public class SideConfigGui extends ContainerGui {
                 }, () -> {
                     return type.ACC.toString();
                 }, () -> {
-                    return String.valueOf(getStorageMgr().getStorageEntry(storageId).allows(type));
+                    return String.valueOf(getStorageMgr().getEntry(storageId).allows(type));
                 }, () -> {
                     return String.valueOf(buttonId);
                 }
@@ -204,7 +204,7 @@ public class SideConfigGui extends ContainerGui {
         @Override
         public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
             if (isEnabled())
-                withTint(getStorageMgr().getStorageEntry(storageId).allows(type) ? 0xFFFFFF00 : 0xFFFF0000);
+                withTint(getStorageMgr().getEntry(storageId).allows(type) ? 0xFFFFFF00 : 0xFFFF0000);
             else advancedTooltips.remove("tooltip.ehmooshroom.config_button");
             super.draw(matrices, x, y, mouseX, mouseY);
         }

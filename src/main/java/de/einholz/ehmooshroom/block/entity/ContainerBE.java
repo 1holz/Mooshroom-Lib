@@ -6,11 +6,14 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.ToLongFunction;
 
+import javax.annotation.Nullable;
+
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
-import de.einholz.ehmooshroom.storage.SidedStorageMgr.SideConfigType;
-import de.einholz.ehmooshroom.storage.SidedStorageMgr.StorageEntry;
+import de.einholz.ehmooshroom.storage.StorageEntry;
+import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
 import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
@@ -23,6 +26,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -42,8 +46,8 @@ import net.minecraft.world.World;
 public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr();
-    private Map<Transferable<?>, Long> transfer = new HashMap<>();
-    private Map<Transferable<?>, Long> maxTransfer = new HashMap<>();
+    private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer = new HashMap<>();
+    private Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
     
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
@@ -73,16 +77,16 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             BlockPos targetPos = pos.offset(dir);
             Direction targetDir = dir.getOpposite();
             // self output / pull
-            for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
+            for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
                 if (!entry.trans.isTransferable()) continue;
-                Storage<?> targetStorage = entry.trans.lookup.find(world, targetPos, targetDir);
+                Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
                 if (targetStorage == null) continue;
                 if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer())) setDirty();;
             }
             // self input / push
-            for (StorageEntry<?> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
+            for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
                 if (!entry.trans.isTransferable()) continue;
-                Storage<?> targetStorage = entry.trans.lookup.find(world, targetPos, targetDir);
+                Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
                 if (targetStorage == null) continue;
                 if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer())) setDirty();;
             }
@@ -105,7 +109,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Boolean transfer(final Transferable<T> transferable, final Storage<?> fromRaw, final Storage<?> toRaw, final ToLongFunction<Transferable<?>> transGetter, final BiConsumer<Transferable<?>, Long> transReducer) {
+    public static <T> Boolean transfer(final Transferable<T, ? extends TransferVariant<T>> transferable, final Storage<?> fromRaw, final Storage<?> toRaw, final ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> transGetter, final BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> transReducer) {
         final Storage<T> from;
         final Storage<T> to;
         try {
@@ -144,16 +148,16 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         return dirty;
     }
 
-    public void setMaxTransfer(Map<Transferable<?>, Long> maxTransfer) {
+    public void setMaxTransfer(Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer) {
         this.maxTransfer = maxTransfer;
         resetTransfer();
     }
 
-    public ToLongFunction<Transferable<?>> getTransfer() {
+    public ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> getTransfer() {
         return (trans) -> transfer.getOrDefault(trans, 0L);
     }
 
-    public BiConsumer<Transferable<?>, Long> reduceTransfer() {
+    public BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> reduceTransfer() {
         return (trans, reduction) -> {
             if (transfer.containsKey(trans)) transfer.put(trans, getTransfer().applyAsLong(trans) - reduction);
         };
@@ -176,13 +180,15 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @Override
-    public Storage<ItemVariant> getItemStorage(/*@Nullable*/ Direction dir) {
-        return getStorageMgr().getCombinedStorage(TransferablesReg.ITEMS, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
+    public Storage<ItemVariant> getItemStorage(@Nullable Direction dir) {
+        SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
+        return getStorageMgr().getCombinedStorage(TransferablesReg.ITEMS, acc, SideConfigType.getFromParams(true, false, acc), SideConfigType.getFromParams(true, true, acc));
     }
 
     @Override
-    public Storage<FluidVariant> getFluidStorage(/*@Nullable*/ Direction dir) {
-        return getStorageMgr().getCombinedStorage(TransferablesReg.FLUIDS, dir == null ? null : SideConfigType.getFromParams(true, false, dir), SideConfigType.getFromParams(true, true, dir));
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction dir) {
+        SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
+        return getStorageMgr().getCombinedStorage(TransferablesReg.FLUIDS, acc, SideConfigType.getFromParams(true, false, acc), SideConfigType.getFromParams(true, true, acc));
     }
 
     @Override

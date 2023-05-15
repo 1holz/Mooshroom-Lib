@@ -18,7 +18,6 @@ import net.minecraft.util.JsonHelper;
 
 // TODO use jankson
 public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
-    public final static AdvRecipeSerializer INSTANCE = new AdvRecipeSerializer();
     protected final static Factory FACTORY = AdvRecipe::new;
     
     // from file to server
@@ -32,7 +31,7 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
             for (int i = 0; i < jsonInput.size(); i++) {
                 JsonObject jsonIngredient = (JsonObject) jsonInput.get(i);
                 try {
-                    ingredientList.add(new Ingredient<>(new Identifier(jsonIngredient.has("type") ? JsonHelper.getString(jsonIngredient, "type") : ""), jsonIngredient.has("tagRegId") ? new Identifier(JsonHelper.getString(jsonIngredient, "tagRedId")) : null, JsonHelper.getString(jsonIngredient, "dataType", ""), jsonIngredient.has("tagId") ? new Identifier(JsonHelper.getString(jsonIngredient, "tagId")) : null, StringNbtReader.parse(JsonHelper.getString(jsonIngredient, "nbt", "{}")), JsonHelper.getLong(jsonIngredient, "amount", 0)));
+                    ingredientList.add(new Ingredient<>(new Identifier(jsonIngredient.has("type") ? JsonHelper.getString(jsonIngredient, "type") : ""), jsonIngredient.has("tagId") ? new Identifier(JsonHelper.getString(jsonIngredient, "tagId")) : null, StringNbtReader.parse(JsonHelper.getString(jsonIngredient, "nbt", "{}")), JsonHelper.getLong(jsonIngredient, "amount", 0)));
                 } catch (CommandSyntaxException e) {
                     MooshroomLib.LOGGER.bigBug(e);
                 }

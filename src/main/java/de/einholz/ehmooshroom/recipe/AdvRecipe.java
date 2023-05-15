@@ -1,6 +1,5 @@
 package de.einholz.ehmooshroom.recipe;
 
-import de.einholz.ehmooshroom.registry.Reg;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
@@ -45,7 +44,7 @@ public class AdvRecipe implements Recipe<Inventory> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return Reg.ADV_RECIPE_SERIALIZER.RECIPE_SERIALIZER;
+        return Registry.RECIPE_SERIALIZER.get(typeId);
     }
 
     @Override
