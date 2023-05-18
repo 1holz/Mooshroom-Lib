@@ -4,7 +4,6 @@ import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 public class ElectricityStorage extends BarStorage<ElectricityVariant> {
-
     @Override
     public long insert(ElectricityVariant arg0, long arg1, TransactionContext arg2) {
         // TODO Auto-generated method stub

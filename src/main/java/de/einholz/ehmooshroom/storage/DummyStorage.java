@@ -3,11 +3,12 @@ package de.einholz.ehmooshroom.storage;
 import java.util.Collections;
 import java.util.Iterator;
 
+import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
-public class DummyStorage<T> implements Storage<T> {
+public class DummyStorage<T> implements Storage<T>, NbtSerializable {
     @Override
     public boolean supportsInsertion() {
         return false;
@@ -32,5 +33,4 @@ public class DummyStorage<T> implements Storage<T> {
     public Iterator<StorageView<T>> iterator(TransactionContext transaction) {
         return Collections.emptyIterator();
     }
-    
 }

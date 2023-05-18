@@ -4,7 +4,6 @@ import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 
 public class HeatStorage extends BarStorage<HeatVariant> {
-
     @Override
     public long insert(HeatVariant arg0, long arg1, TransactionContext arg2) {
         // TODO Auto-generated method stub

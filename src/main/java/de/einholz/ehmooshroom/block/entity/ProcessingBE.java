@@ -4,6 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.gui.SideConfigGui;
 import de.einholz.ehmooshroom.recipe.AdvRecipe;
 import de.einholz.ehmooshroom.recipe.Exgredient;
@@ -19,22 +22,24 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedCl
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ProcessingBE extends ContainerBE {
-    private final RecipeType<? extends Recipe<?>> recipeType;
+    @Nullable
     private AdvRecipe recipe;
     private boolean isProcessing = false;
     private ActivationState activationState = ActivationState.REDSTONE_OFF;
@@ -43,9 +48,8 @@ public class ProcessingBE extends ContainerBE {
     public final static double PROGRESS_MAX = 1000.0;
     private double speed = 1;
 
-    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory, RecipeType<? extends Recipe<?>> recipeType) {
+    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state, clientHandlerFactory);
-        this.recipeType = recipeType;
     }
 
     @Override
@@ -65,13 +69,13 @@ public class ProcessingBE extends ContainerBE {
         if (isDirty()) markDirty();
     }
 
-    @SuppressWarnings("unchecked")
     public boolean checkForRecipe() {
-        Optional<AdvRecipe> optional = world.getRecipeManager().getFirstMatch((RecipeType<AdvRecipe>) recipeType, new PosAsInv(pos), world);
+        Optional<AdvRecipe> optional = world.getRecipeManager().getFirstMatch(getRecipeType(), new PosAsInv(pos), world);
         recipe = optional.orElse(null);
         return optional.isPresent();
     }
 
+    @SuppressWarnings("null")
     public void start() {
         Transaction trans = Transaction.openOuter();
         for (int i = 0; i < getRecipe().input.length; i++) if (!consume(trans, i)) {
@@ -123,7 +127,7 @@ public class ProcessingBE extends ContainerBE {
         */
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"null", "unchecked"})
     protected <T, V extends TransferVariant<T>> boolean consume(Transaction trans, int i) {
         Ingredient<T> ingredient = (Ingredient<T>) getRecipe().input[i];
         if (ingredient.getAmount() == 0) return true;
@@ -144,6 +148,7 @@ public class ProcessingBE extends ContainerBE {
         return true;
     }
 
+    @SuppressWarnings("null")
     public boolean process() {
         /*
         boolean doConsum = getRecipe().consumes != Double.NaN && getRecipe().consumes > 0.0;
@@ -178,6 +183,7 @@ public class ProcessingBE extends ContainerBE {
 
     public void task() {}
 
+    @SuppressWarnings("null")
     public void complete() {
         Transaction trans = Transaction.openOuter();
         for (int i = 0; i < getRecipe().output.length; i++) if (!generate(trans, i)) {
@@ -187,7 +193,8 @@ public class ProcessingBE extends ContainerBE {
         if (Transaction.isOpen()) {
             trans.commit();
             setDirty();
-        } else cancel();
+        }
+        cancel();
 
         /*
         for (Exgredient<?> exgredient : getRecipe().output) {
@@ -201,7 +208,7 @@ public class ProcessingBE extends ContainerBE {
     }
 
     // TODO combine with consume?
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"null", "unchecked"})
     protected <T, V extends TransferVariant<T>> boolean generate(Transaction trans, int i) {
         Exgredient<T> exgredient = (Exgredient<T>) getRecipe().output[i];
         if (exgredient.getAmount() == 0) return true;
@@ -232,6 +239,12 @@ public class ProcessingBE extends ContainerBE {
 
     public void correct() {}
 
+    public RecipeType<AdvRecipe> getRecipeType() {
+        MooshroomLib.LOGGER.smallBug(new IllegalStateException(getDisplayName() + " should have its own RecipeType"));
+        return Reg.DUMMY_RECIPE_TYPE.RECIPE_TYPE;
+    }
+
+    @Nullable
     public AdvRecipe getRecipe() {
         return recipe;
     }
@@ -274,6 +287,29 @@ public class ProcessingBE extends ContainerBE {
                 return false;
         }
         return false;
+    }
+
+    @SuppressWarnings("null")
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        nbt.putString("Recipe", getRecipe() == null ? "" : getRecipe().getId().toString());
+        nbt.putString("ActivationState", getActivationState().name());
+        nbt.putDouble("Progress", getProgress());
+        return super.writeNbt(nbt);
+    }
+
+    @Override
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
+        if (nbt.contains("Recipe", NbtType.STRING)) {
+            String str = nbt.getString("Recipe");
+            if (str.isBlank()) recipe = null;
+            else recipe = (AdvRecipe) world.getRecipeManager().get(new Identifier(str)).orElse(null);
+        }
+        if (nbt.contains("ActivationState", NbtType.STRING))
+            activationState = ActivationState.valueOf(nbt.getString("ActivationState"));
+        if (nbt.contains("Progress", NbtType.NUMBER))
+            setProgress(nbt.getDouble("Progress"));
     }
 
     public static enum ActivationState {

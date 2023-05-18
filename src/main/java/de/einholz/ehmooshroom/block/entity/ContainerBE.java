@@ -17,6 +17,7 @@ import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
 import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.util.NbtSerializable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
@@ -43,7 +44,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {
+public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv, NbtSerializable {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr();
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer = new HashMap<>();
@@ -194,12 +195,14 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt = super.writeNbt(nbt);
+        nbt = getStorageMgr().writeNbt(nbt);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
+        getStorageMgr().readNbt(nbt);
     }
 
     @Override

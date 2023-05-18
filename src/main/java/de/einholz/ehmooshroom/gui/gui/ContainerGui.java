@@ -3,6 +3,8 @@ package de.einholz.ehmooshroom.gui.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.block.entity.ContainerBE;
 import de.einholz.ehmooshroom.gui.screen.ContainerScreen;
@@ -57,7 +59,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         };
     }
 
-    //@Nullable
+    @Nullable
     protected ContainerBE getBE() {
         BlockEntity be = world.getBlockEntity(POS);
         if (be instanceof ContainerBE container) return container;
@@ -65,7 +67,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         return null;
     }
 
-    //@Nullable
+    @Nullable
     protected SidedStorageMgr getStorageMgr() {
         SidedStorageMgr mgr = getBE().getStorageMgr();
         if (mgr != null) return mgr;
@@ -149,6 +151,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         return true; // blockInventory != null ? blockInventory.canPlayerUse(entity) : true;
     }
 
+    /* TODO del if not needed
     @Override
     public void close(PlayerEntity player) {
         // TODO something else needed here?
@@ -156,6 +159,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         // super.close(player);
         // if (blockInventory != null) blockInventory.onClose(player);
     }
+    */
 
     public ContainerScreen<? extends ContainerGui> getScreen() {
         return screen;

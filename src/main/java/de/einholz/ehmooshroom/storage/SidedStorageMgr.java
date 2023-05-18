@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
@@ -13,6 +14,7 @@ import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
@@ -95,15 +97,25 @@ public class SidedStorageMgr implements NbtSerializable {
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        for (StorageEntry<?, ? extends TransferVariant<?>> entry : STORAGES.values())
-            if (entry.storage instanceof NbtSerializable seri) nbt = seri.writeNbt(nbt);
+        NbtCompound sidedStorageMgrNbt = new NbtCompound();
+        for (Entry<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> entry : STORAGES.entrySet()) {
+            NbtCompound entryNbt = new NbtCompound();
+            entryNbt = entry.getValue().writeNbt(entryNbt);
+            if (entryNbt.isEmpty()) continue;
+            sidedStorageMgrNbt.put(entry.getKey().toString(), entryNbt);
+        }
+        if (!sidedStorageMgrNbt.isEmpty()) nbt.put("SidedStorageMgr", sidedStorageMgrNbt);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        for (StorageEntry<?, ? extends TransferVariant<?>> entry : STORAGES.values())
-            if (entry.storage instanceof NbtSerializable seri) seri.readNbt(nbt);
+        if (!nbt.contains("SidedStorageMgr", NbtType.COMPOUND)) return;
+        NbtCompound sidedStorageMgrNbt = nbt.getCompound("SidedStorageMgr");
+        for (Entry<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> entry : STORAGES.entrySet()) {
+            if (!sidedStorageMgrNbt.contains(entry.getKey().toString(), NbtType.COMPOUND)) continue;
+            entry.getValue().readNbt(sidedStorageMgrNbt.getCompound(entry.getKey().toString()));
+        }
     }
 
     /* TODO del

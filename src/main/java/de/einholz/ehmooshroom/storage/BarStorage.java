@@ -1,8 +1,11 @@
 package de.einholz.ehmooshroom.storage;
 
+import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
+import net.fabricmc.fabric.api.util.NbtType;
+import net.minecraft.nbt.NbtCompound;
 
-public abstract class BarStorage<T> implements SingleSlotStorage<T> {
+public abstract class BarStorage<T> implements SingleSlotStorage<T>, NbtSerializable {
     public static final long MIN = 0L;
     private long cur = MIN;
     private long last = cur;
@@ -50,5 +53,16 @@ public abstract class BarStorage<T> implements SingleSlotStorage<T> {
     public void updateBal() {
         balance = getAmount() - last;
         last = getAmount();
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        nbt.putLong("Cur", getAmount());
+        return nbt;
+    }
+
+    @Override
+    public void readNbt(NbtCompound nbt) {
+        if (nbt.contains("Cur", NbtType.NUMBER)) setAmount(nbt.getLong("Cur"));
     }
 }
