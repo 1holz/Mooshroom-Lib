@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class Bar extends WBar implements AdvancedTooltip {
+public class Bar extends WBar implements AdvTooltip {
     /*
     @Deprecated
 	public SimpleDataElement element;
@@ -121,7 +121,7 @@ public class Bar extends WBar implements AdvancedTooltip {
 
     @Override
 	public void addTooltip(TooltipBuilder info) {
-		AdvancedTooltip.super.addTooltip(info);
+		AdvTooltip.super.addTooltip(info);
     }
 
     @Deprecated

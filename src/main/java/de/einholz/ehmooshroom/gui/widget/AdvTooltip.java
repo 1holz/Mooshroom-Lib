@@ -9,7 +9,7 @@ import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
 import net.minecraft.text.TranslatableText;
 
 // TODO only for client?
-public interface AdvancedTooltip {
+public interface AdvTooltip {
     List<String> getTooltips();
     Map<String, Supplier<Object>[]> getAdvancedTooltips();
 

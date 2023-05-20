@@ -4,11 +4,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.registry.helpers.BlockEntitiesREB;
-import de.einholz.ehmooshroom.registry.helpers.BlocksREB;
-import de.einholz.ehmooshroom.registry.helpers.GuisREB;
-import de.einholz.ehmooshroom.registry.helpers.ItemsREB;
-import de.einholz.ehmooshroom.registry.helpers.RecipesREB;
+import de.einholz.ehmooshroom.registry.rebs.BlockEntitiesREB;
+import de.einholz.ehmooshroom.registry.rebs.BlocksREB;
+import de.einholz.ehmooshroom.registry.rebs.GuisREB;
+import de.einholz.ehmooshroom.registry.rebs.ItemsREB;
+import de.einholz.ehmooshroom.registry.rebs.RecipesREB;
 import de.einholz.ehmooshroom.util.LoggerHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;

@@ -17,7 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class Button extends WButton implements AdvancedTooltip {
+public class Button extends WButton implements AdvTooltip {
     public Identifier texture;
     public WSprite overlay;
     public int tint = 0xFFFFFFFF;
@@ -86,7 +86,7 @@ public class Button extends WButton implements AdvancedTooltip {
 
     @Override
 	public void addTooltip(TooltipBuilder info) {
-		AdvancedTooltip.super.addTooltip(info);
+		AdvTooltip.super.addTooltip(info);
     }
 
     @Override

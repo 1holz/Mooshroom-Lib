@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.registry.helpers;
+package de.einholz.ehmooshroom.registry.rebs;
 
 import java.util.function.Function;
 

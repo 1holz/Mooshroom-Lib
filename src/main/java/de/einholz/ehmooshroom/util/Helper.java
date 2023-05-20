@@ -29,6 +29,8 @@ public class Helper {
         return new Identifier(MOD_ID, name);
     }
 
+    /* TODO del not used but probably answer to https://stackoverflow.com/questions/80476/how-can-i-concatenate-two-arrays-in-java btw
+    // but I don't have 10 reputation
     @Deprecated
     public static void name() {
         concatArrays(new String[0], new String[0]);
@@ -39,4 +41,5 @@ public class Helper {
     public static <T> T[] concatArrays(T... objs) {
         return objs;
     }
+    */
 }
