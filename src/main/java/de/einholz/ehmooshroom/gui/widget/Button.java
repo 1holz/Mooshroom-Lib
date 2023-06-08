@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import de.einholz.ehmooshroom.MooshroomLib;
@@ -14,6 +15,7 @@ import io.github.cottonmc.cotton.gui.widget.WSprite;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -21,12 +23,18 @@ public class Button extends WButton implements AdvTooltip {
     public Identifier texture;
     public WSprite overlay;
     public int tint = 0xFFFFFFFF;
+    private Function<PlayerEntity, Boolean> exe;
 	public List<String> tooltips = new ArrayList<String>();
 	public Map<String, Supplier<Object>[]> advancedTooltips = new HashMap<String, Supplier<Object>[]>();
 
-    public Button() {
+    public Button(Function<PlayerEntity, Boolean> exe) {
         super();
+        this.exe = exe;
         setSize(18, 18);
+    }
+
+    public Button() {
+        this((player) -> false);
     }
 
     public Button withTint(int tint) {
@@ -72,6 +80,14 @@ public class Button extends WButton implements AdvTooltip {
 		    int color = isEnabled() ? 0xE0E0E0 : 0xA0A0A0;
 		    ScreenDrawing.drawStringWithShadow(matrices, getLabel().getString(), alignment, x, y + ((20 - 8) / 2), width, color);
         }
+    }
+
+    public void setExe(Function<PlayerEntity, Boolean> exe) {
+        this.exe = exe;
+    }
+
+    public boolean execute(PlayerEntity player) {
+        return exe.apply(player);
     }
 	
 	@Override

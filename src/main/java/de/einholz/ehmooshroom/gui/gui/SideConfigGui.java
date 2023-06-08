@@ -13,7 +13,6 @@ import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import io.github.cottonmc.cotton.gui.widget.WLabel;
 import io.github.cottonmc.cotton.gui.widget.WListPanel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -44,12 +43,13 @@ public class SideConfigGui extends ContainerGui {
     protected WLabel fluid;
     protected WLabel power;
     */
-    protected Map<Integer, ConfigButton> configButtons;
+    protected Map<Integer, ConfigButton> configButtons = new HashMap<Integer, ConfigButton>();
     protected Button cancel;
 
     // FIXME buttons and/or labels are misaligned
     protected SideConfigGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv, buf);
+        // buttonClickFunc = (player, id) -> this.onButtonClick(player, id);
     }
 
     @SuppressWarnings("unchecked")
@@ -73,8 +73,13 @@ public class SideConfigGui extends ContainerGui {
         // XXX: WHY DOES ConfigEntry::gui.new NOT WORK??? THIS REALLY SHOULD WORK!!!
         gui.configPanel = new WListPanel<>(gui.configIds, () -> gui.new ConfigEntry(), (id, entry) -> entry.build(id));
         //gui.scrollPanel = new WScrollPanel(gui.configPanel);
-        gui.configButtons = new HashMap<Integer, ConfigButton>();
-        gui.cancel = (Button) new Button().setLabel(new LiteralText("X"));
+        gui.cancel = (Button) new Button((player) -> {
+            if (player.world.getBlockEntity(gui.POS) instanceof NamedScreenHandlerFactory screenFactory) {
+                if (!player.world.isClient) player.openHandledScreen(screenFactory);
+                return true;
+            }
+            return false;
+        }).setLabel(new LiteralText("X"));
         return (SideConfigGui) ContainerGui.init(gui);
     }
 
@@ -86,8 +91,8 @@ public class SideConfigGui extends ContainerGui {
         fluid = new WLabel(new TranslatableText("block.ehmooshroom.side_config.fluid"));
         power = new WLabel(new TranslatableText("block.ehmooshroom.side_config.power"));
         for (Identifier id : getStorageMgr().getIds()) for (SideConfigType type : SideConfigType.values()) {
-            ConfigButton button = new ConfigButton(buttonIds.size(), id, type);
-            buttonIds.add(button);
+            ConfigButton button = new ConfigButton(buttonExes.size(), id, type);
+            buttonExes.add(button);
             configButtons.put(button.buttonId, button);
             if (!getStorageMgr().getStorageEntry(id).available(type)) button.setEnabled(false);
             else button.setOnClick(getDefaultOnButtonClick(button));
@@ -96,8 +101,7 @@ public class SideConfigGui extends ContainerGui {
         configPanel.setSize(9, 5);
         // TODO uncomment scrollPanel.setScrollingHorizontally(TriState.FALSE);
         cancel.tooltips.add("tooltip.ehmooshroom.cancel_button");
-        buttonIds.add(cancel);
-        cancel.setOnClick(getDefaultOnButtonClick(cancel));
+        addButton(cancel);
     }
 
     @Override
@@ -124,6 +128,7 @@ public class SideConfigGui extends ContainerGui {
         ((WGridPanel) rootPanel).add(cancel, 9, 5, 1, 1);
     }
 
+    /* TODO del
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
         if (configButtons.containsKey(id)) {
@@ -132,14 +137,13 @@ public class SideConfigGui extends ContainerGui {
                 getStorageMgr().getEntry(button.storageId).change(button.type);
                 return true;
             }
-        } else if (id == buttonIds.indexOf(cancel) && world.getBlockEntity(POS) instanceof NamedScreenHandlerFactory screenFactory) {
+        } else if (id == buttonExes.indexOf(cancel) && world.getBlockEntity(POS) instanceof NamedScreenHandlerFactory screenFactory) {
             if (!world.isClient) player.openHandledScreen(screenFactory);
             return true;
         }
         return false;
     }
 
-    /*
     @Deprecated
     protected MachineDataComponent getMachineDataComp() {
         return (MachineDataComponent) getDataComp().getComp(MooshroomLib.HELPER.makeId("data_machine"));
@@ -164,11 +168,10 @@ public class SideConfigGui extends ContainerGui {
         public void build(Identifier id) {
             add(new WLabel(new TranslatableText("block." + id.getNamespace() + ".config." + id.getPath())), 0, 0, 4, 2);
             for (SideConfigType type : SideConfigType.values()) {
-                ConfigButton button = new ConfigButton(buttonIds.size(), id, type);
-                buttonIds.add(button);
-                configButtons.put(buttonIds.indexOf(button), button);
-                if (getStorageMgr().getEntry(id).available(type));
-                else button.setOnClick(getDefaultOnButtonClick(button));
+                ConfigButton button = new ConfigButton(getButtonAmount(), id, type);
+                addButton(button);
+                configButtons.put(getButtonIndex(button), button);
+                if (!getStorageMgr().getEntry(id).available(type)) button.setEnabled(false);
                 final int ACC_NO = button.type.ACC.ordinal();
                 add(button, (ACC_NO > 1 ? 2 * (ACC_NO - 1) : ACC_NO) + 4 + (button.type.FOREIGN ? 1 : 0), button.type.OUTPUT ? 1 : 0);
             }
@@ -182,6 +185,12 @@ public class SideConfigGui extends ContainerGui {
 
         @SuppressWarnings("unchecked")
         public ConfigButton(int buttonId, Identifier storageId, SideConfigType type) {
+            super();
+            setExe((player) -> {
+                if (!isEnabled()) return false;
+                getStorageMgr().getEntry(storageId).change(type);
+                return true;
+            });
             this.buttonId = buttonId;
             this.storageId = storageId;
             this.type = type;

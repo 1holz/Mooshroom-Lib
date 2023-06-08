@@ -2,15 +2,14 @@ package de.einholz.ehmooshroom.gui.gui;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.block.entity.ContainerBE;
 import de.einholz.ehmooshroom.gui.screen.ContainerScreen;
+import de.einholz.ehmooshroom.gui.widget.Button;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
-import io.github.cottonmc.cotton.gui.widget.WButton;
 import io.github.cottonmc.cotton.gui.widget.WGridPanel;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -22,19 +21,19 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class ContainerGui extends SyncedGuiDescription {
     public final BlockPos POS;
-    public List<WButton> buttonIds;
+    private List<Button> buttonIds = new ArrayList<>();
     private ContainerScreen<? extends ContainerGui> screen;
+    // FIXME ugly thing to fix bug that makes no sense
+    // protected BiFunction<PlayerEntity, Integer, Boolean> buttonClickFunc = (player, id) -> onButtonClick(player, id);
     
     protected ContainerGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv);
         POS = buf.readBlockPos();
-
         // TODO something else needed here?
         // if (blockInventory != null) blockInventory.onOpen(playerInventory.player);
     }
 
     public static ContainerGui init(ContainerGui gui) {
-        gui.buttonIds = new ArrayList<WButton>();
         gui.initWidgets();
         gui.drawDefault();
         gui.finish();
@@ -51,12 +50,23 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         rootPanel.validate(this);
     }
 
-    protected Runnable getDefaultOnButtonClick(WButton button) {
-        return () -> {
+    protected int getButtonAmount() {
+        return buttonIds.size();
+    }
+
+    protected int getButtonIndex(Button button) {
+        return buttonIds.indexOf(button);
+    }
+
+    protected int addButton(Button button) {
+        int index = getButtonAmount();
+        button.setOnClick(() -> {
             MinecraftClient minecraft = getScreen().getMinecraftClient();
-            minecraft.interactionManager.clickButton(syncId, buttonIds.indexOf(button));
-            onButtonClick(playerInventory.player, buttonIds.indexOf(button));
-        };
+            minecraft.interactionManager.clickButton(syncId, index);
+            onButtonClick(playerInventory.player, index);
+        });
+        buttonIds.add(button);
+        return index;
     }
 
     @Nullable
@@ -144,6 +154,12 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         }
     }
     */
+
+    @Override
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        if (id >= getButtonAmount()) return super.onButtonClick(player, id);
+        return buttonIds.get(id).execute(player);
+    }
 
     @Override
     public boolean canUse(PlayerEntity entity) {
