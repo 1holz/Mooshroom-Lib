@@ -44,7 +44,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv, NbtSerializable {
+public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {//, NbtSerializable {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr();
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer = new HashMap<>();
@@ -73,6 +73,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     @SuppressWarnings("null")
     public void transfer() {
+        if (world.isClient) return;
         resetTransfer();
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
@@ -194,8 +195,8 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt = super.writeNbt(nbt);
-        nbt = getStorageMgr().writeNbt(nbt);
+        super.writeNbt(nbt);
+        getStorageMgr().writeNbt(nbt);
         return nbt;
     }
 
@@ -205,11 +206,13 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         getStorageMgr().readNbt(nbt);
     }
 
+    // TODO check what is necessary
     @Override
     public void fromClientTag(NbtCompound nbt) {
         readNbt(nbt);
     }
 
+    // TODO check what is necessary
     @Override
     public NbtCompound toClientTag(NbtCompound nbt) {
         return writeNbt(nbt);

@@ -16,6 +16,7 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
     public StorageEntry(Storage<U> storage, char[] config, Transferable<T, U> trans) {
         this.storage = storage;
         if (config.length != SideConfigType.values().length) MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("The config char array should have a lenght of " + SideConfigType.values().length));
+        // TODO add handling for when config is to short or to long
         this.config = config;
         this.trans = trans;
     }
@@ -39,8 +40,7 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         if (storage instanceof NbtSerializable seri) {
-            NbtCompound storageNbt = new NbtCompound();
-            storageNbt = seri.writeNbt(storageNbt);
+            NbtCompound storageNbt = seri.writeNbt(new NbtCompound());
             if (!storageNbt.isEmpty()) nbt.put("Storage", storageNbt);
         }
         nbt.putString("Config", String.valueOf(config));
@@ -53,8 +53,11 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
             seri.readNbt(nbt);
         if (nbt.contains("Config", NbtType.STRING)) {
             String str = nbt.getString("Config");
-            if (str.length() < SideConfigType.values().length)
-                for (int i = 0; i < config.length; i++) config[i] = str.charAt(i);
+            if (str.length() < config.length) {
+                MooshroomLib.LOGGER.smallBug(new ArrayIndexOutOfBoundsException("Config string for " + trans.getId() + " has a lenght of " + str.length() + " but should have " + config.length));
+                return;
+            }
+            for (int i = 0; i < config.length; i++) config[i] = str.charAt(i);
         }
     }
 }

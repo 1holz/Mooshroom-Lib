@@ -51,6 +51,7 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
     @Override
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         //if (world.isClient) super.onBreak(world, pos, state, player);
+        /*
         ItemStack itemStack = new ItemStack(asItem());
         NbtCompound nbtCompound = new NbtCompound();
         world.getBlockEntity(pos).writeNbt(nbtCompound);
@@ -62,6 +63,7 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
         ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), itemStack);
         itemEntity.setToDefaultPickupDelay();
         world.spawnEntity(itemEntity);
+        */
         super.onBreak(world, pos, state, player);
     }
 

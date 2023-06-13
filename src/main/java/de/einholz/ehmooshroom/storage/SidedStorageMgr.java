@@ -99,8 +99,7 @@ public class SidedStorageMgr implements NbtSerializable {
     public NbtCompound writeNbt(NbtCompound nbt) {
         NbtCompound sidedStorageMgrNbt = new NbtCompound();
         for (Entry<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> entry : STORAGES.entrySet()) {
-            NbtCompound entryNbt = new NbtCompound();
-            entryNbt = entry.getValue().writeNbt(entryNbt);
+            NbtCompound entryNbt = entry.getValue().writeNbt(new NbtCompound());
             if (entryNbt.isEmpty()) continue;
             sidedStorageMgrNbt.put(entry.getKey().toString(), entryNbt);
         }

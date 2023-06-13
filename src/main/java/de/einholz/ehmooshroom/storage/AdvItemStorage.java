@@ -1,103 +1,85 @@
 package de.einholz.ehmooshroom.storage;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.MapMaker;
-
+import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
+import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.util.math.Direction;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.util.Identifier;
 
-@Deprecated // TODO remove if unused
-public class AdvItemStorage extends CombinedStorage<ItemVariant, SingleStackStorage> implements InventoryStorage {
-    private static final Map<Inventory, AdvItemStorage> WRAPPERS = (new MapMaker()).weakValues().makeMap();
-    protected final Inventory inventory;
-    private final List<InventorySlotWrapper> backingList;
-    protected final MarkDirtyParticipant markDirtyParticipant = new MarkDirtyParticipant();
+public class AdvItemStorage implements InventoryStorage, NbtSerializable {
+    private InventoryStorage storage;
+    private final Inventory inv;
 
-    public AdvItemStorage(List<SingleStackStorage> parts) {
-        super(parts);
-        inventory = null;
-        backingList = null;
-        //TODO Auto-generated constructor stub
+    public AdvItemStorage(final int size) {
+        this(new AdvInv(size));
     }
 
-    @Override
-    public long extract(ItemVariant arg0, long arg1, TransactionContext arg2) {
-        // TODO Auto-generated method stub
-        return 0;
+    public AdvItemStorage(final Identifier... ids) {
+        this(new AdvInv(ids));
     }
 
-    @Override
-    public long insert(ItemVariant arg0, long arg1, TransactionContext arg2) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /*
     private AdvItemStorage(Inventory inventory) {
-        super(inventory);
-    }
-
-    public static AdvItemStorage of() {
-        return new AdvItemStorage() {
-
-        };
-    }
-    */
- 
-    public static InventoryStorage of(Inventory inventory, /*@Nullable*/ Direction direction) {
-        AdvItemStorage storage = WRAPPERS.computeIfAbsent(inventory, (inv) -> new AdvItemStorage(inv));
-        int inventorySize = inventory.size();
-        if (inventorySize != storage.parts.size()) {
-            while(true) {
-                if (storage.backingList.size() >= inventorySize) {
-                    storage.parts = Collections.unmodifiableList(storage.backingList.subList(0, inventorySize));
-                    break;
-                }
-                storage.backingList.add(new InventorySlotWrapper(storage, storage.backingList.size()));
-            }
-        }
-        return storage.getSidedWrapper(direction);
-    }
- 
-    AdvItemStorage(Inventory inventory) {
-        super(Collections.emptyList());
-        this.inventory = inventory;
-        backingList = new ArrayList<>();
+        storage = InventoryStorage.of(inventory, null);
+        this.inv = inventory;
     }
 
     @Override
     public List<SingleSlotStorage<ItemVariant>> getSlots() {
-        return new ArrayList<>(parts);
-    }
- 
-    @Deprecated
-    private InventoryStorage getSidedWrapper(/*@Nullable*/ Direction direction) {
-        return null; // (InventoryStorage) (inventory instanceof SidedInventory && direction != null ? new SidedAdvItemStorage(this, direction) : this);
+        return storage.getSlots();
     }
 
-    protected class MarkDirtyParticipant extends SnapshotParticipant<Boolean> {
-		@Override
-		protected Boolean createSnapshot() {
-			return Boolean.TRUE;
-		}
+    @Override
+    public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+        return storage.insert(resource, maxAmount, transaction);
+    }
 
-		@Override
-		protected void readSnapshot(Boolean snapshot) {}
+    @Override
+    public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+        return storage.extract(resource, maxAmount, transaction);
+    }
 
-		@Override
-		protected void onFinalCommit() {
-			inventory.markDirty();
-		}
-	}
+    @Override
+    public Iterator<StorageView<ItemVariant>> iterator(TransactionContext transaction) {
+        return storage.iterator(transaction);
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        NbtList list = new NbtList();
+        for (int i = 0; i < getInv().size(); i++) {
+            ItemStack stack = getInv().getStack(i);
+            if (stack.isEmpty()) continue;
+            NbtCompound stackNbt = stack.writeNbt(new NbtCompound());
+            list.add(i, stackNbt);
+        }
+        if (!list.isEmpty()) nbt.put("Inv", list);
+        return nbt;
+    }
+
+    @Override
+    public void readNbt(NbtCompound nbt) {
+        getInv().clear();
+        NbtList list = nbt.getList("Inv", NbtType.COMPOUND);
+        if (!list.isEmpty())
+            for (int i = 0; i < list.size(); i++) {
+                NbtCompound stackNbt = list.getCompound(i);
+                if (stackNbt.isEmpty()) continue;
+                getInv().setStack(i, ItemStack.fromNbt(stackNbt));
+            }
+        storage = InventoryStorage.of(inv, null);
+    }
+
+    public Inventory getInv() {
+        return inv;
+    }
 }

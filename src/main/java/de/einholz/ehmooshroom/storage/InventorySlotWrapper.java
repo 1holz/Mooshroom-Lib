@@ -8,11 +8,11 @@ import net.minecraft.item.ItemStack;
 @Deprecated // TODO remove if unused
 // XXX mixin fabrics InventorySlotWrapper?
 public class InventorySlotWrapper extends SingleStackStorage {
-    private final AdvItemStorage storage;
+    private final OldAdvItemStorage storage;
     private final int slot;
     private ItemStack lastReleasedSnapshot = null;
 
-    public InventorySlotWrapper(AdvItemStorage storage, int slot) {
+    public InventorySlotWrapper(OldAdvItemStorage storage, int slot) {
         this.storage = storage;
         this.slot = slot;
     }
