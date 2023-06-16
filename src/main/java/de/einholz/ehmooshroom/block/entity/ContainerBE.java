@@ -44,7 +44,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv {//, NbtSerializable {
+public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv, NbtSerializable {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr();
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer = new HashMap<>();
@@ -60,9 +60,9 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         return storageMgr;
     }
 
+    // XXX make ticker static in general?
     public static void tick(World world, BlockPos pos, BlockState state, BlockEntity be) {
-        if (!(be instanceof ContainerBE containerBE)) return;
-        containerBE.tick(world, pos, state);
+        if (be instanceof ContainerBE containerBE) containerBE.tick(world, pos, state);
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {

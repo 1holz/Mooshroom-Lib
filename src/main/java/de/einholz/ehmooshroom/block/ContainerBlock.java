@@ -2,32 +2,35 @@ package de.einholz.ehmooshroom.block;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockEntityProvider;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.state.StateManager.Builder;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
-public class ContainerBlock extends DirectionalBlock implements BlockEntityProvider {
+public class ContainerBlock extends BlockWithEntity {
     private Identifier id;
-    @Deprecated // TODO del if unused
     private BlockEntityType<? extends BlockEntity> blockEntityType;
     private BlockEntityTicker<? extends BlockEntity> ticker;
 
     public ContainerBlock(Settings settings, Identifier id, BlockEntityTicker<? extends BlockEntity> ticker) {
         super(settings);
+        setDefaultState(getStateManager().getDefaultState().with(Properties.FACING, Direction.NORTH));
         this.id = id;
         this.ticker = ticker;
     }
@@ -73,15 +76,29 @@ public class ContainerBlock extends DirectionalBlock implements BlockEntityProvi
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     @Nullable
     // FIXME better way then the ugly casting?
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (getBlockEntityType() != type) return null;
-        return (@Nullable BlockEntityTicker<T>) ticker;
+        return checkType(type, (BlockEntityType<T>) getBlockEntityType(), (BlockEntityTicker<T>) ticker);
+        // if (getBlockEntityType() != type) return null;
+        // return (@Nullable BlockEntityTicker<T>) ticker;
     }
 
-    @Deprecated // TODO del if unused
+    @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
+    @Override
+    public void appendProperties(Builder<Block, BlockState> stateManager) {
+        stateManager.add(Properties.FACING);
+    }
+
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return getDefaultState().with(Properties.FACING, ctx.getPlayerLookDirection().getOpposite());
+    }
+
     protected BlockEntityType<? extends BlockEntity> getBlockEntityType() {
         if (blockEntityType == null) blockEntityType = Registry.BLOCK_ENTITY_TYPE.get(id);
         return blockEntityType;

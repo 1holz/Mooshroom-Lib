@@ -50,7 +50,7 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
     @Override
     public void readNbt(NbtCompound nbt) {
         if (storage instanceof NbtSerializable seri && nbt.contains("Storage", NbtType.COMPOUND))
-            seri.readNbt(nbt);
+            seri.readNbt(nbt.getCompound("Storage"));
         if (nbt.contains("Config", NbtType.STRING)) {
             String str = nbt.getString("Config");
             if (str.length() < config.length) {

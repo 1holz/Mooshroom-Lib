@@ -13,6 +13,7 @@ import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
 import de.einholz.ehmooshroom.registry.Reg;
+import de.einholz.ehmooshroom.storage.AdvItemStorage;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.StorageEntry;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
@@ -24,6 +25,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -67,6 +69,7 @@ public class ProcessingBE extends ContainerBE {
         } else idle();
         correct();
         if (isDirty()) markDirty();
+        markDirty();
     }
 
     public boolean checkForRecipe() {
