@@ -6,19 +6,22 @@ import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.util.NbtType;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 
 public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSerializable {
     public final Storage<U> storage;
     public final char[] config;
     public final Transferable<T, U> trans;
+    private final BlockEntity dirtyMarker;
 
-    public StorageEntry(Storage<U> storage, char[] config, Transferable<T, U> trans) {
+    public StorageEntry(Storage<U> storage, char[] config, Transferable<T, U> trans, BlockEntity dirtyMarker) {
         this.storage = storage;
         if (config.length != SideConfigType.values().length) MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("The config char array should have a lenght of " + SideConfigType.values().length));
         // TODO add handling for when config is to short or to long
         this.config = config;
         this.trans = trans;
+        this.dirtyMarker = dirtyMarker;
     }
 
     public void change(SideConfigType type) {
@@ -27,6 +30,7 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
             config[type.ordinal()] = SideConfigType.CHARS[i ^ 0x0001];
             return;
         }
+        dirtyMarker.markDirty();
     }
 
     public boolean available(SideConfigType type) {

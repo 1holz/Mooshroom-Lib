@@ -15,11 +15,17 @@ import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.util.NbtType;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public class SidedStorageMgr implements NbtSerializable {
     private final Map<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> STORAGES = new HashMap<>();
+    private final BlockEntity dirtyMarker;
+
+    public SidedStorageMgr(BlockEntity dirtyMarker) {
+        this.dirtyMarker = dirtyMarker;
+    }
 
     public Set<Identifier> getIdSet() {
         return STORAGES.keySet();
@@ -30,7 +36,7 @@ public class SidedStorageMgr implements NbtSerializable {
     }
 
     public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Transferable<T, V> trans, Storage<V> storage) {
-        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), trans));
+        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), trans, dirtyMarker));
         return this;
     }
 

@@ -1,19 +1,11 @@
 package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.block.entity.BlockEntity;
 
 public class ElectricityStorage extends BarStorage<ElectricityVariant> {
-    @Override
-    public long insert(ElectricityVariant arg0, long arg1, TransactionContext arg2) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public long extract(ElectricityVariant arg0, long arg1, TransactionContext arg2) {
-        // TODO Auto-generated method stub
-        return 0;
+    public ElectricityStorage(BlockEntity dirtyMarker) {
+        super(dirtyMarker);
     }
 
     @Override

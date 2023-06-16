@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.deprecated;
 
 import java.util.ArrayList;
 import java.util.Collections;

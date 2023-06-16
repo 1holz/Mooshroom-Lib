@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.deprecated;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.base.SingleStackStorage;

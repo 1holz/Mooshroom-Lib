@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 
 public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv, NbtSerializable {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
-    private SidedStorageMgr storageMgr = new SidedStorageMgr();
+    private SidedStorageMgr storageMgr = new SidedStorageMgr(this);
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer = new HashMap<>();
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;

@@ -9,28 +9,52 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.fabricmc.fabric.api.util.NbtType;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 
-public class AdvItemStorage implements InventoryStorage, NbtSerializable {
+public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements InventoryStorage, NbtSerializable {
     private InventoryStorage storage;
     private final Inventory inv;
+    private final BlockEntity dirtyMarker;
 
-    public AdvItemStorage(final int size) {
-        this(new AdvInv(size));
+    public AdvItemStorage(final BlockEntity dirtyMarker, final int size) {
+        this(dirtyMarker, new AdvInv(size));
     }
 
-    public AdvItemStorage(final Identifier... ids) {
-        this(new AdvInv(ids));
+    public AdvItemStorage(final BlockEntity dirtyMarker, final Identifier... ids) {
+        this(dirtyMarker, new AdvInv(ids));
     }
 
-    private AdvItemStorage(Inventory inventory) {
+    private AdvItemStorage(final BlockEntity dirtyMarker, final Inventory inventory) {
         storage = InventoryStorage.of(inventory, null);
         this.inv = inventory;
+        this.dirtyMarker = dirtyMarker;
+    }
+
+    @Override
+    protected ItemStack[] createSnapshot() {
+        ItemStack[] stacks = new ItemStack[getInv().size()];
+        for (int i = 0; i < stacks.length; i++) stacks[i] = getInv().getStack(i);
+        return stacks;
+    }
+
+    @Override
+    protected void readSnapshot(ItemStack[] snapshot) {
+        getInv().clear();
+        for (int i = 0; i < snapshot.length; i++) getInv().setStack(i, snapshot[i]);
+        storage = InventoryStorage.of(inv, null);
+    }
+
+    @Override
+    protected void onFinalCommit() {
+        super.onFinalCommit();
+        dirtyMarker.markDirty();
     }
 
     @Override

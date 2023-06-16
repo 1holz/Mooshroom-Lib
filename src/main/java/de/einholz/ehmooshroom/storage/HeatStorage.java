@@ -1,19 +1,11 @@
 package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.block.entity.BlockEntity;
 
 public class HeatStorage extends BarStorage<HeatVariant> {
-    @Override
-    public long insert(HeatVariant arg0, long arg1, TransactionContext arg2) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public long extract(HeatVariant arg0, long arg1, TransactionContext arg2) {
-        // TODO Auto-generated method stub
-        return 0;
+    public HeatStorage(BlockEntity dirtyMarker) {
+        super(dirtyMarker);
     }
 
     @Override
