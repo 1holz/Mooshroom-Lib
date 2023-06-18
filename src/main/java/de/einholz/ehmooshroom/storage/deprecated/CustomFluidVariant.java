@@ -1,15 +1,15 @@
-package de.einholz.ehmooshroom.storage.transferable;
+package de.einholz.ehmooshroom.storage.deprecated;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.item.Item;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 // TODO del if unneeded
 @Deprecated
-public class CustomItemVariant implements ItemVariant {
+public class CustomFluidVariant implements FluidVariant {
 
     @Override
     public @Nullable NbtCompound getNbt() {
@@ -18,7 +18,7 @@ public class CustomItemVariant implements ItemVariant {
     }
 
     @Override
-    public Item getObject() {
+    public Fluid getObject() {
         // TODO Auto-generated method stub
         return null;
     }

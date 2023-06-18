@@ -63,15 +63,15 @@ public class Ingredient<T> {
         buf.writeNbt(nbt).writeVarLong(amount);
     }
 
-    @SuppressWarnings("null")
-    public boolean matches(TransferVariant<T> test, @Nullable NbtCompound testNbt) {
+    @SuppressWarnings({"null", "unchecked"})
+    public boolean matches(TransferVariant<?> test) {
         if (type == null && tag == null) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("Attempted to perform match test on Ingredient with null type and tag. This Ingredient will be skiped!"));
             return true;
         }
-        if (!NbtHelper.matches(nbt, testNbt, true)) return false;
-        if (tag == null) return type.getVariantType().equals(test.getObject());
-        return tag.contains(test.getObject());
+        if (!NbtHelper.matches(test.copyNbt(), nbt, true)) return false;
+        if (tag == null) return type.getVariantType().equals(test.getObject().getClass());
+        return tag.contains((T) test.getObject());
     }
 
     public Transferable<T, ? extends TransferVariant<T>> getType() {

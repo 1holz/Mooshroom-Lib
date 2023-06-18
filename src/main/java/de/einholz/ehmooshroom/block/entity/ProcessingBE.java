@@ -12,6 +12,7 @@ import de.einholz.ehmooshroom.recipe.AdvRecipe;
 import de.einholz.ehmooshroom.recipe.Exgredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
+import de.einholz.ehmooshroom.recipe.RecipeHolder;
 import de.einholz.ehmooshroom.registry.Reg;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.StorageEntry;
@@ -38,7 +39,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ProcessingBE extends ContainerBE {
+public class ProcessingBE extends ContainerBE implements RecipeHolder {
     @Nullable
     private AdvRecipe recipe;
     private boolean isProcessing = false;
@@ -138,7 +139,7 @@ public class ProcessingBE extends ContainerBE {
             Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
-                if (!ingredient.matches(view.getResource(), ingredient.getNbt())) continue;
+                if (!ingredient.matches(view.getResource())) continue;
                 amount -= entry.storage.extract(view.getResource(), amount, trans);
                 if (amount == 0) break;
             }
@@ -238,6 +239,32 @@ public class ProcessingBE extends ContainerBE {
     public void idle() {}
 
     public void correct() {}
+
+    // FIXME make less nested
+    @Override
+    public boolean containsIngredients(Ingredient<?>... ingredients) {
+        try (Transaction trans = Transaction.openOuter()) {
+            for (Ingredient<?> ingredient : ingredients) {
+                long remaining = ingredient.getAmount();
+                for (StorageEntry<Object, TransferVariant<Object>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.IN_PROC)) {
+                    if (!ingredient.getType().equals(entry.trans)) continue;
+                    Iterator<StorageView<TransferVariant<Object>>> iter = entry.storage.iterator(trans);
+                    while (iter.hasNext()) {
+                        StorageView<TransferVariant<Object>> view = iter.next();
+                        if (view.isResourceBlank()) continue;
+                        TransferVariant<Object> variant = view.getResource();
+                        if (!ingredient.matches(variant)) continue;
+                        remaining -= view.extract(variant, remaining, trans);
+                        if (remaining <= 0) break;
+                    }
+                    //remaining -= entry.storage.simulateExtract(null, remaining, trans);
+                    if (remaining <= 0) break;
+                }
+                if (remaining > 0) return false;
+            }
+        }
+        return true;
+    }
 
     public RecipeType<AdvRecipe> getRecipeType() {
         MooshroomLib.LOGGER.smallBug(new IllegalStateException(getDisplayName() + " should have its own RecipeType"));

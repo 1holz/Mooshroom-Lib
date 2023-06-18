@@ -64,11 +64,13 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
 
     @Override
     public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+        if (!supportsInsertion()) return 0;
         return storage.insert(resource, maxAmount, transaction);
     }
 
     @Override
     public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
+        if (!supportsExtraction()) return 0;
         return storage.extract(resource, maxAmount, transaction);
     }
 

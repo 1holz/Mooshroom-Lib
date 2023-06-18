@@ -2,7 +2,6 @@ package de.einholz.ehmooshroom.recipe;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
@@ -16,7 +15,7 @@ import net.minecraft.world.World;
 public class AdvRecipe implements Recipe<Inventory> {
     private final Identifier typeId;
     private final Identifier id;
-    public final Ingredient<?>[] input;
+    public final Ingredient<?>[] input; // TODO add catalysts (maybe with own SideConfigAccessor?)
     //public final float consumes;
     public final Exgredient<?>[] output;
     //public final float generates;
@@ -52,10 +51,8 @@ public class AdvRecipe implements Recipe<Inventory> {
         return Registry.RECIPE_TYPE.get(typeId);
     }
 
-    @Deprecated
     public boolean matches(BlockPos pos, World world) {
-        BlockEntity be = world.getBlockEntity(pos);
-        if (be instanceof RecipeHolder rh) return rh.containsIngredients(input);
+        if (world.getBlockEntity(pos) instanceof RecipeHolder rh) return rh.containsIngredients(input);
         return false;
         //if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
         //return input == null || (input.items == null || input.items.length == 0 || be.containsItemIngredients(input.items))

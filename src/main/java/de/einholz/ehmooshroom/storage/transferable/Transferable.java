@@ -25,11 +25,12 @@ public class Transferable<T, V extends TransferVariant<T>> {
     }
 
     public void setId(Identifier id) {
-        if (this.id != null) this.id = id;
+        if (this.id == null) this.id = id;
     }
 
     public Identifier getId() {
-        return id == null ? TransferablesReg.TRANSFERABLE.getId(this) : id;
+        setId(TransferablesReg.TRANSFERABLE.getId(this));
+        return id;
     }
 
     public Class<V> getVariantType() {
