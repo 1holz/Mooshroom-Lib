@@ -4,6 +4,7 @@ import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
 import net.minecraft.block.entity.BlockEntity;
 
 public class HeatStorage extends BarStorage<HeatVariant> {
+    // XXX negative temperatures are currently impossible with this implementation
     public HeatStorage(BlockEntity dirtyMarker) {
         super(dirtyMarker);
     }
@@ -16,10 +17,6 @@ public class HeatStorage extends BarStorage<HeatVariant> {
     @Override
     public long getMax() {
         return 15000;
-    }
-
-    public void decrease() {
-        setAmount(Math.max(BarStorage.MIN, getAmount()));
     }
 
     public static double toKelvin(long l) {

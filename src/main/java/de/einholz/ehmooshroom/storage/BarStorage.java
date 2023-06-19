@@ -66,6 +66,10 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
         return getAmount() <= MIN;
     }
 
+    public boolean isFull() {
+        return getCapacity() == 0;
+    }
+
     @Override
     public long getAmount() {
         return cur;
@@ -73,6 +77,14 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
 
     public void setAmount(long cur) {
         this.cur = cur;
+    }
+
+    public void increase(long amount) {
+        setAmount(Math.min(getMax(), getAmount() + Math.max(amount, 0)));
+    }
+
+    public void decrease(long amount) {
+        setAmount(Math.max(BarStorage.MIN, getAmount() - Math.min(amount, 0)));
     }
 
     abstract public long getMax();

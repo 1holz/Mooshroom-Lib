@@ -48,6 +48,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     private double progress = 0.0;
     public final static double PROGRESS_MAX = 1000.0;
     private double speed = 1;
+    private double efficiency = 1;
 
     public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state, clientHandlerFactory);
@@ -62,11 +63,11 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         transfer();
         if (!isProcessing && isActivated()) isProcessing = checkForRecipe();
         if (isProcessing) {
-            if (progress == PROGRESS_MIN) start();
+            if (progress <= PROGRESS_MIN) start();
             if (process()) task();
-            if (progress == PROGRESS_MAX) complete();
+            if (progress >= PROGRESS_MAX) complete();
         } else idle();
-        correct();
+        operate();
         if (isDirty()) markDirty();
     }
 
@@ -78,15 +79,14 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
 
     @SuppressWarnings("null")
     public void start() {
-        Transaction trans = Transaction.openOuter();
-        for (int i = 0; i < getRecipe().input.length; i++) if (!consume(trans, i)) {
-            trans.abort();
-            break;
+        try (Transaction trans = Transaction.openOuter()) {
+            for (int i = 0; i < getRecipe().input.length; i++) if (!consume(trans, i)) {
+                trans.abort();
+                break;
+            }
+            if (Transaction.isOpen()) trans.commit();
+            else cancel();
         }
-        if (Transaction.isOpen()) {
-            trans.commit();
-            setDirty();
-        } else cancel();
 
         /*
         for (Ingredient<?> ingredient : getRecipe().input) {
@@ -102,9 +102,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                 }
             }
         }
-        */
 
-        /*
         // OLD:
         boolean consumerRecipe = (getRecipe().consumes == Double.NaN ? 0.0 : getRecipe().consumes) > (getRecipe().generates == Double.NaN ? 0.0 : getRecipe().generates);
         int consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * getRecipe().consumes);
@@ -132,7 +130,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     protected <T, V extends TransferVariant<T>> boolean consume(Transaction trans, int i) {
         Ingredient<T> ingredient = (Ingredient<T>) getRecipe().input[i];
         if (ingredient.getAmount() == 0) return true;
-        long amount = ingredient.getAmount();
+        long remaining = ingredient.getAmount();
         List<StorageEntry<T, V>> entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) ingredient.getType(), SideConfigType.IN_PROC);
         for (StorageEntry<T, V> entry : entries) {
             if (!ingredient.getType().equals(entry.trans)) continue;
@@ -140,10 +138,10 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
                 if (!ingredient.matches(view.getResource())) continue;
-                amount -= entry.storage.extract(view.getResource(), amount, trans);
-                if (amount == 0) break;
+                remaining -= entry.storage.extract(view.getResource(), remaining, trans);
+                if (remaining == 0) break;
             }
-            if (amount > 0) return false;
+            if (remaining > 0) return false;
             else setDirty();
         }
         return true;
@@ -178,7 +176,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             else canProcess = false;
         }
         */
-        if (canProcess) progress = getRecipe().timeModifier * getSpeed();
+        if (canProcess) setProgress(getProgress() + getRecipe().timeModifier * getSpeed());
         return canProcess;
     }
 
@@ -213,7 +211,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     protected <T, V extends TransferVariant<T>> boolean generate(Transaction trans, int i) {
         Exgredient<T> exgredient = (Exgredient<T>) getRecipe().output[i];
         if (exgredient.getAmount() == 0) return true;
-        long amount = exgredient.getAmount();
+        long remaining = exgredient.getAmount();
         List<StorageEntry<T, V>> entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) exgredient.getType(), SideConfigType.OUT_PROC);
         for (StorageEntry<T, V> entry : entries) {
             if (!exgredient.getType().equals(entry.trans)) continue;
@@ -221,24 +219,24 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
                 if (!exgredient.matches(view.getResource(), exgredient.getNbt())) continue;
-                amount -= entry.storage.insert(view.getResource(), amount, trans);
-                if (amount == 0) break;
+                remaining -= entry.storage.insert(view.getResource(), remaining, trans);
+                if (remaining == 0) break;
             }
-            if (amount > 0) return false;
+            if (remaining > 0) return false;
             else setDirty();
         }
         return true;
     }
 
     public void cancel() {
-        progress = PROGRESS_MIN;
+        setProgress(PROGRESS_MIN);
         isProcessing = false;
         recipe = null;
     }
 
     public void idle() {}
 
-    public void correct() {}
+    public void operate() {}
 
     // FIXME make less nested
     @Override
@@ -290,6 +288,14 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
 
     public void setSpeed(double speed) {
         this.speed = speed;
+    }
+
+    public double getEfficiency() {
+        return efficiency;
+    }
+
+    public void setEfficiency(double efficiency) {
+        this.efficiency = efficiency;
     }
 
     public ActivationState getActivationState() {
