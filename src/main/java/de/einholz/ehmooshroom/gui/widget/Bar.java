@@ -83,30 +83,33 @@ public class Bar extends WBar implements AdvTooltip {
 
 	@Override
 	public void paint(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
-		if (bg!=null) ScreenDrawing.texturedRect(matrices, x, y, getWidth(), getHeight(), bg, 0xFFFFFFFF);
+		if (bg != null) ScreenDrawing.texturedRect(matrices, x, y, getWidth(), getHeight(), bg, 0xFFFFFFFF);
 		else ScreenDrawing.coloredRect(matrices, x, y, getWidth(), getHeight(), ScreenDrawing.colorAtOpacity(0x000000, 0.25f));
-        float percent = (cur.getAsLong() - min) / (max - min);
-		int barMax;
-		if (Direction.RIGHT.equals(direction) || Direction.LEFT.equals(direction)) barMax = getWidth();
-        else barMax = getHeight();
+        float percent = (float) (cur.getAsLong() - min) / (float) (max - min);
+		int barMax = Direction.RIGHT.equals(direction) || Direction.LEFT.equals(direction) ? barMax = getWidth() : getHeight();
         int barSize = (int) (barMax * percent);
-		if (Direction.UP.equals(direction)) {
-			int left = x;
-			int top = y + getHeight() - barSize;
-			if (bar != null) ScreenDrawing.texturedRect(matrices, left, top, getWidth(), barSize, bar.image(), 0F, (float) (1 - percent), 1F, 1F, 0xFFFFFFFF);
-			else ScreenDrawing.coloredRect(matrices, left, top, getWidth(), barSize,  ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
-		} else if (Direction.RIGHT.equals(direction)) {
-			if (bar != null) ScreenDrawing.texturedRect(matrices, x, y, barSize, getHeight(), bar.image(), 0F, 0F, (float) percent, 1F, 0xFFFFFFFF);
-			else ScreenDrawing.coloredRect(matrices, x, y, barSize, getHeight(), ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
-		} else if (Direction.DOWN.equals(direction)) {
-			if (bar != null) ScreenDrawing.texturedRect(matrices, x, y, getWidth(), barSize, bar.image(), 0F, 0F, 1F, (float) percent, 0xFFFFFFFF);
-			else ScreenDrawing.coloredRect(matrices, x, y, getWidth(), barSize, ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
-		} else if (Direction.LEFT.equals(direction)) {
-			int left = x + getWidth() - barSize;
-			int top = y;
-			if (bar != null) ScreenDrawing.texturedRect(matrices, left, top, barSize, getHeight(), bar.image(), (float) (1 - percent), 0F, 1F, 1F, 0xFFFFFFFF);
-			else ScreenDrawing.coloredRect(matrices, left, top, barSize, getHeight(), ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
-		}
+        switch (direction) {
+            case UP:
+                int leftInUp = x;
+                int topInUp = y + getHeight() - barSize;
+                if (bar != null) ScreenDrawing.texturedRect(matrices, leftInUp, topInUp, getWidth(), barSize, bar.image(), 0F, (float) (1 - percent), 1F, 1F, 0xFFFFFFFF);
+                else ScreenDrawing.coloredRect(matrices, leftInUp, topInUp, getWidth(), barSize,  ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                break;
+            case RIGHT:
+                if (bar != null) ScreenDrawing.texturedRect(matrices, x, y, barSize, getHeight(), bar.image(), 0F, 0F, (float) percent, 1F, 0xFFFFFFFF);
+                else ScreenDrawing.coloredRect(matrices, x, y, barSize, getHeight(), ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                break;
+            case DOWN:
+                if (bar != null) ScreenDrawing.texturedRect(matrices, x, y, getWidth(), barSize, bar.image(), 0F, 0F, 1F, (float) percent, 0xFFFFFFFF);
+                else ScreenDrawing.coloredRect(matrices, x, y, getWidth(), barSize, ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                break;
+            case LEFT:
+                int leftInLeft = x + getWidth() - barSize;
+                int topInLeft = y;
+                if (bar != null) ScreenDrawing.texturedRect(matrices, leftInLeft, topInLeft, barSize, getHeight(), bar.image(), (float) (1 - percent), 0F, 1F, 1F, 0xFFFFFFFF);
+                else ScreenDrawing.coloredRect(matrices, leftInLeft, topInLeft, barSize, getHeight(), ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                break;
+        }
 	}
 	
 	@Override

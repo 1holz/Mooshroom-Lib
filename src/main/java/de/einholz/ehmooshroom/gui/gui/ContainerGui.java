@@ -85,8 +85,8 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         return null;
     }
 
-    // TODO make faster using mixins
     /*
+    // todo make faster using mixins
     @Override
     public void onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
         if (!SlotActionType.QUICK_MOVE.equals(action)) super.onSlotClick(slotNumber, button, action, player);
@@ -99,7 +99,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         remaining = trans.copy();
 
         if (blockInventory == null) return;
-        // TODO implement properly
+        // todo implement properly
         // if (slot.inventory == blockInventory) {
         //     if (!insertItem(trans, playerInventory, true, player)) return;
         //     else if (!insertItem(trans, blockInventory, false, player)) return;
@@ -107,9 +107,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         if (trans.isEmpty()) slot.setStack(ItemStack.EMPTY);
         else slot.markDirty();
     }
-    */
 
-    /*
     private boolean insertItem(ItemStack toInsert, Inventory inventory, boolean walkBackwards, PlayerEntity player) {
         ArrayList<Slot> inventorySlots = new ArrayList<>();
         Iterator<Slot> iter = slots.iterator();

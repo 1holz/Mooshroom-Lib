@@ -49,7 +49,6 @@ public class SideConfigGui extends ContainerGui {
     // FIXME buttons and/or labels are misaligned
     protected SideConfigGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv, buf);
-        // buttonClickFunc = (player, id) -> this.onButtonClick(player, id);
     }
 
     @SuppressWarnings("unchecked")
