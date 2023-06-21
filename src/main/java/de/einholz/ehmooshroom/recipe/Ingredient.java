@@ -70,7 +70,7 @@ public class Ingredient<T> {
             return true;
         }
         if (!NbtHelper.matches(test.copyNbt(), nbt, true)) return false;
-        if (tag == null) return type.getVariantType().equals(test.getObject().getClass());
+        if (tag == null) return type.getVariantType().equals(test.getClass());
         return tag.contains((T) test.getObject());
     }
 

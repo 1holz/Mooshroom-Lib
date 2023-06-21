@@ -184,16 +184,18 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
 
     @SuppressWarnings("null")
     public void complete() {
-        Transaction trans = Transaction.openOuter();
-        for (int i = 0; i < getRecipe().output.length; i++) if (!generate(trans, i)) {
-            trans.abort();
-            break;
+        // TODO add proper overflow protection
+        try (Transaction trans = Transaction.openOuter()) {
+            for (int i = 0; i < getRecipe().output.length; i++) if (!generate(trans, i)) {
+                trans.abort();
+                break;
+            }
+            if (Transaction.isOpen()) {
+                trans.commit();
+                setDirty();
+            }
+            cancel();
         }
-        if (Transaction.isOpen()) {
-            trans.commit();
-            setDirty();
-        }
-        cancel();
 
         /*
         for (Exgredient<?> exgredient : getRecipe().output) {
@@ -218,7 +220,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
-                if (!exgredient.matches(view.getResource(), exgredient.getNbt())) continue;
+                if (!exgredient.matches(view.getResource())) continue;
                 remaining -= entry.storage.insert(view.getResource(), remaining, trans);
                 if (remaining == 0) break;
             }

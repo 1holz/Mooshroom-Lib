@@ -77,15 +77,15 @@ public class Exgredient<T> {
         return output;
     }
 
-    public boolean matches(TransferVariant<T> test, NbtCompound testNbt) {
+    public boolean matches(TransferVariant<?> test) {
         if (type == null/* && tag == null*/) {
             MooshroomLib.LOGGER.smallBug(new NullPointerException("Attempted to perform match test on Exgredient with null type and tag. This Exgredient will be skiped!"));
             return true;
         }
-        if (!NbtHelper.matches(nbt, testNbt, true)) return false;
-        return type.getVariantType().equals(test.getObject());
-        //if (tag == null) return type.getVariantType().equals(test.getObject());
-        //return tag.contains(test);
+        if (!NbtHelper.matches(test.copyNbt(), nbt, true)) return false;
+        //if (tag == null) return type.getVariantType().equals(test.getClass());
+        return type.getVariantType().equals(test.getClass());
+        //return tag.contains((T) test.getObject());
     }
 
     public Transferable<T, ? extends TransferVariant<T>> getType() {
