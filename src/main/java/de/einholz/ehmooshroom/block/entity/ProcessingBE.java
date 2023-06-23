@@ -40,6 +40,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ProcessingBE extends ContainerBE implements RecipeHolder {
+    private Identifier recipeId;
     @Nullable
     private AdvRecipe recipe;
     private boolean isProcessing = false;
@@ -57,6 +58,10 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     @Override
     public void tick(World world, BlockPos pos, BlockState state) {
         resetDitry();
+        if (recipe == null && recipeId != null) {
+            recipe = (AdvRecipe) world.getRecipeManager().get(recipeId).orElse(null);
+            recipeId = null;
+        }
         isProcessing = progress > PROGRESS_MIN && isActivated();
         //powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
         //lastPower = getMachineCapacitorComp().getCurrentEnergy();
@@ -327,7 +332,10 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     @SuppressWarnings("null")
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt.putString("Recipe", getRecipe() == null ? "" : getRecipe().getId().toString());
+        String recipeStr = "";
+        if (getRecipe() != null) recipeStr = getRecipe().getId().toString();
+        else if (recipeId != null) recipeStr = recipeId.toString();
+        nbt.putString("Recipe", recipeStr);
         nbt.putString("ActivationState", getActivationState().name());
         nbt.putDouble("Progress", getProgress());
         return super.writeNbt(nbt);
@@ -338,7 +346,9 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         super.readNbt(nbt);
         if (nbt.contains("Recipe", NbtType.STRING)) {
             String str = nbt.getString("Recipe");
+            recipeId = null;
             if (str.isBlank()) recipe = null;
+            else if (world == null) recipeId = new Identifier(str);
             else recipe = (AdvRecipe) world.getRecipeManager().get(new Identifier(str)).orElse(null);
         }
         if (nbt.contains("ActivationState", NbtType.STRING))

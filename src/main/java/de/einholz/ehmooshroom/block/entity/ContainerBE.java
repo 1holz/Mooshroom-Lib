@@ -9,26 +9,22 @@ import java.util.function.ToLongFunction;
 import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.registry.TransferablesReg;
 import de.einholz.ehmooshroom.storage.SideConfigType;
+import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import de.einholz.ehmooshroom.storage.StorageEntry;
-import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
-import de.einholz.ehmooshroom.storage.providers.FluidStorageProv;
-import de.einholz.ehmooshroom.storage.providers.ItemStorageProv;
+import de.einholz.ehmooshroom.storage.StorageProv;
 import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -44,11 +40,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, ItemStorageProv, FluidStorageProv, NbtSerializable {
+public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, StorageProv, NbtSerializable {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr(this);
-    private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer = new HashMap<>();
-    private Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
+    private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer;
+    private final Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
     
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
@@ -78,47 +74,53 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
             Direction targetDir = dir.getOpposite();
-            // self output / pull
+            // self output / push
             for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
-                if (!entry.trans.isTransferable()) continue;
-                Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
-                if (targetStorage == null) continue;
-                if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer())) setDirty();;
-            }
-            // self input / push
-            for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
                 if (!entry.trans.isTransferable()) continue;
                 Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
                 if (targetStorage == null) continue;
                 if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer())) setDirty();;
             }
-//          @SuppressWarnings("unchecked")
-//          TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
-//          BlockComponentHook hook = BlockComponentHook.INSTANCE;
-//          if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_INPUT, dir)) {
-//              if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//              if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.pull(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//              if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.pull(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//          }
-//          if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_OUTPUT, dir)) {
-//              if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//              if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.push(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//              if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.push(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-//          }
+            // self input / pull
+            for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
+                if (!entry.trans.isTransferable()) continue;
+                Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
+                if (targetStorage == null) continue;
+                if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer())) setDirty();;
+            }
+            /*
+            @SuppressWarnings("unchecked")
+            TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
+            BlockComponentHook hook = BlockComponentHook.INSTANCE;
+            if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_INPUT, dir)) {
+                if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+                if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.pull(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+                if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.pull(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+            }
+            if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_OUTPUT, dir)) {
+                if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+                if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.push(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+                if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.push(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
+            }
+            */
         }
+        // TODO is there a way to only sync if the gui is opened?
+        world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
         // TODO: only for early development replace with proper creative battery
         //if (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK) && getMachineCapacitorComp().getCurrentEnergy() < getMachineCapacitorComp().getMaxEnergy()) getMachineCapacitorComp().generateEnergy(world, pos, getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
     }
 
+    // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
     @SuppressWarnings("unchecked")
     public static <T> Boolean transfer(final Transferable<T, ? extends TransferVariant<T>> transferable, final Storage<?> fromRaw, final Storage<?> toRaw, final ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> transGetter, final BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> transReducer) {
+        // FIXME fix bug with StorageEntries appearing double in fromRaw
         final Storage<T> from;
         final Storage<T> to;
         try {
             from = (Storage<T>) fromRaw;
             to = (Storage<T>) toRaw;
         } catch (ClassCastException e) {
-            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("Types of storages do not match. Probably due to wrong BlockApiLookup."));
+            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("Types of storages do not match. Probably due to wrong BlockApiLookup.", e));
             return false;
         }
         if (!from.supportsExtraction() || !to.supportsInsertion()) return false;
@@ -150,9 +152,14 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         return dirty;
     }
 
-    public void setMaxTransfer(Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer) {
-        this.maxTransfer = maxTransfer;
-        resetTransfer();
+    public ContainerBE putMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans, long l) {
+        maxTransfer.put(trans, l);
+        return this;
+    }
+
+    public ContainerBE removeMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans) {
+        maxTransfer.remove(trans);
+        return this;
     }
 
     public ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> getTransfer() {
@@ -166,7 +173,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     public void resetTransfer() {
-        transfer = maxTransfer;
+        transfer = new HashMap<>(maxTransfer);
     }
 
     protected boolean isDirty() {
@@ -182,15 +189,9 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     }
 
     @Override
-    public Storage<ItemVariant> getItemStorage(@Nullable Direction dir) {
+    public <T, V extends TransferVariant<T>> Storage<V> getStorage(Transferable<T, V> trans, @Nullable Direction dir) {
         SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
-        return getStorageMgr().getCombinedStorage(TransferablesReg.ITEMS, acc, SideConfigType.getFromParams(true, false, acc), SideConfigType.getFromParams(true, true, acc));
-    }
-
-    @Override
-    public Storage<FluidVariant> getFluidStorage(@Nullable Direction dir) {
-        SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
-        return getStorageMgr().getCombinedStorage(TransferablesReg.FLUIDS, acc, SideConfigType.getFromParams(true, false, acc), SideConfigType.getFromParams(true, true, acc));
+        return getStorageMgr().getCombinedStorage(trans, acc, SideConfigType.getFromParams(true, false, acc), SideConfigType.getFromParams(true, true, acc));
     }
 
     @Override
@@ -235,13 +236,15 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
         buf.writeBlockPos(pos);
     }
 
-    @Deprecated // TODO del if unused
+    /* TODO del
+    @Deprecated
     public static BlockApiProvider<Storage<ItemVariant>, Direction> getItemStorageProv(BlockEntityType<? extends BlockEntity> type) {
         return (world, pos, state, null_be, dir) -> ((ItemStorageProv) type.get(world, pos)).getItemStorage(dir);
     }
 
-    @Deprecated // TODO del if unused
+    @Deprecated
     public static BlockApiProvider<Storage<FluidVariant>, Direction> getFluidStorageProv(BlockEntityType<? extends BlockEntity> type) {
         return (world, pos, state, null_be, dir) -> ((FluidStorageProv) type.get(world, pos)).getFluidStorage(dir);
     }
+    */
 }

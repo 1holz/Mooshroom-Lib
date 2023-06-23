@@ -1,6 +1,8 @@
 package de.einholz.ehmooshroom.registry;
 
-import java.util.function.BiFunction;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 import de.einholz.ehmooshroom.MooshroomLib;
@@ -9,15 +11,14 @@ import de.einholz.ehmooshroom.registry.rebs.BlocksREB;
 import de.einholz.ehmooshroom.registry.rebs.GuisREB;
 import de.einholz.ehmooshroom.registry.rebs.ItemsREB;
 import de.einholz.ehmooshroom.registry.rebs.RecipesREB;
+import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import de.einholz.ehmooshroom.util.LoggerHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockEntityApiProvider;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
@@ -37,12 +38,10 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     private Identifier id;
     private Function<RegEntryBuilder<B, G, S, R>, Block> blockFunc = (entry) -> null;
     private Block block;
-    private Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<ItemVariant>, Direction>> blockItemStorageProvFunc = (entry) -> null;
-    private Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<FluidVariant>, Direction>> blockFluidStorageProvFunc = (entry) -> null;
+    private Map<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>>> blockStorageProvFuncList = new HashMap<>();
     private Function<RegEntryBuilder<B, G, S, R>, BlockEntityType<B>> blockEntityTypeFunc = (entry) -> null;
     private BlockEntityType<B> blockEntityType;
-    private Function<RegEntryBuilder<B, G, S, R>, BiFunction<B, Direction, Storage<ItemVariant>>> blockEntityItemStorageProvFunc = (entry) -> null;
-    private Function<RegEntryBuilder<B, G, S, R>, BiFunction<B, Direction, Storage<FluidVariant>>> blockEntityFluidStorageProvFunc = (entry) -> null;
+    private Map<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>>> blockEntityStorageProvFuncList = new HashMap<>();
     private Function<RegEntryBuilder<B, G, S, R>, Item> itemFunc = (entry) -> null;
     private Item item;
     private Function<RegEntryBuilder<B, G, S, R>, Integer> fuelTicks;
@@ -103,14 +102,14 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockItemStorageProvRaw(Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<ItemVariant>, Direction>> blockItemStorageProvFunc) {
-        this.blockItemStorageProvFunc = blockItemStorageProvFunc;
+    public RegEntryBuilder<B, G, S, R> withBlockStorageProvFunc(Transferable<?, ?> trans, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>> storageProvFunc) {
+        blockStorageProvFuncList.put(trans, storageProvFunc);
         return this;
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockFluidStorageProvRaw(Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<FluidVariant>, Direction>> blockFluidStorageProvFunc) {
-        this.blockFluidStorageProvFunc = blockFluidStorageProvFunc;
+    public RegEntryBuilder<B, G, S, R> withoutBlockStorageProvFunc(Transferable<?, ?> trans) {
+        blockStorageProvFuncList.remove(trans);
         return this;
     }
 
@@ -126,14 +125,14 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockEntityItemStorageProvRaw(Function<RegEntryBuilder<B, G, S, R>, BiFunction<B, Direction, Storage<ItemVariant>>> blockEntityItemStorageProvFunc) {
-        this.blockEntityItemStorageProvFunc = blockEntityItemStorageProvFunc;
+    public RegEntryBuilder<B, G, S, R> withBlockEntityStorageProvFunc(Transferable<?, ?> trans, Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>> storageProvFunc) {
+        blockEntityStorageProvFuncList.put(trans, storageProvFunc);
         return this;
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockEntityFluidStorageProvRaw(Function<RegEntryBuilder<B, G, S, R>, BiFunction<B, Direction, Storage<FluidVariant>>> blockEntityFluidStorageProvFunc) {
-        this.blockEntityFluidStorageProvFunc = blockEntityFluidStorageProvFunc;
+    public RegEntryBuilder<B, G, S, R> withoutBlockEntityStorageProvFunc(Transferable<?, ?> trans) {
+        blockEntityStorageProvFuncList.remove(trans);
         return this;
     }
 
@@ -201,23 +200,24 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         return build(getEasyIdFactory().apply(path));
     }
 
+    @SuppressWarnings("null")
     public RegEntry<B, G, S, R> build(Identifier id) {
         this.id = id;
         block = blockFunc.apply(this);
         if (getBlock() != null) {
-            // XXX faster if registerForBlockEntities is used?
-            if (blockItemStorageProvFunc.apply(this) != null)
-                ItemStorage.SIDED.registerForBlocks(blockItemStorageProvFunc.apply(this), getBlock());
-            if (blockFluidStorageProvFunc.apply(this) != null)
-                FluidStorage.SIDED.registerForBlocks(blockFluidStorageProvFunc.apply(this), getBlock());
+            // XXX faster if registerForBlocks is properly used?
+            for (Entry<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>>> entry : blockStorageProvFuncList.entrySet()) {
+                if (entry.getKey().getLookup() == null) continue;
+                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup()).registerForBlocks(entry.getValue().apply(this), getBlock());
+            }
         }
         blockEntityType = blockEntityTypeFunc.apply(this);
         if (getBlockEntityType() != null) {
-            // XXX faster if registerForBlockEntities is used?
-            if (blockEntityItemStorageProvFunc.apply(this) != null)
-                ItemStorage.SIDED.registerForBlockEntity(blockEntityItemStorageProvFunc.apply(this), getBlockEntityType());
-            if (blockEntityFluidStorageProvFunc.apply(this) != null)
-                FluidStorage.SIDED.registerForBlockEntity(blockEntityFluidStorageProvFunc.apply(this), getBlockEntityType());
+            // XXX faster if registerForBlockEntities is properly used?
+            for (Entry<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>>> entry : blockEntityStorageProvFuncList.entrySet()) {
+                if (entry.getKey().getLookup() == null) continue;
+                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup()).registerForBlockEntities(entry.getValue().apply(this), getBlockEntityType());
+            }
         }
         item = itemFunc.apply(this);
         if (fuelTicks != null) {
