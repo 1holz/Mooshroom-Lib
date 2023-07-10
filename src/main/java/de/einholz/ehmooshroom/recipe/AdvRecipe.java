@@ -16,18 +16,18 @@ public class AdvRecipe implements Recipe<Inventory> {
     private final Identifier typeId;
     private final Identifier id;
     public final Ingredient<?>[] input; // TODO add catalysts (maybe with own SideConfigAccessor?)
-    //public final float consumes;
+    // public final float consumes;
     public final Exgredient<?>[] output;
-    //public final float generates;
+    // public final float generates;
     public final float timeModifier;
 
     public AdvRecipe(Identifier id, Ingredient<?>[] input, Exgredient<?>[] output, float timeModifier) {
         this.typeId = new Identifier(id.getNamespace(), id.getPath().split("/")[1]);
         this.id = id;
         this.input = input;
-        //this.consumes = consumes;
+        // this.consumes = consumes;
         this.output = output;
-        //this.generates = generates;
+        // this.generates = generates;
         this.timeModifier = timeModifier;
     }
 
@@ -52,21 +52,30 @@ public class AdvRecipe implements Recipe<Inventory> {
     }
 
     public boolean matches(BlockPos pos, World world) {
-        if (world.getBlockEntity(pos) instanceof RecipeHolder rh) return rh.containsIngredients(input);
+        if (world.getBlockEntity(pos) instanceof RecipeHolder rh)
+            return rh.containsIngredients(input);
         return false;
-        //if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy() < consumes) return false;
-        //return input == null || (input.items == null || input.items.length == 0 || be.containsItemIngredients(input.items))
-        //    && (input.fluids == null || input.fluids.length == 0 || be.containsFluidIngredients(input.fluids))
-        //    && (input.blocks == null || input.blocks.length == 0 || be.containsBlockIngredients(input.blocks))
-        //    && (input.entities == null || input.entities.length == 0 || be.containsEntityIngredients(input.entities))
-        //    && (input.data == null || input.data.length == 0 || be.containsDataIngredients(input.data));
+        // if (consumes != Float.NaN && be.getMachineCapacitorComp().getCurrentEnergy()
+        // < consumes) return false;
+        // return input == null || (input.items == null || input.items.length == 0 ||
+        // be.containsItemIngredients(input.items))
+        // && (input.fluids == null || input.fluids.length == 0 ||
+        // be.containsFluidIngredients(input.fluids))
+        // && (input.blocks == null || input.blocks.length == 0 ||
+        // be.containsBlockIngredients(input.blocks))
+        // && (input.entities == null || input.entities.length == 0 ||
+        // be.containsEntityIngredients(input.entities))
+        // && (input.data == null || input.data.length == 0 ||
+        // be.containsDataIngredients(input.data));
     }
 
     @Deprecated
     @Override
     public boolean matches(Inventory inv, World world) {
-        if (inv instanceof PosAsInv) return matches(((PosAsInv) inv).POS, world);
-        else return false;
+        if (inv instanceof PosAsInv)
+            return matches(((PosAsInv) inv).POS, world);
+        else
+            return false;
     }
 
     @Deprecated
@@ -85,7 +94,9 @@ public class AdvRecipe implements Recipe<Inventory> {
     @Deprecated
     @Override
     public ItemStack getOutput() {
-        for (Exgredient<?> out : output) if (out.getOutput() instanceof ItemStack stack) return stack;
+        for (Exgredient<?> out : output)
+            if (out.getOutput() instanceof ItemStack stack)
+                return stack;
         return ItemStack.EMPTY;
     }
 }

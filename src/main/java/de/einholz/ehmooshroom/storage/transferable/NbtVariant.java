@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 
 public abstract class NbtVariant<T> implements TransferVariant<T> {
 	private final @Nullable NbtCompound nbt;
@@ -22,11 +21,6 @@ public abstract class NbtVariant<T> implements TransferVariant<T> {
     @Override
 	public boolean hasNbt() {
 		return getNbt() != null || getNbt().isEmpty();
-	}
-
-    @Override
-	public boolean nbtMatches(@Nullable NbtCompound other) {
-        return NbtHelper.matches(getNbt(), other, true);
 	}
     
     @Override

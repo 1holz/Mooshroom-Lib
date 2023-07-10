@@ -23,8 +23,8 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
 
     @Override
     public long insert(T resource, long maxAmount, TransactionContext transaction) {
-		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
         if (!supportsInsertion()) return 0;
+		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
         long insertedAmount = Math.min(maxAmount, getCapacity());
         if (insertedAmount > 0) {
             updateSnapshots(transaction);
@@ -35,8 +35,8 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
 
     @Override
     public long extract(T resource, long maxAmount, TransactionContext transaction) {
-		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
         if (!supportsExtraction()) return 0;
+		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
         long extractedAmount = Math.min(maxAmount, getAmount());
         if (extractedAmount > 0) {
             updateSnapshots(transaction);

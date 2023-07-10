@@ -51,7 +51,8 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     private double speed = 1;
     private double efficiency = 1;
 
-    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+    public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
+            ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state, clientHandlerFactory);
     }
 
@@ -63,21 +64,28 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             recipeId = null;
         }
         isProcessing = progress > PROGRESS_MIN && isActivated();
-        //powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
-        //lastPower = getMachineCapacitorComp().getCurrentEnergy();
+        // powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
+        // lastPower = getMachineCapacitorComp().getCurrentEnergy();
         transfer();
-        if (!isProcessing && isActivated()) isProcessing = checkForRecipe();
+        if (!isProcessing && isActivated())
+            isProcessing = checkForRecipe();
         if (isProcessing) {
-            if (progress <= PROGRESS_MIN) start();
-            if (process()) task();
-            if (progress >= PROGRESS_MAX) complete();
-        } else idle();
+            if (progress <= PROGRESS_MIN)
+                start();
+            if (process())
+                task();
+            if (progress >= PROGRESS_MAX)
+                complete();
+        } else
+            idle();
         operate();
-        if (isDirty()) markDirty();
+        if (isDirty())
+            markDirty();
     }
 
     public boolean checkForRecipe() {
-        Optional<AdvRecipe> optional = world.getRecipeManager().getFirstMatch(getRecipeType(), new PosAsInv(pos), world);
+        Optional<AdvRecipe> optional = world.getRecipeManager().getFirstMatch(getRecipeType(), new PosAsInv(pos),
+                world);
         recipe = optional.orElse(null);
         return optional.isPresent();
     }
@@ -85,69 +93,86 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     @SuppressWarnings("null")
     public void start() {
         try (Transaction trans = Transaction.openOuter()) {
-            for (int i = 0; i < getRecipe().input.length; i++) if (!consume(trans, i)) {
-                trans.abort();
-                break;
-            }
-            if (Transaction.isOpen()) trans.commit();
-            else cancel();
+            for (int i = 0; i < getRecipe().input.length; i++)
+                if (!consume(trans, i)) {
+                    trans.abort();
+                    break;
+                }
+            if (Transaction.isOpen())
+                trans.commit();
+            else
+                cancel();
         }
 
         /*
-        for (Ingredient<?> ingredient : getRecipe().input) {
-            if (ingredient.getAmount() == 0) continue;
-            long amount = ingredient.getAmount();
-            List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(), SideConfigType.IN_IN);
-            for (StorageEntry<Object> entry : (List<StorageEntry<Object>>) entries) {
-                if (!ingredient.getType().isAssignableFrom(entry.clazz)) continue;
-                Iterator<StorageView<Object>> iter = entry.storage.iterator(trans);
-                while (iter.hasNext()) {
-                    StorageView<Object> view = iter.next();
-                    if (ingredient.matches(view.getResource(), new NbtCompound())) continue;
-                }
-            }
-        }
-
-        // OLD:
-        boolean consumerRecipe = (getRecipe().consumes == Double.NaN ? 0.0 : getRecipe().consumes) > (getRecipe().generates == Double.NaN ? 0.0 : getRecipe().generates);
-        int consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * getRecipe().consumes);
-        if ((consumerRecipe && getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().getPreferredType(), consum, ActionType.TEST) == consum) || !consumerRecipe) {
-            for (ItemIngredient ingredient : getRecipe().input.items) {
-                int consumingLeft = ingredient.amount;
-                for (Slot slot : getSlots(Type.INPUT)) {
-                    if (ingredient.ingredient.contains(slot.stack.getItem()) && NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) {
-                        if (slot.stack.getCount() >= consumingLeft) {
-                            slot.stack.decrement(consumingLeft);
-                            break;
-                        } else {
-                            consumingLeft -= slot.stack.getCount();
-                            slot.stack.setCount(0);;
-                        }
-                    }
-                }
-            }
-            //TODO: Fluids
-        }
-        */
+         * for (Ingredient<?> ingredient : getRecipe().input) {
+         * if (ingredient.getAmount() == 0) continue;
+         * long amount = ingredient.getAmount();
+         * List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(),
+         * SideConfigType.IN_IN);
+         * for (StorageEntry<Object> entry : (List<StorageEntry<Object>>) entries) {
+         * if (!ingredient.getType().isAssignableFrom(entry.clazz)) continue;
+         * Iterator<StorageView<Object>> iter = entry.storage.iterator(trans);
+         * while (iter.hasNext()) {
+         * StorageView<Object> view = iter.next();
+         * if (ingredient.matches(view.getResource(), new NbtCompound())) continue;
+         * }
+         * }
+         * }
+         *
+         * // OLD:
+         * boolean consumerRecipe = (getRecipe().consumes == Double.NaN ? 0.0 :
+         * getRecipe().consumes) > (getRecipe().generates == Double.NaN ? 0.0 :
+         * getRecipe().generates);
+         * int consum = (int) (getMachineDataComp().getEfficiency() *
+         * getMachineDataComp().getSpeed() * getRecipe().consumes);
+         * if ((consumerRecipe &&
+         * getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().
+         * getPreferredType(), consum, ActionType.TEST) == consum) || !consumerRecipe) {
+         * for (ItemIngredient ingredient : getRecipe().input.items) {
+         * int consumingLeft = ingredient.amount;
+         * for (Slot slot : getSlots(Type.INPUT)) {
+         * if (ingredient.ingredient.contains(slot.stack.getItem()) &&
+         * NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) {
+         * if (slot.stack.getCount() >= consumingLeft) {
+         * slot.stack.decrement(consumingLeft);
+         * break;
+         * } else {
+         * consumingLeft -= slot.stack.getCount();
+         * slot.stack.setCount(0);;
+         * }
+         * }
+         * }
+         * }
+         * //TODO: Fluids
+         * }
+         */
     }
 
-    @SuppressWarnings({"null", "unchecked"})
+    @SuppressWarnings({ "null", "unchecked" })
     protected <T, V extends TransferVariant<T>> boolean consume(Transaction trans, int i) {
         Ingredient<T> ingredient = (Ingredient<T>) getRecipe().input[i];
-        if (ingredient.getAmount() == 0) return true;
+        if (ingredient.getAmount() == 0)
+            return true;
         long remaining = ingredient.getAmount();
-        List<StorageEntry<T, V>> entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) ingredient.getType(), SideConfigType.IN_PROC);
+        List<StorageEntry<T, V>> entries = getStorageMgr()
+                .<T, V>getStorageEntries((Transferable<T, V>) ingredient.getType(), SideConfigType.IN_PROC);
         for (StorageEntry<T, V> entry : entries) {
-            if (!ingredient.getType().equals(entry.trans)) continue;
+            if (!ingredient.getType().equals(entry.trans))
+                continue;
             Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
-                if (!ingredient.matches(view.getResource())) continue;
+                if (!ingredient.matches(view.getResource()))
+                    continue;
                 remaining -= entry.storage.extract(view.getResource(), remaining, trans);
-                if (remaining == 0) break;
+                if (remaining == 0)
+                    break;
             }
-            if (remaining > 0) return false;
-            else setDirty();
+            if (remaining > 0)
+                return false;
+            else
+                setDirty();
         }
         return true;
     }
@@ -155,46 +180,58 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     @SuppressWarnings("null")
     public boolean process() {
         /*
-        boolean doConsum = getRecipe().consumes != Double.NaN && getRecipe().consumes > 0.0;
-        boolean canConsum = true;
-        int consum = 0;
-        boolean doGenerate = getRecipe().generates != Double.NaN && getRecipe().generates > 0.0;
-        boolean canGenerate = true;
-        int generate = 0;
-        */
+         * boolean doConsum = getRecipe().consumes != Double.NaN && getRecipe().consumes
+         * > 0.0;
+         * boolean canConsum = true;
+         * int consum = 0;
+         * boolean doGenerate = getRecipe().generates != Double.NaN &&
+         * getRecipe().generates > 0.0;
+         * boolean canGenerate = true;
+         * int generate = 0;
+         */
         boolean canProcess = isProcessing;
         /*
-        if (doConsum) {
-            consum = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * recipe.consumes);
-            if (getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().getPreferredType(), consum, ActionType.TEST) < consum) canConsum = false;
-        }
-        if (doGenerate) {
-            generate = (int) (getMachineDataComp().getEfficiency() * getMachineDataComp().getSpeed() * recipe.generates);
-            if (getMachineCapacitorComp().getCurrentEnergy() + generate > getMachineCapacitorComp().getMaxEnergy()) canGenerate = false;
-        }
-        if (doConsum) {
-            if (canConsum && canGenerate) getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().getPreferredType(), consum, ActionType.PERFORM);
-            else canProcess = false;
-        }
-        if (doGenerate) {
-            if (canConsum && canGenerate) getMachineCapacitorComp().generateEnergy(world, pos, generate);
-            else canProcess = false;
-        }
-        */
-        if (canProcess) setProgress(getProgress() + getRecipe().timeModifier * getSpeed());
+         * if (doConsum) {
+         * consum = (int) (getMachineDataComp().getEfficiency() *
+         * getMachineDataComp().getSpeed() * recipe.consumes);
+         * if (getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().
+         * getPreferredType(), consum, ActionType.TEST) < consum) canConsum = false;
+         * }
+         * if (doGenerate) {
+         * generate = (int) (getMachineDataComp().getEfficiency() *
+         * getMachineDataComp().getSpeed() * recipe.generates);
+         * if (getMachineCapacitorComp().getCurrentEnergy() + generate >
+         * getMachineCapacitorComp().getMaxEnergy()) canGenerate = false;
+         * }
+         * if (doConsum) {
+         * if (canConsum && canGenerate)
+         * getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().
+         * getPreferredType(), consum, ActionType.PERFORM);
+         * else canProcess = false;
+         * }
+         * if (doGenerate) {
+         * if (canConsum && canGenerate) getMachineCapacitorComp().generateEnergy(world,
+         * pos, generate);
+         * else canProcess = false;
+         * }
+         */
+        if (canProcess)
+            setProgress(getProgress() + getRecipe().timeModifier * getSpeed());
         return canProcess;
     }
 
-    public void task() {}
+    public void task() {
+    }
 
     @SuppressWarnings("null")
     public void complete() {
         // TODO add proper overflow protection
         try (Transaction trans = Transaction.openOuter()) {
-            for (int i = 0; i < getRecipe().output.length; i++) if (!generate(trans, i)) {
-                trans.abort();
-                break;
-            }
+            for (int i = 0; i < getRecipe().output.length; i++)
+                if (!generate(trans, i)) {
+                    trans.abort();
+                    break;
+                }
             if (Transaction.isOpen()) {
                 trans.commit();
                 setDirty();
@@ -203,34 +240,42 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         }
 
         /*
-        for (Exgredient<?> exgredient : getRecipe().output) {
-            List<?> entries = getStorageMgr().getStorageEntries(exgredient.getClass(), SideConfigType.OUT_IN);
-            for (StorageEntry<?> object : (List<StorageEntry<?>>) entries) {
-                
-            }
-        }
-        cancel();
-        */
+         * for (Exgredient<?> exgredient : getRecipe().output) {
+         * List<?> entries = getStorageMgr().getStorageEntries(exgredient.getClass(),
+         * SideConfigType.OUT_IN);
+         * for (StorageEntry<?> object : (List<StorageEntry<?>>) entries) {
+         *
+         * }
+         * }
+         * cancel();
+         */
     }
 
     // TODO combine with consume?
-    @SuppressWarnings({"null", "unchecked"})
+    @SuppressWarnings({ "null", "unchecked" })
     protected <T, V extends TransferVariant<T>> boolean generate(Transaction trans, int i) {
         Exgredient<T> exgredient = (Exgredient<T>) getRecipe().output[i];
-        if (exgredient.getAmount() == 0) return true;
+        if (exgredient.getAmount() == 0)
+            return true;
         long remaining = exgredient.getAmount();
-        List<StorageEntry<T, V>> entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) exgredient.getType(), SideConfigType.OUT_PROC);
+        List<StorageEntry<T, V>> entries = getStorageMgr()
+                .<T, V>getStorageEntries((Transferable<T, V>) exgredient.getType(), SideConfigType.OUT_PROC);
         for (StorageEntry<T, V> entry : entries) {
-            if (!exgredient.getType().equals(entry.trans)) continue;
+            if (!exgredient.getType().equals(entry.trans))
+                continue;
             Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
-                if (!exgredient.matches(view.getResource())) continue;
+                if (!exgredient.matches(view.getResource()))
+                    continue;
                 remaining -= entry.storage.insert(view.getResource(), remaining, trans);
-                if (remaining == 0) break;
+                if (remaining == 0)
+                    break;
             }
-            if (remaining > 0) return false;
-            else setDirty();
+            if (remaining > 0)
+                return false;
+            else
+                setDirty();
         }
         return true;
     }
@@ -241,9 +286,11 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         recipe = null;
     }
 
-    public void idle() {}
+    public void idle() {
+    }
 
-    public void operate() {}
+    public void operate() {
+    }
 
     // FIXME make less nested
     @Override
@@ -251,21 +298,28 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         try (Transaction trans = Transaction.openOuter()) {
             for (Ingredient<?> ingredient : ingredients) {
                 long remaining = ingredient.getAmount();
-                for (StorageEntry<Object, TransferVariant<Object>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.IN_PROC)) {
-                    if (!ingredient.getType().equals(entry.trans)) continue;
+                for (StorageEntry<Object, TransferVariant<Object>> entry : getStorageMgr().getStorageEntries(null,
+                        SideConfigType.IN_PROC)) {
+                    if (!ingredient.getType().equals(entry.trans))
+                        continue;
                     Iterator<StorageView<TransferVariant<Object>>> iter = entry.storage.iterator(trans);
                     while (iter.hasNext()) {
                         StorageView<TransferVariant<Object>> view = iter.next();
-                        if (view.isResourceBlank()) continue;
+                        if (view.isResourceBlank())
+                            continue;
                         TransferVariant<Object> variant = view.getResource();
-                        if (!ingredient.matches(variant)) continue;
+                        if (!ingredient.matches(variant))
+                            continue;
                         remaining -= view.extract(variant, remaining, trans);
-                        if (remaining <= 0) break;
+                        if (remaining <= 0)
+                            break;
                     }
-                    //remaining -= entry.storage.simulateExtract(null, remaining, trans);
-                    if (remaining <= 0) break;
+                    // remaining -= entry.storage.simulateExtract(null, remaining, trans);
+                    if (remaining <= 0)
+                        break;
                 }
-                if (remaining > 0) return false;
+                if (remaining > 0)
+                    return false;
             }
         }
         return true;
@@ -333,8 +387,10 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         String recipeStr = "";
-        if (getRecipe() != null) recipeStr = getRecipe().getId().toString();
-        else if (recipeId != null) recipeStr = recipeId.toString();
+        if (getRecipe() != null)
+            recipeStr = getRecipe().getId().toString();
+        else if (recipeId != null)
+            recipeStr = recipeId.toString();
         nbt.putString("Recipe", recipeStr);
         nbt.putString("ActivationState", getActivationState().name());
         nbt.putDouble("Progress", getProgress());
@@ -347,9 +403,12 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         if (nbt.contains("Recipe", NbtType.STRING)) {
             String str = nbt.getString("Recipe");
             recipeId = null;
-            if (str.isBlank()) recipe = null;
-            else if (world == null) recipeId = new Identifier(str);
-            else recipe = (AdvRecipe) world.getRecipeManager().get(new Identifier(str)).orElse(null);
+            if (str.isBlank())
+                recipe = null;
+            else if (world == null)
+                recipeId = new Identifier(str);
+            else
+                recipe = (AdvRecipe) world.getRecipeManager().get(new Identifier(str)).orElse(null);
         }
         if (nbt.contains("ActivationState", NbtType.STRING))
             activationState = ActivationState.valueOf(nbt.getString("ActivationState"));
@@ -363,7 +422,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         REDSTONE_OFF,
         OFF;
     }
-    
+
     public class SideConfigScreenHandlerFactory implements ExtendedScreenHandlerFactory {
         @Override
         public Text getDisplayName() {
@@ -375,7 +434,9 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             writeScreenOpeningData((ServerPlayerEntity) player, buf);
             return ((ExtendedScreenHandlerType<SideConfigGui>) Reg.SIDE_CONFIG.GUI).create(syncId, inv, buf);
-            //return RegistryHelper.getEntry(MooshroomLib.HELPER.makeId("side_config")).clientHandlerFactory.create(syncId, inv, buf);
+            // return
+            // RegistryHelper.getEntry(MooshroomLib.HELPER.makeId("side_config")).clientHandlerFactory.create(syncId,
+            // inv, buf);
         }
 
         @Override

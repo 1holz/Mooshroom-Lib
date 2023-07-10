@@ -16,11 +16,6 @@ public abstract class NbtlessVariant<T> implements TransferVariant<T> {
 	public boolean hasNbt() {
 		return false;
 	}
-
-    @Override
-	public boolean nbtMatches(@Nullable NbtCompound other) {
-        return other == null || other.isEmpty();
-	}
     
     @Override
 	@Nullable
