@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.storage.transferable;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
@@ -12,7 +12,7 @@ public final class EntityVariant extends NbtVariant<EntityType<?>> {
     private final EntityType<?> entityType;
 
     public EntityVariant(EntityType<?> entityType, @Nullable NbtCompound nbt) {
-        super(nbt);
+        super(entityType, nbt);
         this.entityType = entityType;
     }
 
@@ -26,13 +26,14 @@ public final class EntityVariant extends NbtVariant<EntityType<?>> {
         return entityType;
     }
 
-	@Override
-	public NbtCompound toNbt() {
-		NbtCompound to = new NbtCompound();
-		to.putString("entityType", Registry.ENTITY_TYPE.getId(getObject()).toString());
-		if (getNbt() != null) to.put("nbt", copyNbt());
-		return to;
-	}
+    @Override
+    public NbtCompound toNbt() {
+        NbtCompound to = new NbtCompound();
+        to.putString("entityType", Registry.ENTITY_TYPE.getId(getObject()).toString());
+        if (getNbt() != null)
+            to.put("nbt", copyNbt());
+        return to;
+    }
 
     public static EntityVariant fromNbt(final NbtCompound from) {
         final EntityType<?> entityType = Registry.ENTITY_TYPE.get(new Identifier(from.getString("entityType")));

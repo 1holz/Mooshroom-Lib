@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.storage.deprecated;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.item.Item;
@@ -38,7 +38,7 @@ public class CustomItemVariant implements ItemVariant {
     @Override
     public void toPacket(PacketByteBuf arg0) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }

@@ -11,25 +11,26 @@ public final class BlockVariant extends NbtlessVariant<Block> {
     private final Block block;
 
     public BlockVariant(Block block) {
+        super(block);
         this.block = block;
     }
 
     @Override
-	public boolean isBlank() {
+    public boolean isBlank() {
         return Blocks.AIR.equals(getObject()) || block == null;
     }
 
     @Override
-	public Block getObject() {
+    public Block getObject() {
         return block;
     }
 
-	@Override
-	public NbtCompound toNbt() {
-		NbtCompound to = new NbtCompound();
-		to.putString("Block", Registry.BLOCK.getId(getObject()).toString());
-		return to;
-	}
+    @Override
+    public NbtCompound toNbt() {
+        NbtCompound to = new NbtCompound();
+        to.putString("Block", Registry.BLOCK.getId(getObject()).toString());
+        return to;
+    }
 
     public static BlockVariant fromNbt(final NbtCompound from) {
         final Block block = Registry.BLOCK.get(new Identifier(from.getString("Block")));

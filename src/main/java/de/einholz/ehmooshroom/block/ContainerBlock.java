@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.block;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -36,9 +36,11 @@ public class ContainerBlock extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory screenFactory) { 
-            if (!world.isClient()) player.openHandledScreen(screenFactory);
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+            BlockHitResult hit) {
+        if (world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory screenFactory) {
+            if (!world.isClient())
+                player.openHandledScreen(screenFactory);
             return ActionResult.SUCCESS;
         }
         // TODO both needed?
@@ -50,23 +52,25 @@ public class ContainerBlock extends BlockWithEntity {
         return ActionResult.PASS;
     }
 
-    //FIXME: two times super method???
+    // FIXME: two times super method???
     @Override
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        //if (world.isClient) super.onBreak(world, pos, state, player);
+        // if (world.isClient) super.onBreak(world, pos, state, player);
         /*
-        ItemStack itemStack = new ItemStack(asItem());
-        NbtCompound nbtCompound = new NbtCompound();
-        world.getBlockEntity(pos).writeNbt(nbtCompound);
-        nbtCompound.remove("x");
-        nbtCompound.remove("y");
-        nbtCompound.remove("z");
-        nbtCompound.remove("id");
-        if (!nbtCompound.isEmpty()) itemStack.setSubNbt("BlockEntityNbt", nbtCompound);
-        ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), itemStack);
-        itemEntity.setToDefaultPickupDelay();
-        world.spawnEntity(itemEntity);
-        */
+         * ItemStack itemStack = new ItemStack(asItem());
+         * NbtCompound nbtCompound = new NbtCompound();
+         * world.getBlockEntity(pos).writeNbt(nbtCompound);
+         * nbtCompound.remove("x");
+         * nbtCompound.remove("y");
+         * nbtCompound.remove("z");
+         * nbtCompound.remove("id");
+         * if (!nbtCompound.isEmpty()) itemStack.setSubNbt("BlockEntityNbt",
+         * nbtCompound);
+         * ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(),
+         * pos.getZ(), itemStack);
+         * itemEntity.setToDefaultPickupDelay();
+         * world.spawnEntity(itemEntity);
+         */
         super.onBreak(world, pos, state, player);
     }
 
@@ -78,7 +82,8 @@ public class ContainerBlock extends BlockWithEntity {
     @Override
     @Nullable
     // FIXME better way then the ugly casting?
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state,
+            BlockEntityType<T> type) {
         return checkType(type, (BlockEntityType<T>) getBlockEntityType(), (BlockEntityTicker<T>) ticker);
         // if (getBlockEntityType() != type) return null;
         // return (@Nullable BlockEntityTicker<T>) ticker;
@@ -100,7 +105,8 @@ public class ContainerBlock extends BlockWithEntity {
     }
 
     protected BlockEntityType<? extends BlockEntity> getBlockEntityType() {
-        if (blockEntityType == null) blockEntityType = Registry.BLOCK_ENTITY_TYPE.get(id);
+        if (blockEntityType == null)
+            blockEntityType = Registry.BLOCK_ENTITY_TYPE.get(id);
         return blockEntityType;
     }
 }

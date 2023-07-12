@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.storage.deprecated;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.fluid.Fluid;
@@ -38,7 +38,7 @@ public class CustomFluidVariant implements FluidVariant {
     @Override
     public void toPacket(PacketByteBuf arg0) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }

@@ -4,6 +4,10 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 public abstract class SingletonVariant extends NbtlessVariant<Void> {
+    public SingletonVariant() {
+        super(null);
+    }
+
     @Override
     public Void getObject() {
         return null;
@@ -20,5 +24,11 @@ public abstract class SingletonVariant extends NbtlessVariant<Void> {
     }
 
     @Override
-    public void toPacket(PacketByteBuf buf) {}
+    public void toPacket(PacketByteBuf buf) {
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return getClass().isInstance(obj);
+    }
 }
