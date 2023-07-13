@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.storage.transferable.BlockVariant;
 import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
 import de.einholz.ehmooshroom.storage.transferable.EntityVariant;
 import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
@@ -15,7 +16,6 @@ import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -135,7 +135,8 @@ public class Exgredient<T, V> {
             return fluid;
         }, fluid -> fluid));
         FACTORIES.putIfAbsent(TransferablesReg.BLOCKS,
-                new Factories<>((id, amount, nbt) -> Registry.BLOCK.get(id).getDefaultState(), BlockState::getBlock));
+                new Factories<>((id, amount, nbt) -> Registry.BLOCK.get(id).getDefaultState(),
+                        state -> new BlockVariant(state.getBlock())));
         FACTORIES.putIfAbsent(TransferablesReg.ENTITIES, new Factories<>((id, amount, nbt) -> {
             // TODO getWorld or return EntityType
             Entity entity = Registry.ENTITY_TYPE.get(id).create(null);

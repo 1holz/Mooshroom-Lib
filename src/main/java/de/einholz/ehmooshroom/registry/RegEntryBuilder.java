@@ -34,6 +34,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
+// TODO use var instead of all the generics
 public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S extends HandledScreen<G>, R extends Recipe<?>> implements BlocksREB<B, G, S, R>, BlockEntitiesREB<B, G, S, R>, ItemsREB<B, G, S, R>, GuisREB<B, G, S, R>, RecipesREB<B, G, S, R> {
     private Identifier id;
     private Function<RegEntryBuilder<B, G, S, R>, Block> blockFunc = (entry) -> null;
