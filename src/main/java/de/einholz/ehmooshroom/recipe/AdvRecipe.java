@@ -17,11 +17,11 @@ public class AdvRecipe implements Recipe<Inventory> {
     private final Identifier id;
     public final Ingredient<?>[] input; // TODO add catalysts (maybe with own SideConfigAccessor?)
     // public final float consumes;
-    public final Exgredient<?>[] output;
+    public final Exgredient<?, ?>[] output;
     // public final float generates;
     public final float timeModifier;
 
-    public AdvRecipe(Identifier id, Ingredient<?>[] input, Exgredient<?>[] output, float timeModifier) {
+    public AdvRecipe(Identifier id, Ingredient<?>[] input, Exgredient<?, ?>[] output, float timeModifier) {
         this.typeId = new Identifier(id.getNamespace(), id.getPath().split("/")[1]);
         this.id = id;
         this.input = input;
@@ -94,7 +94,7 @@ public class AdvRecipe implements Recipe<Inventory> {
     @Deprecated
     @Override
     public ItemStack getOutput() {
-        for (Exgredient<?> out : output)
+        for (Exgredient<?, ?> out : output)
             if (out.getOutput() instanceof ItemStack stack)
                 return stack;
         return ItemStack.EMPTY;

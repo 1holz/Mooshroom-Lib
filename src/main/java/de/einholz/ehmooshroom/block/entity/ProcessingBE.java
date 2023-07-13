@@ -236,8 +236,8 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                 trans.commit();
                 setDirty();
             }
-            cancel();
         }
+        cancel();
 
         /*
          * for (Exgredient<?> exgredient : getRecipe().output) {
@@ -254,7 +254,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     // TODO combine with consume?
     @SuppressWarnings({ "null", "unchecked" })
     protected <T, V extends TransferVariant<T>> boolean generate(Transaction trans, int i) {
-        Exgredient<T> exgredient = (Exgredient<T>) getRecipe().output[i];
+        Exgredient<T, V> exgredient = (Exgredient<T, V>) getRecipe().output[i];
         if (exgredient.getAmount() == 0)
             return true;
         long remaining = exgredient.getAmount();
@@ -268,7 +268,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                 StorageView<V> view = iter.next();
                 if (!exgredient.matches(view.getResource()))
                     continue;
-                remaining -= entry.storage.insert(view.getResource(), remaining, trans);
+                remaining -= entry.storage.insert((V) exgredient.getOutputVariant(), remaining, trans);
                 if (remaining == 0)
                     break;
             }

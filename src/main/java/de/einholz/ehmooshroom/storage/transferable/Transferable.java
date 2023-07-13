@@ -18,14 +18,16 @@ public class Transferable<T, V extends TransferVariant<T>> {
     @Nullable
     private final BlockApiLookup<? extends Storage<V>, Direction> lookup;
 
-    public Transferable(final Class<V> variantType, final @Nullable TagFactory<T> tagFactory, final @Nullable BlockApiLookup<? extends Storage<V>, Direction> lookup) {
+    public Transferable(final Class<V> variantType, final @Nullable TagFactory<T> tagFactory,
+            final @Nullable BlockApiLookup<? extends Storage<V>, Direction> lookup) {
         this.variantType = variantType;
         this.tagFactory = tagFactory;
         this.lookup = lookup;
     }
 
     public void setId(Identifier id) {
-        if (this.id == null) this.id = id;
+        if (this.id == null)
+            this.id = id;
     }
 
     public Identifier getId() {
@@ -48,7 +50,7 @@ public class Transferable<T, V extends TransferVariant<T>> {
     }
 
     public boolean isTransferable() {
-        return lookup != null/* && variantType != null*/;
+        return lookup != null/* && variantType != null */;
     }
 
     public boolean isProcessable() {

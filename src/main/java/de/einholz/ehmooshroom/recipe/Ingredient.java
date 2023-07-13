@@ -15,13 +15,13 @@ import net.minecraft.util.Identifier;
 // XXX anotate constructor with only server?
 public class Ingredient<T> {
     private final Transferable<T, ? extends TransferVariant<T>> type;
-    @Nullable 
+    @Nullable
     private final Identified<T> tag;
     @Nullable
     private final NbtCompound nbt;
     private final long amount;
 
-    @SuppressWarnings({"unchecked", "null"})
+    @SuppressWarnings({ "unchecked", "null" })
     public Ingredient(Identifier typeId, @Nullable Identifier tagId, @Nullable NbtCompound nbt, long amount) {
         this.type = TransferablesReg.TRANSFERABLE.get(typeId);
         this.tag = tagId != null ? (Identified<T>) type.getTagFactory().create(tagId) : null;
@@ -44,18 +44,21 @@ public class Ingredient<T> {
     public static Ingredient<?> read(PacketByteBuf buf) {
         Identifier type = buf.readIdentifier();
         boolean bl = buf.readBoolean();
-        return new Ingredient<>(type, bl ? buf.readIdentifier() : null, buf.readBoolean() ? buf.readNbt() : null, buf.readVarLong());
+        return new Ingredient<>(type, bl ? buf.readIdentifier() : null, buf.readBoolean() ? buf.readNbt() : null,
+                buf.readVarLong());
     }
 
     @SuppressWarnings("null")
     public void write(PacketByteBuf buf) {
         buf.writeIdentifier(type.getId());
-        if (tag == null) buf.writeBoolean(false);
+        if (tag == null)
+            buf.writeBoolean(false);
         else {
             buf.writeBoolean(true);
             buf.writeIdentifier(tag.getId());
         }
-        if (nbt == null || nbt.isEmpty()) buf.writeBoolean(false);
+        if (nbt == null || nbt.isEmpty())
+            buf.writeBoolean(false);
         else {
             buf.writeBoolean(true);
             buf.writeNbt(nbt);
@@ -63,14 +66,17 @@ public class Ingredient<T> {
         buf.writeNbt(nbt).writeVarLong(amount);
     }
 
-    @SuppressWarnings({"null", "unchecked"})
+    @SuppressWarnings({ "null", "unchecked" })
     public boolean matches(TransferVariant<?> test) {
         if (type == null && tag == null) {
-            MooshroomLib.LOGGER.smallBug(new NullPointerException("Attempted to perform match test on Ingredient with null type and tag. This Ingredient will be skiped!"));
+            MooshroomLib.LOGGER.smallBug(new NullPointerException(
+                    "Attempted to perform match test on Ingredient with null type and tag. This Ingredient will be skiped!"));
             return true;
         }
-        if (!NbtHelper.matches(test.copyNbt(), nbt, true)) return false;
-        if (tag == null) return type.getVariantType().equals(test.getClass());
+        if (!NbtHelper.matches(test.copyNbt(), nbt, true))
+            return false;
+        if (tag == null)
+            return type.getVariantType().equals(test.getClass());
         return tag.contains((T) test.getObject());
     }
 

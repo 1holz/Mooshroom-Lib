@@ -20,6 +20,11 @@ public class SingleBlockStorage extends SingleVariantStorage<BlockVariant> imple
     }
 
     @Override
+    public long getAmount() {
+        return isResourceBlank() ? 0 : 1;
+    }
+
+    @Override
     protected long getCapacity(BlockVariant variant) {
         return isResourceBlank() ? 1 : 0;
     }
