@@ -19,12 +19,6 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class Bar extends WBar implements AdvTooltip {
-    /*
-    @Deprecated
-	public SimpleDataElement element;
-    @Deprecated
-	public SimpleCapacitorComponent capacitor;
-    */
     private final int color;
     private final long max;
     private final LongSupplier cur;
@@ -44,27 +38,13 @@ public class Bar extends WBar implements AdvTooltip {
         this.min = min;
 	}
 
-    /* TODO del
-    @Deprecated
-    public Bar(Identifier bg, Identifier fg, SimpleDataElement element, Direction dir) {
-        super(bg, fg, 0, 0, dir);
-		this.element = element;
-	}
-	
-    @Deprecated
-	public Bar(Identifier bg, Identifier fg, SimpleCapacitorComponent capacitor, Direction dir) {
-		super(bg, fg, 0, 0, dir);
-		this.capacitor = capacitor;
-	}
-    */
-
 	@Deprecated
 	@Override
 	public WBar withTooltip(String label) {
 		tooltips.add(label);
 		return this;
 	}
-	
+
 	@Deprecated
 	@Override
 	public WBar withTooltip(Text label) {
@@ -74,9 +54,9 @@ public class Bar extends WBar implements AdvTooltip {
 	@SuppressWarnings("unchecked")
 	public void addDefaultTooltip(String label) {
 		Supplier<?>[] suppliers = {
-			() -> getMin(),
-			() -> getCur(),
-			() -> getMax(),
+			() -> String.valueOf(min),
+			() -> String.valueOf(cur.getAsLong()),
+			() -> String.valueOf(max),
 		};
 		advancedTooltips.put(label, (Supplier<Object>[]) suppliers);
 	}
@@ -111,7 +91,7 @@ public class Bar extends WBar implements AdvTooltip {
                 break;
         }
 	}
-	
+
 	@Override
 	public List<String> getTooltips() {
 		return tooltips;
@@ -127,30 +107,7 @@ public class Bar extends WBar implements AdvTooltip {
 		AdvTooltip.super.addTooltip(info);
     }
 
-    @Deprecated
-	protected String getMin() {
-		return String.valueOf(min);
-        //return element != null ? element.getBarUnit().format(element.getBarMinimum()) : UnitManager.WORK_UNITS.format(0.0);
-	}
-
-    @Deprecated
-	protected String getCur() {
-		return String.valueOf(cur.getAsLong());
-        //return element != null ? element.getBarUnit().format(element.getBarCurrent()) : UnitManager.WORK_UNITS.format(capacitor.getCurrentEnergy());
-	}
-
-    @Deprecated
-	protected String getMax() {
-		return String.valueOf(max);
-        //return element != null ? element.getBarUnit().format(element.getBarMaximum()) : UnitManager.WORK_UNITS.format(capacitor.getMaxEnergy());
-	}
-
 	protected int getColor() {
         return color;
-        /*
-		if (element != null) return element.getBarUnit().getBarColor();
-		else if (capacitor != null) return UnitManager.WORK_UNITS.getBarColor();
-		else return 0;
-        */
 	}
 }

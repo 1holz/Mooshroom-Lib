@@ -2,7 +2,6 @@ package de.einholz.ehmooshroom.storage;
 
 import javax.annotation.Nullable;
 
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.util.math.Direction;

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+// TODO redo
 public class LoggerHelper {
     protected Logger logger;
     protected String bugTracker;

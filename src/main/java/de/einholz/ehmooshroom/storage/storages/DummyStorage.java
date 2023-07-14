@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -18,7 +18,7 @@ public class DummyStorage<T> implements Storage<T>, NbtSerializable {
     public boolean supportsExtraction() {
         return false;
     }
-    
+
     @Override
     public long insert(T resource, long maxAmount, TransactionContext transaction) {
         return 0;

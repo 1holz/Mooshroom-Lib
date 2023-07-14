@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage.transferable;
+package de.einholz.ehmooshroom.storage.variants;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;

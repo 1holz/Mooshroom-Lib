@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage.transferable;
+package de.einholz.ehmooshroom.storage.variants;
 
 import java.util.Objects;
 
@@ -7,31 +7,28 @@ import javax.annotation.Nullable;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
 
-public abstract class NbtVariant<T> implements TransferVariant<T> {
-    private final @Nullable NbtCompound nbt;
+public abstract class NbtlessVariant<T> implements TransferVariant<T> {
     private final int hash;
 
-    protected NbtVariant(T obj, NbtCompound nbt) {
-        this.nbt = nbt == null ? null : nbt.copy();
+    public NbtlessVariant(T obj) {
         hash = Objects.hash(obj);
     }
 
     @Override
     @Nullable
     public NbtCompound getNbt() {
-        return nbt;
+        return null;
     }
 
     @Override
     public boolean hasNbt() {
-        return getNbt() != null || getNbt().isEmpty();
+        return false;
     }
 
     @Override
     @Nullable
     public NbtCompound copyNbt() {
-        NbtCompound nbt = getNbt();
-        return nbt == null ? null : nbt.copy();
+        return null;
     }
 
     /*
@@ -47,8 +44,7 @@ public abstract class NbtVariant<T> implements TransferVariant<T> {
         if (obj == null)
             return false;
         if (getClass().isInstance(obj))
-            return hash == ((NbtVariant<?>) obj).hash || getObject().equals(((NbtVariant<?>) obj).getObject())
-                    && nbtMatches(((NbtVariant<?>) obj).getNbt());
+            return hash == ((NbtlessVariant<?>) obj).hash || getObject().equals(((NbtlessVariant<?>) obj).getObject());
         return false;
     }
 }

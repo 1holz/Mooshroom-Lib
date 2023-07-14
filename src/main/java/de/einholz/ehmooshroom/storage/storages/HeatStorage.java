@@ -1,6 +1,6 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
-import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
+import de.einholz.ehmooshroom.storage.variants.HeatVariant;
 import net.minecraft.block.entity.BlockEntity;
 
 public class HeatStorage extends BarStorage<HeatVariant> {

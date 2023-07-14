@@ -14,7 +14,7 @@ import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import de.einholz.ehmooshroom.storage.StorageEntry;
 import de.einholz.ehmooshroom.storage.StorageProv;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
@@ -46,7 +46,7 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer;
     private final Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
-    
+
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state);
         this.clientHandlerFactory = clientHandlerFactory;
@@ -235,16 +235,4 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(pos);
     }
-
-    /* TODO del
-    @Deprecated
-    public static BlockApiProvider<Storage<ItemVariant>, Direction> getItemStorageProv(BlockEntityType<? extends BlockEntity> type) {
-        return (world, pos, state, null_be, dir) -> ((ItemStorageProv) type.get(world, pos)).getItemStorage(dir);
-    }
-
-    @Deprecated
-    public static BlockApiProvider<Storage<FluidVariant>, Direction> getFluidStorageProv(BlockEntityType<? extends BlockEntity> type) {
-        return (world, pos, state, null_be, dir) -> ((FluidStorageProv) type.get(world, pos)).getFluidStorage(dir);
-    }
-    */
 }

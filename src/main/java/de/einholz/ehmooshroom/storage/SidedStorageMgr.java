@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.storages.AdvCombinedStorage;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
@@ -48,33 +48,6 @@ public class SidedStorageMgr implements NbtSerializable {
     public StorageEntry<?, ? extends TransferVariant<?>> getEntry(Identifier id) {
         return STORAGES.get(id);
     }
-
-    /* TODO del if not needed
-    public <T, U extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Storage<U> storage) {
-        return this.<T, U>withStorage(TransferablesReg.TRANSFERABLE.get(id), storage);
-    }
-
-    public <T, U extends TransferVariant<T>> SidedStorageMgr withStorage(Transferable<T, U> trans, Storage<U> storage) {
-        STORAGES.put((Transferable<?, TransferVariant<?>>) trans, new StorageEntry<T, U>(storage, SideConfigType.getDefaultArray(), trans));
-        return this;
-    }
-
-    public <T, U extends TransferVariant<T>> Storage<U> removeStorage(Identifier id) {
-        return this.<T, U>removeStorage(TransferablesReg.TRANSFERABLE.get(id));
-    }
-
-    public <T, U extends TransferVariant<T>> Storage<U> removeStorage(Transferable<T, U> trans) {
-        return (Storage<U>) STORAGES.remove(trans).storage;
-    }
-
-    public <T, U extends TransferVariant<T>> StorageEntry<T, U> getStorageEntry(Identifier id) {
-        return this.<T, U>getStorageEntry(TransferablesReg.TRANSFERABLE.get(id));
-    }
-
-    public <T, U extends TransferVariant<T>> StorageEntry<T, U> getStorageEntry(Transferable<T, U> trans) {
-        return (StorageEntry<T, U>) STORAGES.get(trans);
-    }
-    */
 
     public <T, V extends TransferVariant<T>, S extends Storage<V>> AdvCombinedStorage<T, V, S> getCombinedStorage(@Nullable Transferable<T, V> trans, SideConfigAccessor acc, @Nullable SideConfigType... configTypes) {
         return new AdvCombinedStorage<T, V, S>(acc, getStorageEntries(trans, configTypes));
@@ -122,44 +95,4 @@ public class SidedStorageMgr implements NbtSerializable {
             entry.getValue().readNbt(sidedStorageMgrNbt.getCompound(entry.getKey().toString()));
         }
     }
-
-    /* TODO del
-    @Deprecated
-    public static enum SideConfig {
-        SPECIAL(false, false),
-        INPUT(true, false),
-        OUTPUT(false, true),
-        STORAGE(true, true);
-        
-        public static SideConfig[][] getDefaultConfig() {
-            return new SideConfig[][] {
-                {STORAGE, STORAGE, STORAGE, STORAGE, STORAGE, STORAGE},
-                {SPECIAL, SPECIAL, SPECIAL, SPECIAL, SPECIAL, SPECIAL}
-            };
-        }
-
-        public final boolean IN;
-        public final boolean OUT;
-
-        private SideConfig(final boolean IN, final boolean OUT) {
-            this.IN = IN;
-            this.OUT = OUT;
-        }
-    }
-
-    @Deprecated
-    @SuppressWarnings("unused")
-    public static enum SideConfigBehavior {
-        SELF_IN('F'),
-        SELF_OUT('F'),
-        FOREIGN_IN('T'),
-        FOREIGN_OUT('T');
-
-        private final char def;
-
-        private SideConfigBehavior(char def) {
-            this.def = def;
-        }
-    }
-    */
 }

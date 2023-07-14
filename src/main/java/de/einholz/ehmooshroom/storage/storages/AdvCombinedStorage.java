@@ -1,9 +1,11 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
+import de.einholz.ehmooshroom.storage.StorageEntry;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
@@ -26,60 +28,6 @@ public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Stora
     public AdvCombinedStorage(SideConfigAccessor acc, List<StorageEntry<T, V>> parts) {
         this(false, false, acc, parts);
     }
-
-    /* TODO del if not needed
-    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, List<StorageEntry<T, U>> parts) {
-        this(blockInsertion, blockExtraction, null, parts);
-    }
-
-    public AdvCombinedStorage(@Nullable Direction dir, List<StorageEntry<T, U>> parts) {
-        this(false, false, dir, parts);
-    }
-
-    @SafeVarargs
-    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, @Nullable Direction dir, StorageEntry<T, U>... parts) {
-        this(blockInsertion, blockExtraction, dir, Arrays.asList(parts));
-    }
-
-    @SafeVarargs
-    public AdvCombinedStorage(boolean blockInsertion, boolean blockExtraction, StorageEntry<T, U>... parts) {
-        this(blockInsertion, blockExtraction, null, parts);
-    }
-
-    @SafeVarargs
-    public AdvCombinedStorage(@Nullable Direction dir, StorageEntry<T, U>... parts) {
-        this(false, false, dir, parts);
-    }
-
-    @SafeVarargs
-    public AdvCombinedStorage(StorageEntry<T, U>... parts) {
-        this(null, parts);
-    }
-
-    @Override
-    public long insert(U resource, long maxAmount, TransactionContext transaction) {
-        if (dir == null) return super.insert(resource, maxAmount, transaction);
-		StoragePreconditions.notNegative(maxAmount);
-		long amount = 0;
-		for (StorageEntry<T, U> entry : entries) {
-			amount += entry.storage.insert(resource, maxAmount - amount, transaction);
-			if (amount == maxAmount) break;
-		}
-		return amount;
-    }
-
-    @Override
-    public long extract(U resource, long maxAmount, TransactionContext transaction) {
-        if (dir == null) return super.extract(resource, maxAmount, transaction);
-		StoragePreconditions.notNegative(maxAmount);
-		long amount = 0;
-		for (StorageEntry<T, U> entry : entries) {
-			amount += entry.storage.extract(resource, maxAmount - amount, transaction);
-			if (amount == maxAmount) break;
-		}
-		return amount;
-    }
-    */
 
     @Override
     public boolean supportsInsertion() {

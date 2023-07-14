@@ -1,6 +1,6 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
-import de.einholz.ehmooshroom.storage.transferable.BlockVariant;
+import de.einholz.ehmooshroom.storage.variants.BlockVariant;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;

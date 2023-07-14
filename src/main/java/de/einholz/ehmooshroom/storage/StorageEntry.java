@@ -1,7 +1,6 @@
 package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;

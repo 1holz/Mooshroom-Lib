@@ -28,14 +28,6 @@ public interface GuisREB<B extends BlockEntity, G extends ScreenHandler, S exten
         return withGuiRaw((entry) -> factory.create(clientHandlerFactory));
     }
 
-    /* TODO del?
-    default RegEntry withGui(ExtendedClientHandlerFactory<G> clientHandlerFactory) {
-        this.clientHandlerFactory = clientHandlerFactory;
-        if (this.clientHandlerFactory != null) screenHandlerType = ScreenHandlerRegistry.registerExtended(id, this.clientHandlerFactory);
-        return this;
-    }
-    */
-
     default RegEntryBuilder<B, G, S, R> withScreenNull() {
         return withScreenRaw((entry) -> null);
     }
@@ -43,28 +35,4 @@ public interface GuisREB<B extends BlockEntity, G extends ScreenHandler, S exten
     default RegEntryBuilder<B, G, S, R> withScreenBuild(Factory<G, S> screenFactory) {
         return withScreenRaw((entry) -> screenFactory);
     }
-
-    /* TODO del if not needed
-    @FunctionalInterface
-    default static interface ScreenFactory<G extends ScreenHandler, T extends ScreenHandlerType<G>> {
-        T create(ExtendedClientHandlerFactory<G> factory);
-    }
-    
-    // fixme IF YOU KNOW A BETTER WAY OF DOING THIS PLEASE TELL ME!!!
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    default RegEntry withScreenHacky(Factory screenFactory) {
-        return withScreen(screenFactory);
-    }
-
-    default RegEntry<B, G, S, R> withScreen(Factory<G, S> screenFactory) {
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) return this;
-        this.screenFactory = screenFactory;
-        if (screenHandlerType == null) {
-            MooshroomLib.LOGGER.smallBug(new NullPointerException("You must add a Gui before Screen for " + id.toString()));
-            return this;
-        }
-        if (screenHandlerType != null && this.screenFactory != null) ScreenRegistry.<ScreenHandler, HandledScreen<ScreenHandler>>register(screenHandlerType, this.screenFactory);
-        return this;
-    }
-    */
 }

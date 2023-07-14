@@ -2,11 +2,11 @@ package de.einholz.ehmooshroom.registry;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.storage.BlockApiLookups;
-import de.einholz.ehmooshroom.storage.transferable.BlockVariant;
-import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
-import de.einholz.ehmooshroom.storage.transferable.EntityVariant;
-import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
+import de.einholz.ehmooshroom.storage.variants.BlockVariant;
+import de.einholz.ehmooshroom.storage.variants.ElectricityVariant;
+import de.einholz.ehmooshroom.storage.variants.EntityVariant;
+import de.einholz.ehmooshroom.storage.variants.HeatVariant;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.tag.TagFactory;

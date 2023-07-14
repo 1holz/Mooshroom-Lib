@@ -1,4 +1,4 @@
-package de.einholz.ehmooshroom.storage.transferable;
+package de.einholz.ehmooshroom.storage;
 
 import javax.annotation.Nullable;
 

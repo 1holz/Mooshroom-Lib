@@ -57,13 +57,6 @@ public enum SideConfigType {
         return array;
     }
 
-    /* TODO del
-    @Deprecated
-    public boolean isDefaultChar(char c) {
-        return getDefaultChar() == c;
-    }
-    */
-
     public char getDefaultChar() {
         return DEF;
     }

@@ -16,7 +16,7 @@ import de.einholz.ehmooshroom.recipe.RecipeHolder;
 import de.einholz.ehmooshroom.registry.Reg;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.StorageEntry;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
@@ -103,50 +103,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             else
                 cancel();
         }
-
-        /*
-         * for (Ingredient<?> ingredient : getRecipe().input) {
-         * if (ingredient.getAmount() == 0) continue;
-         * long amount = ingredient.getAmount();
-         * List<?> entries = getStorageMgr().getStorageEntries(ingredient.getType(),
-         * SideConfigType.IN_IN);
-         * for (StorageEntry<Object> entry : (List<StorageEntry<Object>>) entries) {
-         * if (!ingredient.getType().isAssignableFrom(entry.clazz)) continue;
-         * Iterator<StorageView<Object>> iter = entry.storage.iterator(trans);
-         * while (iter.hasNext()) {
-         * StorageView<Object> view = iter.next();
-         * if (ingredient.matches(view.getResource(), new NbtCompound())) continue;
-         * }
-         * }
-         * }
-         *
-         * // OLD:
-         * boolean consumerRecipe = (getRecipe().consumes == Double.NaN ? 0.0 :
-         * getRecipe().consumes) > (getRecipe().generates == Double.NaN ? 0.0 :
-         * getRecipe().generates);
-         * int consum = (int) (getMachineDataComp().getEfficiency() *
-         * getMachineDataComp().getSpeed() * getRecipe().consumes);
-         * if ((consumerRecipe &&
-         * getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().
-         * getPreferredType(), consum, ActionType.TEST) == consum) || !consumerRecipe) {
-         * for (ItemIngredient ingredient : getRecipe().input.items) {
-         * int consumingLeft = ingredient.amount;
-         * for (Slot slot : getSlots(Type.INPUT)) {
-         * if (ingredient.ingredient.contains(slot.stack.getItem()) &&
-         * NbtHelper.matches(ingredient.tag, slot.stack.getTag(), true)) {
-         * if (slot.stack.getCount() >= consumingLeft) {
-         * slot.stack.decrement(consumingLeft);
-         * break;
-         * } else {
-         * consumingLeft -= slot.stack.getCount();
-         * slot.stack.setCount(0);;
-         * }
-         * }
-         * }
-         * }
-         * //TODO: Fluids
-         * }
-         */
     }
 
     @SuppressWarnings({ "null", "unchecked" })
@@ -238,17 +194,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             }
         }
         cancel();
-
-        /*
-         * for (Exgredient<?> exgredient : getRecipe().output) {
-         * List<?> entries = getStorageMgr().getStorageEntries(exgredient.getClass(),
-         * SideConfigType.OUT_IN);
-         * for (StorageEntry<?> object : (List<StorageEntry<?>>) entries) {
-         *
-         * }
-         * }
-         * cancel();
-         */
     }
 
     // TODO combine with consume?
@@ -434,9 +379,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             writeScreenOpeningData((ServerPlayerEntity) player, buf);
             return ((ExtendedScreenHandlerType<SideConfigGui>) Reg.SIDE_CONFIG.GUI).create(syncId, inv, buf);
-            // return
-            // RegistryHelper.getEntry(MooshroomLib.HELPER.makeId("side_config")).clientHandlerFactory.create(syncId,
-            // inv, buf);
         }
 
         @Override

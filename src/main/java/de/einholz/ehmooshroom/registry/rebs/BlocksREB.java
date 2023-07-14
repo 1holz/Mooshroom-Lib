@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import de.einholz.ehmooshroom.registry.RegEntryBuilder;
 import de.einholz.ehmooshroom.storage.StorageProv;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.block.AbstractBlock.Settings;

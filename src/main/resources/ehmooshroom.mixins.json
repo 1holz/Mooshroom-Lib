@@ -3,12 +3,10 @@
     "minVersion": "0.8",
     "package": "de.einholz.ehmooshroom.mixin",
     "compatibilityLevel": "JAVA_17",
-    "mixins": [
-        "InventoryStorageImplA"
-    ],
+    "mixins": [],
     "client": [],
     "server": [],
     "injectors": {
         "defaultRequire": 1
     }
-  }
+}

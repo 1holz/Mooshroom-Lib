@@ -1,10 +1,10 @@
 package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.storage.transferable.BlockVariant;
-import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
-import de.einholz.ehmooshroom.storage.transferable.EntityVariant;
-import de.einholz.ehmooshroom.storage.transferable.HeatVariant;
+import de.einholz.ehmooshroom.storage.variants.BlockVariant;
+import de.einholz.ehmooshroom.storage.variants.ElectricityVariant;
+import de.einholz.ehmooshroom.storage.variants.EntityVariant;
+import de.einholz.ehmooshroom.storage.variants.HeatVariant;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.util.math.Direction;

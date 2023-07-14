@@ -24,25 +24,9 @@ import net.minecraft.util.registry.Registry;
 
 public class SideConfigGui extends ContainerGui {
     protected WLabel acc;
-    /* TODO del
-    protected WLabel gui;
-    protected WLabel process;
-    protected WLabel down;
-    protected WLabel up;
-    protected WLabel north;
-    protected WLabel south;
-    protected WLabel west;
-    protected WLabel east;
-    */
     protected WListPanel<Identifier, ConfigEntry> configPanel;
-    // XXX WListPanel might already have a scroll bar included
-    //protected WScrollPanel scrollPanel;
     protected List<Identifier> configIds;
-    /* FIXME check this class for content that can be removed
-    protected WLabel item;
-    protected WLabel fluid;
-    protected WLabel power;
-    */
+    // FIXME check this class for content that can be removed
     protected Map<Integer, ConfigButton> configButtons = new HashMap<Integer, ConfigButton>();
     protected Button cancel;
 
@@ -58,20 +42,9 @@ public class SideConfigGui extends ContainerGui {
 
     public static SideConfigGui init(SideConfigGui gui) {
         gui.acc = new WLabel(new TranslatableText("block.ehmooshroom.side_config.acc"));
-        /* TODO del
-        gui.gui = new WLabel(new TranslatableText("block.ehmooshroom.side_config.gui"));
-        gui.process = new WLabel(new TranslatableText("block.ehmooshroom.side_config.process"));
-        gui.down = new WLabel(new TranslatableText("block.ehmooshroom.side_config.down"));
-        gui.up = new WLabel(new TranslatableText("block.ehmooshroom.side_config.up"));
-        gui.north = new WLabel(new TranslatableText("block.ehmooshroom.side_config.north"));
-        gui.south = new WLabel(new TranslatableText("block.ehmooshroom.side_config.south"));
-        gui.west = new WLabel(new TranslatableText("block.ehmooshroom.side_config.west"));
-        gui.east = new WLabel(new TranslatableText("block.ehmooshroom.side_config.east"));
-        */
         gui.configIds = gui.getStorageMgr().getIds();
         // XXX: WHY DOES ConfigEntry::gui.new NOT WORK??? THIS REALLY SHOULD WORK!!!
         gui.configPanel = new WListPanel<>(gui.configIds, () -> gui.new ConfigEntry(), (id, entry) -> entry.build(id));
-        //gui.scrollPanel = new WScrollPanel(gui.configPanel);
         gui.cancel = (Button) new Button((player) -> {
             if (player.world.getBlockEntity(gui.POS) instanceof NamedScreenHandlerFactory screenFactory) {
                 if (!player.world.isClient) player.openHandledScreen(screenFactory);
@@ -85,10 +58,7 @@ public class SideConfigGui extends ContainerGui {
     @Override
     protected void initWidgets() {
         super.initWidgets();
-        /* TODO del
-        item = new WLabel(new TranslatableText("block.ehmooshroom.side_config.item"));
-        fluid = new WLabel(new TranslatableText("block.ehmooshroom.side_config.fluid"));
-        power = new WLabel(new TranslatableText("block.ehmooshroom.side_config.power"));
+        /*
         for (Identifier id : getStorageMgr().getIds()) for (SideConfigType type : SideConfigType.values()) {
             ConfigButton button = new ConfigButton(buttonExes.size(), id, type);
             buttonExes.add(button);
@@ -107,57 +77,9 @@ public class SideConfigGui extends ContainerGui {
     protected void drawDefault() {
         super.drawDefault();
         ((WGridPanel) rootPanel).add(acc, 2, 1, 7, 1);
-        /* TODO del
-        ((WGridPanel) rootPanel).add(gui, 2, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(process, 3, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(down, 4, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(up, 5, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(north, 6, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(south, 7, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(west, 8, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(east, 9, 1, 1, 1);
-        ((WGridPanel) rootPanel).add(item, 0, 4, 4, 2);
-        ((WGridPanel) rootPanel).add(fluid, 0, 6, 4, 2);
-        ((WGridPanel) rootPanel).add(power, 0, 8, 4, 2);
-        configButtons.forEach((id, button) -> {
-            ((WGridPanel) rootPanel).add(button, button.type.ACC.ordinal() * 2 + 4 + (button.type.OUTPUT ? 1 : 0), button.TYPE.ordinal() * 2 + 4 + (button.behavoir.ordinal() + 1) % 2);
-        });
-        */
         ((WGridPanel) rootPanel).add(configPanel, 0, 2, 9, 5);
         ((WGridPanel) rootPanel).add(cancel, 9, 5, 1, 1);
     }
-
-    /* TODO del
-    @Override
-    public boolean onButtonClick(PlayerEntity player, int id) {
-        if (configButtons.containsKey(id)) {
-            ConfigButton button = configButtons.get(id);
-            if (button.isEnabled()) {
-                getStorageMgr().getEntry(button.storageId).change(button.type);
-                return true;
-            }
-        } else if (id == buttonExes.indexOf(cancel) && world.getBlockEntity(POS) instanceof NamedScreenHandlerFactory screenFactory) {
-            if (!world.isClient) player.openHandledScreen(screenFactory);
-            return true;
-        }
-        return false;
-    }
-
-    @Deprecated
-    protected MachineDataComponent getMachineDataComp() {
-        return (MachineDataComponent) getDataComp().getComp(MooshroomLib.HELPER.makeId("data_machine"));
-    }
-
-    @Deprecated
-    protected AdvancedCapacitorComponent getCapacitorComp() {
-        return (AdvancedCapacitorComponent) BlockComponentProvider.get(world.getBlockState(pos)).getComponent(world, pos, UniversalComponents.CAPACITOR_COMPONENT, null);
-    }
-
-    @Deprecated
-    protected AdvancedInventoryComponent getMachineInvComp() {
-        return (AdvancedInventoryComponent) getInvComp().getComp(MooshroomLib.HELPER.makeId("inventory_machine"));
-    }
-    */
 
     protected class ConfigEntry extends WGridPanel {
         public ConfigEntry() {

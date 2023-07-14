@@ -1,6 +1,6 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
-import de.einholz.ehmooshroom.storage.transferable.SingletonVariant;
+import de.einholz.ehmooshroom.storage.variants.SingletonVariant;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
@@ -93,7 +93,7 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
     public long getCapacity() {
         return getMax() - getAmount();
     }
-    
+
     public long getBal() {
         return balance;
     }

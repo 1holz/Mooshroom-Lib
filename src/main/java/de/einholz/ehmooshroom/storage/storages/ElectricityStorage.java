@@ -1,6 +1,6 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
-import de.einholz.ehmooshroom.storage.transferable.ElectricityVariant;
+import de.einholz.ehmooshroom.storage.variants.ElectricityVariant;
 import net.minecraft.block.entity.BlockEntity;
 
 public class ElectricityStorage extends BarStorage<ElectricityVariant> {

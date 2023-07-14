@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import de.einholz.ehmooshroom.registry.RegEntryBuilder;
 import de.einholz.ehmooshroom.storage.StorageProv;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockEntityApiProvider;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
@@ -32,8 +32,8 @@ public interface BlockEntitiesREB<B extends BlockEntity, G extends ScreenHandler
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityBuild(Factory<B> blockEntityTypeFactory) {
-        return withBlockEntityRaw((entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, getBlock()).build());
-        //return withBlockEntityCustomBlocksBuild(blockEntityTypeFactory, getBlock());
+        //return withBlockEntityRaw((entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, getBlock()).build());
+        return withBlockEntityCustomBlocksBuild(blockEntityTypeFactory, getBlock());
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityStorageProvBuild(Transferable<?, ?> trans) {

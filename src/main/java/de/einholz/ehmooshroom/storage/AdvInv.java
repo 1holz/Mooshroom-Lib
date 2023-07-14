@@ -7,10 +7,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.util.Identifier;
 
 public class AdvInv extends SimpleInventory {
@@ -54,28 +52,4 @@ public class AdvInv extends SimpleInventory {
     public boolean isValid(int slot, ItemStack stack) {
         return accepters.getOrDefault(slot, defaultAcceptor).apply(stack);
     }
-
-    @Deprecated
-    @Override
-    public void provideRecipeInputs(RecipeMatcher finder) {
-        super.provideRecipeInputs(finder);
-    }
-
-    // TODO del if not needed
-    @Deprecated
-    public static Inventory itemStorageToInv(StorageEntry<?, ?> entry) {
-        if (entry.storage instanceof AdvItemStorage advStorage)
-            return advStorage.getInv();
-        MooshroomLib.LOGGER.bigBug(new IllegalStateException("ItemStorage must be of the type InventoryStorageImpl"));
-        return new SimpleInventory(0);
-    }
-
-    /* TODO del?
-    public static class Wrapper extends InventoryStorageImpl {
-        Wrapper(Inventory inventory) {
-            super(inventory);
-            // todo Auto-generated constructor stub
-        }
-    }
-    */
 }

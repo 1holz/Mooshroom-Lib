@@ -1,8 +1,9 @@
-package de.einholz.ehmooshroom.storage;
+package de.einholz.ehmooshroom.storage.storages;
 
 import java.util.Iterator;
 import java.util.List;
 
+import de.einholz.ehmooshroom.storage.AdvInv;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;

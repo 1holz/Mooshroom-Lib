@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.registry.TransferablesReg;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;

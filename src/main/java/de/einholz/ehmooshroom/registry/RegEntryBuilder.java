@@ -11,7 +11,7 @@ import de.einholz.ehmooshroom.registry.rebs.BlocksREB;
 import de.einholz.ehmooshroom.registry.rebs.GuisREB;
 import de.einholz.ehmooshroom.registry.rebs.ItemsREB;
 import de.einholz.ehmooshroom.registry.rebs.RecipesREB;
-import de.einholz.ehmooshroom.storage.transferable.Transferable;
+import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.util.LoggerHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
@@ -54,25 +54,6 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     private RecipeType<R> recipeType;
     private Function<RegEntryBuilder<B, G, S, R>, RecipeSerializer<R>> recipeSerializerFunc = (entry) -> null;
     private RecipeSerializer<R> recipeSerializer;
-
-    /*
-    private Factory<B> blockEntityTypeFactory;
-
-    //supplied:
-    private ItemGroup itemGroup;
-    //private ExtendedClientHandlerFactory<G> clientHandlerFactory;
-    //private Factory<ScreenHandler, HandledScreen<ScreenHandler>> screenFactory;
-    private RecipeType<? extends Recipe<?>> recipeType;
-    private RecipeSerializer<? extends Recipe<?>> recipeSerializer;
-    //created:
-    //private ScreenHandlerType<G> screenHandlerType;
-
-    @Deprecated // TODO del if unused
-    @SuppressWarnings("unchecked") // XXX is there a better way to do this?
-    public RegEntryBuilder<B, G, S, R> applyTemplate(Function<RegEntryBuilder<B, G, S, R>, ? extends RegEntryBuilder<? extends B, ? extends G, ? extends S>> template) {
-        return (RegEntryBuilder<B, G, S, R>) template.apply(this);
-    }
-    */
 
     protected LoggerHelper getLogger() {
         return MooshroomLib.LOGGER;
