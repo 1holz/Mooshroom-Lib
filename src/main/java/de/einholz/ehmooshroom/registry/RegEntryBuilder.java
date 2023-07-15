@@ -34,7 +34,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 // TODO use var instead of all the generics
-public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S extends HandledScreen<G>, R extends Recipe<?>> implements BlocksREB<B, G, S, R>, BlockEntitiesREB<B, G, S, R>, ItemsREB<B, G, S, R>, GuisREB<B, G, S, R>, RecipesREB<B, G, S, R> {
+public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S extends HandledScreen<G>, R extends Recipe<?>>
+        implements BlocksREB<B, G, S, R>, BlockEntitiesREB<B, G, S, R>, ItemsREB<B, G, S, R>, GuisREB<B, G, S, R>,
+        RecipesREB<B, G, S, R> {
     private Identifier id;
     private Function<RegEntryBuilder<B, G, S, R>, Block> blockFunc = (entry) -> null;
     private Block block;
@@ -83,7 +85,8 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockStorageProvFunc(Transferable<?, ?> trans, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>> storageProvFunc) {
+    public RegEntryBuilder<B, G, S, R> withBlockStorageProvFunc(Transferable<?, ?> trans,
+            Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>> storageProvFunc) {
         blockStorageProvFuncList.put(trans, storageProvFunc);
         return this;
     }
@@ -100,13 +103,15 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockEntityRaw(Function<RegEntryBuilder<B, G, S, R>, BlockEntityType<B>> blockEntityTypeFunc) {
+    public RegEntryBuilder<B, G, S, R> withBlockEntityRaw(
+            Function<RegEntryBuilder<B, G, S, R>, BlockEntityType<B>> blockEntityTypeFunc) {
         this.blockEntityTypeFunc = blockEntityTypeFunc;
         return this;
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withBlockEntityStorageProvFunc(Transferable<?, ?> trans, Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>> storageProvFunc) {
+    public RegEntryBuilder<B, G, S, R> withBlockEntityStorageProvFunc(Transferable<?, ?> trans,
+            Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>> storageProvFunc) {
         blockEntityStorageProvFuncList.put(trans, storageProvFunc);
         return this;
     }
@@ -150,7 +155,8 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withScreenRaw(Function<RegEntryBuilder<B, G, S, R>, ScreenRegistry.Factory<G, S>> screenFunc) {
+    public RegEntryBuilder<B, G, S, R> withScreenRaw(
+            Function<RegEntryBuilder<B, G, S, R>, ScreenRegistry.Factory<G, S>> screenFunc) {
         this.screenFunc = screenFunc;
         return this;
     }
@@ -161,7 +167,8 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withRecipeTypeRaw(Function<RegEntryBuilder<B, G, S, R>, RecipeType<R>> recipeTypeFunc) {
+    public RegEntryBuilder<B, G, S, R> withRecipeTypeRaw(
+            Function<RegEntryBuilder<B, G, S, R>, RecipeType<R>> recipeTypeFunc) {
         this.recipeTypeFunc = recipeTypeFunc;
         return this;
     }
@@ -171,7 +178,8 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     @Override
-    public RegEntryBuilder<B, G, S, R> withRecipeSerializerRaw(Function<RegEntryBuilder<B, G, S, R>, RecipeSerializer<R>> recipeSerializerFunc) {
+    public RegEntryBuilder<B, G, S, R> withRecipeSerializerRaw(
+            Function<RegEntryBuilder<B, G, S, R>, RecipeSerializer<R>> recipeSerializerFunc) {
         this.recipeSerializerFunc = recipeSerializerFunc;
         return this;
     }
@@ -188,32 +196,43 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         if (getBlock() != null) {
             // XXX faster if registerForBlocks is properly used?
             for (var entry : blockStorageProvFuncList.entrySet()) {
-                if (entry.getKey().getLookup() == null) continue;
-                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup()).registerForBlocks(entry.getValue().apply(this), getBlock());
+                if (entry.getKey().getLookup() == null)
+                    continue;
+                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup())
+                        .registerForBlocks(entry.getValue().apply(this), getBlock());
             }
         }
         blockEntityType = blockEntityTypeFunc.apply(this);
         if (getBlockEntityType() != null) {
             // XXX faster if registerForBlockEntities is properly used?
             for (var entry : blockEntityStorageProvFuncList.entrySet()) {
-                if (entry.getKey().getLookup() == null) continue;
-                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup()).registerForBlockEntities(entry.getValue().apply(this), getBlockEntityType());
+                if (entry.getKey().getLookup() == null)
+                    continue;
+                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup())
+                        .registerForBlockEntities(entry.getValue().apply(this), getBlockEntityType());
             }
         }
         item = itemFunc.apply(this);
         if (fuelTicks != null) {
-            if (getItem() == null) getLogger().smallBug(new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
-            else FuelRegistry.INSTANCE.add(getItem(), fuelTicks.apply(this));
+            if (getItem() == null)
+                getLogger().smallBug(
+                        new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
+            else
+                FuelRegistry.INSTANCE.add(getItem(), fuelTicks.apply(this));
         }
         gui = guiFunc.apply(this);
         screen = screenFunc.apply(this);
-        if (EnvType.CLIENT.equals(FabricLoader.getInstance().getEnvironmentType()) && getGui() != null && getScreen() != null) {
+        if (EnvType.CLIENT.equals(FabricLoader.getInstance().getEnvironmentType()) && getGui() != null
+                && getScreen() != null) {
             ScreenRegistry.register(getGui(), getScreen());
-            //HandledScreens.register
-            //HandledScreens.<SyncedGuiDescription, CottonInventoryScreen<? extends SyncedGuiDescription>>register(GUI, (gui, inventory, title) -> new ContainerScreen(gui, inventory.player, title));
+            // HandledScreens.register
+            // HandledScreens.<SyncedGuiDescription, CottonInventoryScreen<? extends
+            // SyncedGuiDescription>>register(GUI, (gui, inventory, title) -> new
+            // ContainerScreen(gui, inventory.player, title));
         }
         recipeType = recipeTypeFunc.apply(this);
         recipeSerializer = recipeSerializerFunc.apply(this);
-        return new RegEntry<B, G, S, R>(getId(), getBlock(), getBlockEntityType(), getItem(), getGui(), getScreen(), getRecipeType(), getRecipeSerializer());
+        return new RegEntry<B, G, S, R>(getId(), getBlock(), getBlockEntityType(), getItem(), getGui(), getScreen(),
+                getRecipeType(), getRecipeSerializer());
     }
 }

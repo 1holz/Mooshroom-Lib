@@ -135,42 +135,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
 
     @SuppressWarnings("null")
     public boolean process() {
-        /*
-         * boolean doConsum = getRecipe().consumes != Double.NaN && getRecipe().consumes
-         * > 0.0;
-         * boolean canConsum = true;
-         * int consum = 0;
-         * boolean doGenerate = getRecipe().generates != Double.NaN &&
-         * getRecipe().generates > 0.0;
-         * boolean canGenerate = true;
-         * int generate = 0;
-         */
         boolean canProcess = isProcessing;
-        /*
-         * if (doConsum) {
-         * consum = (int) (getMachineDataComp().getEfficiency() *
-         * getMachineDataComp().getSpeed() * recipe.consumes);
-         * if (getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().
-         * getPreferredType(), consum, ActionType.TEST) < consum) canConsum = false;
-         * }
-         * if (doGenerate) {
-         * generate = (int) (getMachineDataComp().getEfficiency() *
-         * getMachineDataComp().getSpeed() * recipe.generates);
-         * if (getMachineCapacitorComp().getCurrentEnergy() + generate >
-         * getMachineCapacitorComp().getMaxEnergy()) canGenerate = false;
-         * }
-         * if (doConsum) {
-         * if (canConsum && canGenerate)
-         * getMachineCapacitorComp().extractEnergy(getMachineCapacitorComp().
-         * getPreferredType(), consum, ActionType.PERFORM);
-         * else canProcess = false;
-         * }
-         * if (doGenerate) {
-         * if (canConsum && canGenerate) getMachineCapacitorComp().generateEnergy(world,
-         * pos, generate);
-         * else canProcess = false;
-         * }
-         */
         if (canProcess)
             setProgress(getProgress() + getRecipe().timeModifier * getSpeed());
         return canProcess;

@@ -22,16 +22,22 @@ public class AdvInv extends SimpleInventory {
 
     public AdvInv(Identifier... ids) {
         this(ids.length);
-        for (int i = 0; i < ids.length; i++) mapId(ids[i], i);
+        for (int i = 0; i < ids.length; i++)
+            mapId(ids[i], i);
     }
 
     public AdvInv mapId(Identifier id, int i) {
         if (i >= size()) {
-            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("Index for " + id.toString() + "is larger than the size of " + size()));
+            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException(
+                    "Index for " + id.toString() + "is larger than the size of " + size()));
             return this;
         }
         idToInt.add(i, id);
         return this;
+    }
+
+    public ItemStack getStack(Identifier id) {
+        return getStack(getSlotIndex(id));
     }
 
     public int getSlotIndex(Identifier id) {
@@ -44,7 +50,8 @@ public class AdvInv extends SimpleInventory {
     }
 
     public AdvInv setAccepter(Function<ItemStack, Boolean> accepter, Identifier... ids) {
-        for (Identifier id : ids) accepters.put(getSlotIndex(id), accepter);
+        for (Identifier id : ids)
+            accepters.put(getSlotIndex(id), accepter);
         return this;
     }
 

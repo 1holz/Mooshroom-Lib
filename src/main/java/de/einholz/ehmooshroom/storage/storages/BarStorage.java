@@ -10,7 +10,8 @@ import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 
-public abstract class BarStorage<T extends SingletonVariant> extends SnapshotParticipant<Long> implements SingleSlotStorage<T>, NbtSerializable {
+public abstract class BarStorage<T extends SingletonVariant> extends SnapshotParticipant<Long>
+        implements SingleSlotStorage<T>, NbtSerializable {
     public static final long MIN = 0L;
     private long cur = MIN;
     private long last = cur;
@@ -23,8 +24,9 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
 
     @Override
     public long insert(T resource, long maxAmount, TransactionContext transaction) {
-        if (!supportsInsertion()) return 0;
-		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+        if (!supportsInsertion())
+            return 0;
+        StoragePreconditions.notBlankNotNegative(resource, maxAmount);
         long insertedAmount = Math.min(maxAmount, getCapacity());
         if (insertedAmount > 0) {
             updateSnapshots(transaction);
@@ -35,8 +37,9 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
 
     @Override
     public long extract(T resource, long maxAmount, TransactionContext transaction) {
-        if (!supportsExtraction()) return 0;
-		StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+        if (!supportsExtraction())
+            return 0;
+        StoragePreconditions.notBlankNotNegative(resource, maxAmount);
         long extractedAmount = Math.min(maxAmount, getAmount());
         if (extractedAmount > 0) {
             updateSnapshots(transaction);
@@ -84,7 +87,7 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
     }
 
     public void decrease(long amount) {
-        setAmount(Math.max(BarStorage.MIN, getAmount() - Math.min(amount, 0)));
+        setAmount(Math.max(BarStorage.MIN, getAmount() - Math.max(amount, 0)));
     }
 
     abstract public long getMax();
@@ -111,6 +114,7 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        if (nbt.contains("Cur", NbtType.NUMBER)) setAmount(nbt.getLong("Cur"));
+        if (nbt.contains("Cur", NbtType.NUMBER))
+            setAmount(nbt.getLong("Cur"));
     }
 }

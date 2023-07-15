@@ -3,6 +3,9 @@ package de.einholz.ehmooshroom.storage.storages;
 import java.util.Iterator;
 import java.util.List;
 
+import org.spongepowered.include.com.google.gson.JsonIOException;
+
+import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.storage.AdvInv;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
@@ -16,6 +19,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 
@@ -86,8 +90,10 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
         for (int i = 0; i < getInv().size(); i++) {
             ItemStack stack = getInv().getStack(i);
             if (stack.isEmpty()) continue;
-            NbtCompound stackNbt = stack.writeNbt(new NbtCompound());
-            list.add(i, stackNbt);
+            NbtCompound slotNbt = new NbtCompound();
+            slotNbt.putInt("Index", i);
+            slotNbt.put("Stack", stack.writeNbt(new NbtCompound()));
+            list.add(slotNbt);
         }
         if (!list.isEmpty()) nbt.put("Inv", list);
         return nbt;
@@ -98,10 +104,13 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
         getInv().clear();
         NbtList list = nbt.getList("Inv", NbtType.COMPOUND);
         if (!list.isEmpty())
-            for (int i = 0; i < list.size(); i++) {
-                NbtCompound stackNbt = list.getCompound(i);
-                if (stackNbt.isEmpty()) continue;
-                getInv().setStack(i, ItemStack.fromNbt(stackNbt));
+            for (NbtElement slotNbtElement : list) {
+                if (slotNbtElement instanceof NbtCompound slotNbt) {
+                    var stack = ItemStack.fromNbt(slotNbt.getCompound("Stack"));
+                    if (stack.isEmpty()) continue;
+                    getInv().setStack(slotNbt.getInt("Index"), stack);
+                } else
+                    MooshroomLib.LOGGER.warn(new JsonIOException("NbtElement for AdvItemStorage has to be a NbtCompound"));
             }
         storage = InventoryStorage.of(inv, null);
     }

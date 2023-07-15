@@ -103,13 +103,6 @@ public class ContainerBE extends BlockEntity
         }
         // TODO is there a way to only sync if the gui is opened?
         world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
-        // TODO: only for early development replace with proper creative battery
-        // if
-        // (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK)
-        // && getMachineCapacitorComp().getCurrentEnergy() <
-        // getMachineCapacitorComp().getMaxEnergy())
-        // getMachineCapacitorComp().generateEnergy(world, pos,
-        // getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
     }
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
@@ -170,6 +163,10 @@ public class ContainerBE extends BlockEntity
     public ContainerBE removeMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans) {
         maxTransfer.remove(trans);
         return this;
+    }
+
+    public long getMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans) {
+        return maxTransfer.getOrDefault(trans, 0L);
     }
 
     public ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> getTransfer() {
