@@ -2,7 +2,6 @@ package de.einholz.ehmooshroom.registry;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Function;
 
 import de.einholz.ehmooshroom.MooshroomLib;
@@ -188,7 +187,7 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         block = blockFunc.apply(this);
         if (getBlock() != null) {
             // XXX faster if registerForBlocks is properly used?
-            for (Entry<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>>> entry : blockStorageProvFuncList.entrySet()) {
+            for (var entry : blockStorageProvFuncList.entrySet()) {
                 if (entry.getKey().getLookup() == null) continue;
                 ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup()).registerForBlocks(entry.getValue().apply(this), getBlock());
             }
@@ -196,7 +195,7 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         blockEntityType = blockEntityTypeFunc.apply(this);
         if (getBlockEntityType() != null) {
             // XXX faster if registerForBlockEntities is properly used?
-            for (Entry<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>>> entry : blockEntityStorageProvFuncList.entrySet()) {
+            for (var entry : blockEntityStorageProvFuncList.entrySet()) {
                 if (entry.getKey().getLookup() == null) continue;
                 ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup()).registerForBlockEntities(entry.getValue().apply(this), getBlockEntityType());
             }

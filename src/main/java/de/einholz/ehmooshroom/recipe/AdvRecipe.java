@@ -53,7 +53,7 @@ public class AdvRecipe implements Recipe<Inventory> {
         return false;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public boolean matches(Inventory inv, World world) {
         if (inv instanceof PosAsInv)
@@ -62,20 +62,20 @@ public class AdvRecipe implements Recipe<Inventory> {
             return false;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public ItemStack craft(Inventory inv) {
         return getOutput();
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Environment(EnvType.CLIENT)
     @Override
     public boolean fits(int width, int height) {
         return true;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public ItemStack getOutput() {
         for (Exgredient<?, ?> out : output)

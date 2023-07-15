@@ -17,60 +17,60 @@ public final class PosAsInv implements Inventory {
         MooshroomLib.LOGGER.smallBug(new UnsupportedOperationException("This inventory represents a BlockPos."));
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public void clear() {
         error();
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public boolean canPlayerUse(PlayerEntity player) {
         error();
         return false;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public ItemStack getStack(int slot) {
         error();
         return ItemStack.EMPTY;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public boolean isEmpty() {
         error();
         return true;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public void markDirty() {
         error();
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public ItemStack removeStack(int slot) {
         error();
         return ItemStack.EMPTY;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public ItemStack removeStack(int slot, int amount) {
         error();
         return ItemStack.EMPTY;
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public void setStack(int slot, ItemStack stack) {
         error();
     }
 
-    @Deprecated
+    @Deprecated(since = "0.0.5", forRemoval = false)
     @Override
     public int size() {
         error();

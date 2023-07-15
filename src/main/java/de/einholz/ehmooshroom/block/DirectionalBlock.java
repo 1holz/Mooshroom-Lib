@@ -7,7 +7,7 @@ import net.minecraft.state.StateManager.Builder;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.Direction;
 
-@Deprecated // del? included in ConatinerBlock now
+@Deprecated(since = "0.0.5", forRemoval = false) // XXX del? included in ConatinerBlock now
 public class DirectionalBlock extends Block {
     public DirectionalBlock(Settings settings) {
         super(settings);

@@ -42,17 +42,17 @@ public interface ItemsREB<B extends BlockEntity, G extends ScreenHandler, S exte
         return withFuelRaw((entry) -> null);
     }
 
-    // TODO Is this needed? Maybe for templates only?
+    // TODO add ItemGroups
     /*
     default RegEntry withItemBuildAutoItemGroup(ItemFactory<? extends Item> factory, Settings settings) {
         return withItemBuild(factory, settings.group(itemGroup));
     }
-    
+
     default RegEntry withItemGroup(ItemGroup itemGroup) {
         this.itemGroup = itemGroup;
         return this;
     }
-    
+
     default RegEntry withItemGroupBuild() {
         return withItemGroup(FabricItemGroupBuilder.create(id).icon(() -> new ItemStack(item)).build());
     }

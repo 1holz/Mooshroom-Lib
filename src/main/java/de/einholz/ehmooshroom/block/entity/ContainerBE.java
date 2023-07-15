@@ -12,7 +12,6 @@ import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
-import de.einholz.ehmooshroom.storage.StorageEntry;
 import de.einholz.ehmooshroom.storage.StorageProv;
 import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.util.NbtSerializable;
@@ -40,14 +39,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class ContainerBE extends BlockEntity implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, StorageProv, NbtSerializable {
+public class ContainerBE extends BlockEntity
+        implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, StorageProv, NbtSerializable {
     protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr(this);
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer;
     private final Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
 
-    public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state, ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+    public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
+            ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state);
         this.clientHandlerFactory = clientHandlerFactory;
     }
@@ -58,61 +59,65 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     // XXX make ticker static in general?
     public static void tick(World world, BlockPos pos, BlockState state, BlockEntity be) {
-        if (be instanceof ContainerBE containerBE) containerBE.tick(world, pos, state);
+        if (be instanceof ContainerBE containerBE)
+            containerBE.tick(world, pos, state);
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
         resetDitry();
         transfer();
-        if (isDirty()) markDirty();
+        if (isDirty())
+            markDirty();
     }
 
     @SuppressWarnings("null")
     public void transfer() {
-        if (world.isClient) return;
+        if (world.isClient)
+            return;
         resetTransfer();
         for (Direction dir : Direction.values()) {
             BlockPos targetPos = pos.offset(dir);
             Direction targetDir = dir.getOpposite();
             // self output / push
-            for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
-                if (!entry.trans.isTransferable()) continue;
+            for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
+                if (!entry.trans.isTransferable())
+                    continue;
                 Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
-                if (targetStorage == null) continue;
-                if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer())) setDirty();;
+                if (targetStorage == null)
+                    continue;
+                if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer()))
+                    setDirty();
+                ;
             }
             // self input / pull
-            for (StorageEntry<?, ? extends TransferVariant<?>> entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
-                if (!entry.trans.isTransferable()) continue;
+            for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
+                if (!entry.trans.isTransferable())
+                    continue;
                 Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
-                if (targetStorage == null) continue;
-                if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer())) setDirty();;
+                if (targetStorage == null)
+                    continue;
+                if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer()))
+                    setDirty();
+                ;
             }
-            /*
-            @SuppressWarnings("unchecked")
-            TransportingComponent<Component> comp = (TransportingComponent<Component>) entry.getValue();
-            BlockComponentHook hook = BlockComponentHook.INSTANCE;
-            if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_INPUT, dir)) {
-                if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.pull(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-                if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.pull(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-                if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.pull(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-            }
-            if (getConfigComp().allowsConfig(id, ConfigBehavior.SELF_OUTPUT, dir)) {
-                if (comp instanceof InventoryComponent && hook.hasInvComponent(world, targetPos, targetDir)) comp.push(hook.getInvComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-                if (comp instanceof TankComponent && hook.hasTankComponent(world, targetPos, targetDir)) comp.push(hook.getTankComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-                if (comp instanceof CapacitorComponent && hook.hasCapComponent(world, targetPos, targetDir)) comp.push(hook.getCapComponent(world, targetPos, targetDir), dir, Action.PERFORM);
-            }
-            */
         }
         // TODO is there a way to only sync if the gui is opened?
         world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
         // TODO: only for early development replace with proper creative battery
-        //if (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK) && getMachineCapacitorComp().getCurrentEnergy() < getMachineCapacitorComp().getMaxEnergy()) getMachineCapacitorComp().generateEnergy(world, pos, getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
+        // if
+        // (getMachineInvComp().getStack(getMachineInvComp().getIntFromId(MooshroomLib.HELPER.makeId("power_input"))).getItem().equals(Items.BEDROCK)
+        // && getMachineCapacitorComp().getCurrentEnergy() <
+        // getMachineCapacitorComp().getMaxEnergy())
+        // getMachineCapacitorComp().generateEnergy(world, pos,
+        // getMachineCapacitorComp().getPreferredType().getMaximumTransferSize());
     }
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
     @SuppressWarnings("unchecked")
-    public static <T> Boolean transfer(final Transferable<T, ? extends TransferVariant<T>> transferable, final Storage<?> fromRaw, final Storage<?> toRaw, final ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> transGetter, final BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> transReducer) {
+    public static <T> Boolean transfer(final Transferable<T, ? extends TransferVariant<T>> transferable,
+            final Storage<?> fromRaw, final Storage<?> toRaw,
+            final ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> transGetter,
+            final BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> transReducer) {
         // FIXME fix bug with StorageEntries appearing double in fromRaw
         final Storage<T> from;
         final Storage<T> to;
@@ -120,22 +125,27 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
             from = (Storage<T>) fromRaw;
             to = (Storage<T>) toRaw;
         } catch (ClassCastException e) {
-            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException("Types of storages do not match. Probably due to wrong BlockApiLookup.", e));
+            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException(
+                    "Types of storages do not match. Probably due to wrong BlockApiLookup.", e));
             return false;
         }
-        if (!from.supportsExtraction() || !to.supportsInsertion()) return false;
+        if (!from.supportsExtraction() || !to.supportsInsertion())
+            return false;
         boolean dirty = false;
         try (Transaction trans = Transaction.openOuter()) {
             Iterator<StorageView<T>> it = from.iterator(trans);
             while (it.hasNext()) {
                 StorageView<T> view = it.next();
-                if (view.isResourceBlank()) continue;
+                if (view.isResourceBlank())
+                    continue;
                 T resource = view.getResource();
                 long remainingTransfer = transGetter.applyAsLong(transferable);
-                if (remainingTransfer == 0) continue;
+                if (remainingTransfer == 0)
+                    continue;
                 try (Transaction inTrans = trans.openNested()) {
                     long extracted = view.extract(resource, remainingTransfer, inTrans);
-                    if (extracted == 0) continue;
+                    if (extracted == 0)
+                        continue;
                     long inserted = to.insert(resource, extracted, inTrans);
                     if (inserted != extracted && to.insert(resource, inserted, inTrans) != inserted) {
                         MooshroomLib.LOGGER.smallBug(new IllegalStateException("Transfer could not be completed."));
@@ -168,7 +178,8 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
 
     public BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> reduceTransfer() {
         return (trans, reduction) -> {
-            if (transfer.containsKey(trans)) transfer.put(trans, getTransfer().applyAsLong(trans) - reduction);
+            if (transfer.containsKey(trans))
+                transfer.put(trans, getTransfer().applyAsLong(trans) - reduction);
         };
     }
 
@@ -191,7 +202,8 @@ public class ContainerBE extends BlockEntity implements BlockEntityClientSeriali
     @Override
     public <T, V extends TransferVariant<T>> Storage<V> getStorage(Transferable<T, V> trans, @Nullable Direction dir) {
         SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
-        return getStorageMgr().getCombinedStorage(trans, acc, SideConfigType.getFromParams(true, false, acc), SideConfigType.getFromParams(true, true, acc));
+        return getStorageMgr().getCombinedStorage(trans, acc, SideConfigType.getFromParams(true, false, acc),
+                SideConfigType.getFromParams(true, true, acc));
     }
 
     @Override
