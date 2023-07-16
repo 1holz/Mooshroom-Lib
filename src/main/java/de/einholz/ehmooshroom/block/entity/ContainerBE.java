@@ -14,6 +14,7 @@ import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import de.einholz.ehmooshroom.storage.StorageProv;
 import de.einholz.ehmooshroom.storage.Transferable;
+import de.einholz.ehmooshroom.storage.storages.AdvCombinedStorage;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
@@ -87,7 +88,6 @@ public class ContainerBE extends BlockEntity
                     continue;
                 if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer()))
                     setDirty();
-                ;
             }
             // self input / pull
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
@@ -98,7 +98,6 @@ public class ContainerBE extends BlockEntity
                     continue;
                 if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer()))
                     setDirty();
-                ;
             }
         }
         // TODO is there a way to only sync if the gui is opened?
@@ -197,7 +196,8 @@ public class ContainerBE extends BlockEntity
     }
 
     @Override
-    public <T, V extends TransferVariant<T>> Storage<V> getStorage(Transferable<T, V> trans, @Nullable Direction dir) {
+    public <T, V extends TransferVariant<T>> AdvCombinedStorage<T, V, Storage<V>> getStorage(Transferable<T, V> trans,
+            @Nullable Direction dir) {
         SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
         return getStorageMgr().getCombinedStorage(trans, acc, SideConfigType.getFromParams(true, false, acc),
                 SideConfigType.getFromParams(true, true, acc));

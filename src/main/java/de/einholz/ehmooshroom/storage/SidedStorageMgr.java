@@ -35,7 +35,8 @@ public class SidedStorageMgr implements NbtSerializable {
         return new ArrayList<>(getIdSet());
     }
 
-    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Transferable<T, V> trans, Storage<V> storage) {
+    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Transferable<T, V> trans,
+            Storage<V> storage) {
         STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), trans, dirtyMarker));
         return this;
     }
@@ -49,26 +50,32 @@ public class SidedStorageMgr implements NbtSerializable {
         return STORAGES.get(id);
     }
 
-    public <T, V extends TransferVariant<T>, S extends Storage<V>> AdvCombinedStorage<T, V, S> getCombinedStorage(@Nullable Transferable<T, V> trans, SideConfigAccessor acc, @Nullable SideConfigType... configTypes) {
+    public <T, V extends TransferVariant<T>, S extends Storage<V>> AdvCombinedStorage<T, V, S> getCombinedStorage(
+            @Nullable Transferable<T, V> trans, SideConfigAccessor acc, @Nullable SideConfigType... configTypes) {
         return new AdvCombinedStorage<T, V, S>(acc, getStorageEntries(trans, configTypes));
     }
 
     // XXX private? to hacky?
     /*
-     * If trans or configTypes are null they will accept all Transferables/SideConfigTypes
+     * If trans or configTypes are null they will accept all
+     * Transferables/SideConfigTypes
      */
     @SuppressWarnings("unchecked")
-    public <T, V extends TransferVariant<T>> List<StorageEntry<T, V>> getStorageEntries(@Nullable Transferable<T, V> trans, @Nullable SideConfigType... configTypes) {
+    public <T, V extends TransferVariant<T>> List<StorageEntry<T, V>> getStorageEntries(
+            @Nullable Transferable<T, V> trans, @Nullable SideConfigType... configTypes) {
         List<StorageEntry<T, V>> list = new ArrayList<>();
-        for (StorageEntry<?, ? extends TransferVariant<?>> storageEntry : STORAGES.values()) {
-            if (trans != null && !trans.equals(storageEntry.trans)) continue;
+        for (var storageEntry : STORAGES.values()) {
+            if (trans != null && !trans.equals(storageEntry.trans))
+                continue;
             if (configTypes == null) {
                 list.add((StorageEntry<T, V>) storageEntry);
                 continue;
             }
-            for (SideConfigType configType : configTypes) if (storageEntry.allows(configType)) {
+            for (SideConfigType configType : configTypes) {
+                if (!storageEntry.allows(configType))
+                    continue;
                 list.add((StorageEntry<T, V>) storageEntry);
-                continue;
+                break;
             }
         }
         return list;
@@ -79,19 +86,23 @@ public class SidedStorageMgr implements NbtSerializable {
         NbtCompound sidedStorageMgrNbt = new NbtCompound();
         for (Entry<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> entry : STORAGES.entrySet()) {
             NbtCompound entryNbt = entry.getValue().writeNbt(new NbtCompound());
-            if (entryNbt.isEmpty()) continue;
+            if (entryNbt.isEmpty())
+                continue;
             sidedStorageMgrNbt.put(entry.getKey().toString(), entryNbt);
         }
-        if (!sidedStorageMgrNbt.isEmpty()) nbt.put("SidedStorageMgr", sidedStorageMgrNbt);
+        if (!sidedStorageMgrNbt.isEmpty())
+            nbt.put("SidedStorageMgr", sidedStorageMgrNbt);
         return nbt;
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        if (!nbt.contains("SidedStorageMgr", NbtType.COMPOUND)) return;
+        if (!nbt.contains("SidedStorageMgr", NbtType.COMPOUND))
+            return;
         NbtCompound sidedStorageMgrNbt = nbt.getCompound("SidedStorageMgr");
         for (Entry<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> entry : STORAGES.entrySet()) {
-            if (!sidedStorageMgrNbt.contains(entry.getKey().toString(), NbtType.COMPOUND)) continue;
+            if (!sidedStorageMgrNbt.contains(entry.getKey().toString(), NbtType.COMPOUND))
+                continue;
             entry.getValue().readNbt(sidedStorageMgrNbt.getCompound(entry.getKey().toString()));
         }
     }

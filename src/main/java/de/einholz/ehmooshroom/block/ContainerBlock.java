@@ -2,6 +2,8 @@ package de.einholz.ehmooshroom.block;
 
 import javax.annotation.Nullable;
 
+import de.einholz.ehmooshroom.block.entity.ContainerBE;
+import de.einholz.ehmooshroom.registry.TransferablesReg;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -17,6 +19,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -38,40 +41,25 @@ public class ContainerBlock extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
             BlockHitResult hit) {
-        if (world.getBlockEntity(pos) instanceof NamedScreenHandlerFactory screenFactory) {
-            if (!world.isClient())
-                player.openHandledScreen(screenFactory);
+        NamedScreenHandlerFactory screenFactory = state.createScreenHandlerFactory(world, pos);
+        if (screenFactory != null) {
+            player.openHandledScreen(screenFactory);
             return ActionResult.SUCCESS;
         }
-        // TODO both needed?
-        NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-        if (screenHandlerFactory != null) {
-            player.openHandledScreen(screenHandlerFactory);
-            return ActionResult.SUCCESS;
-        }
-        return ActionResult.PASS;
+        return super.onUse(state, world, pos, player, hand, hit);
     }
 
-    // FIXME: two times super method???
     @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        // if (world.isClient) super.onBreak(world, pos, state, player);
-        /*
-         * ItemStack itemStack = new ItemStack(asItem());
-         * NbtCompound nbtCompound = new NbtCompound();
-         * world.getBlockEntity(pos).writeNbt(nbtCompound);
-         * nbtCompound.remove("x");
-         * nbtCompound.remove("y");
-         * nbtCompound.remove("z");
-         * nbtCompound.remove("id");
-         * if (!nbtCompound.isEmpty()) itemStack.setSubNbt("BlockEntityNbt",
-         * nbtCompound);
-         * ItemEntity itemEntity = new ItemEntity(world, pos.getX(), pos.getY(),
-         * pos.getZ(), itemStack);
-         * itemEntity.setToDefaultPickupDelay();
-         * world.spawnEntity(itemEntity);
-         */
-        super.onBreak(world, pos, state, player);
+    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (state.isOf(newState.getBlock()))
+            return;
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof ContainerBE containerBE) {
+            ItemScatterer.spawn(world, pos, containerBE.getStorage(TransferablesReg.ITEMS, null).getAsInv());
+            // TODO implement comperator output
+            // world.updateComparators(pos, this);
+        }
+        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     @Override
