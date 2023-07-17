@@ -17,7 +17,10 @@ import net.minecraft.util.math.Direction;
 
 public interface BlocksREB<B extends BlockEntity, G extends ScreenHandler, S extends HandledScreen<G>, R extends Recipe<?>> {
     abstract RegEntryBuilder<B, G, S, R> withBlockRaw(Function<RegEntryBuilder<B, G, S, R>, Block> blockFunc);
-    abstract RegEntryBuilder<B, G, S, R> withBlockStorageProvFunc(Transferable<?, ?> trans, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>> storageProvFunc);
+
+    abstract RegEntryBuilder<B, G, S, R> withBlockStorageProvFunc(Transferable<?, ?> trans,
+            Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>> storageProvFunc);
+
     abstract RegEntryBuilder<B, G, S, R> withoutBlockStorageProvFunc(Transferable<?, ?> trans);
 
     default RegEntryBuilder<B, G, S, R> withBlockNull() {
@@ -30,10 +33,11 @@ public interface BlocksREB<B extends BlockEntity, G extends ScreenHandler, S ext
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockBuild(BlockFactory<? extends Block> factory, Settings settings) {
-        return withBlockRaw((entry) -> factory.create(settings));
+        return withBlockRaw(entry -> factory.create(settings));
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockStorageProvBuild(Transferable<?, ?> trans) {
-        return withBlockStorageProvFunc(trans, entry -> (world, pos, state, be, dir) -> ((StorageProv) world.getBlockState(pos).getBlock()).getStorage(trans, dir));
+        return withBlockStorageProvFunc(trans, entry -> (world, pos, state, be,
+                dir) -> ((StorageProv) world.getBlockState(pos).getBlock()).getStorage(trans, dir));
     }
 }

@@ -45,9 +45,9 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     private AdvRecipe recipe;
     private boolean isProcessing = false;
     private ActivationState activationState = ActivationState.REDSTONE_OFF;
-    public final static double PROGRESS_MIN = 0.0;
+    public static final double PROGRESS_MIN = 0.0;
     private double progress = 0.0;
-    public final static double PROGRESS_MAX = 1000.0;
+    public static final double PROGRESS_MAX = 1000.0;
     private double speed = 1;
     private double efficiency = 1;
 

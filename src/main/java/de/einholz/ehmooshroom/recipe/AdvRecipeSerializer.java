@@ -18,7 +18,7 @@ import net.minecraft.util.JsonHelper;
 
 // TODO use jankson
 public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
-    protected final static Factory FACTORY = AdvRecipe::new;
+    protected static final Factory FACTORY = AdvRecipe::new;
 
     // from file to server
     @Override

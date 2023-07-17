@@ -1,5 +1,7 @@
 package de.einholz.ehmooshroom.registry;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -13,6 +15,7 @@ import de.einholz.ehmooshroom.registry.rebs.RecipesREB;
 import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.util.LoggerHelper;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup.BlockApiProvider;
@@ -25,6 +28,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
@@ -37,23 +42,27 @@ import net.minecraft.util.math.Direction;
 public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S extends HandledScreen<G>, R extends Recipe<?>>
         implements BlocksREB<B, G, S, R>, BlockEntitiesREB<B, G, S, R>, ItemsREB<B, G, S, R>, GuisREB<B, G, S, R>,
         RecipesREB<B, G, S, R> {
+    private static final HashMap<Identifier, Collection<ItemStack>> itemGroupLists = new HashMap<>();
     private Identifier id;
-    private Function<RegEntryBuilder<B, G, S, R>, Block> blockFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, Block> blockFunc = entry -> null;
     private Block block;
     private Map<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockApiProvider<Storage<?>, Direction>>> blockStorageProvFuncList = new HashMap<>();
-    private Function<RegEntryBuilder<B, G, S, R>, BlockEntityType<B>> blockEntityTypeFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, BlockEntityType<B>> blockEntityTypeFunc = entry -> null;
     private BlockEntityType<B> blockEntityType;
     private Map<Transferable<?, ?>, Function<RegEntryBuilder<B, G, S, R>, BlockEntityApiProvider<Storage<?>, Direction>>> blockEntityStorageProvFuncList = new HashMap<>();
-    private Function<RegEntryBuilder<B, G, S, R>, Item> itemFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, Item> itemFunc = entry -> null;
     private Item item;
-    private Function<RegEntryBuilder<B, G, S, R>, Integer> fuelTicks;
-    private Function<RegEntryBuilder<B, G, S, R>, ScreenHandlerType<G>> guiFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, Integer> fuelTicks = entry -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, Identifier> itemGroupAddFunc = entry -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, Boolean> itemGroupCreateFunc = entry -> false;
+    private ItemGroup itemGroup;
+    private Function<RegEntryBuilder<B, G, S, R>, ScreenHandlerType<G>> guiFunc = entry -> null;
     private ScreenHandlerType<G> gui;
-    private Function<RegEntryBuilder<B, G, S, R>, ScreenRegistry.Factory<G, S>> screenFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, ScreenRegistry.Factory<G, S>> screenFunc = entry -> null;
     private ScreenRegistry.Factory<G, S> screen;
-    private Function<RegEntryBuilder<B, G, S, R>, RecipeType<R>> recipeTypeFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, RecipeType<R>> recipeTypeFunc = entry -> null;
     private RecipeType<R> recipeType;
-    private Function<RegEntryBuilder<B, G, S, R>, RecipeSerializer<R>> recipeSerializerFunc = (entry) -> null;
+    private Function<RegEntryBuilder<B, G, S, R>, RecipeSerializer<R>> recipeSerializerFunc = entry -> null;
     private RecipeSerializer<R> recipeSerializer;
 
     protected LoggerHelper getLogger() {
@@ -139,6 +148,22 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         return this;
     }
 
+    public ItemGroup getItemGroup() {
+        return itemGroup;
+    }
+
+    @Override
+    public RegEntryBuilder<B, G, S, R> withItemGroupAddRaw(Function<RegEntryBuilder<B, G, S, R>, Identifier> itemGroupAddFunc) {
+        this.itemGroupAddFunc = itemGroupAddFunc;
+        return this;
+    }
+
+    @Override
+    public RegEntryBuilder<B, G, S, R> withItemGroupCreateRaw(Function<RegEntryBuilder<B, G, S, R>, Boolean> itemGroupCreateFunc) {
+        this.itemGroupCreateFunc = itemGroupCreateFunc;
+        return this;
+    }
+
     // GUIS
     public ScreenHandlerType<G> getGui() {
         return gui;
@@ -189,16 +214,16 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         return build(getEasyIdFactory().apply(path));
     }
 
-    @SuppressWarnings("null")
     public RegEntry<B, G, S, R> build(Identifier id) {
         this.id = id;
         block = blockFunc.apply(this);
         if (getBlock() != null) {
             // XXX faster if registerForBlocks is properly used?
             for (var entry : blockStorageProvFuncList.entrySet()) {
-                if (entry.getKey().getLookup() == null)
+                BlockApiLookup<?, Direction> lookup = entry.getKey().getLookup();
+                if (lookup == null)
                     continue;
-                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup())
+                ((BlockApiLookup<Storage<?>, Direction>) lookup)
                         .registerForBlocks(entry.getValue().apply(this), getBlock());
             }
         }
@@ -206,20 +231,31 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         if (getBlockEntityType() != null) {
             // XXX faster if registerForBlockEntities is properly used?
             for (var entry : blockEntityStorageProvFuncList.entrySet()) {
-                if (entry.getKey().getLookup() == null)
+                BlockApiLookup<?, Direction> lookup = entry.getKey().getLookup();
+                if (lookup == null)
                     continue;
-                ((BlockApiLookup<Storage<?>, Direction>) entry.getKey().getLookup())
+                ((BlockApiLookup<Storage<?>, Direction>) lookup)
                         .registerForBlockEntities(entry.getValue().apply(this), getBlockEntityType());
             }
         }
         item = itemFunc.apply(this);
-        if (fuelTicks != null) {
-            if (getItem() == null)
-                getLogger().smallBug(
-                        new NullPointerException("You must add an Item before making it a fuel for " + id.toString()));
-            else
-                FuelRegistry.INSTANCE.add(getItem(), fuelTicks.apply(this));
+        Integer fuelTicksInt = fuelTicks.apply(this);
+        if (getItem() != null && fuelTicksInt != null && fuelTicksInt > 0)
+            FuelRegistry.INSTANCE.add(getItem(), fuelTicks.apply(this));
+        Identifier itemGroupId = itemGroupAddFunc.apply(this);
+        if (itemGroupId != null && getItem() != null) {
+            Collection<ItemStack> itemGroupList = itemGroupLists.getOrDefault(itemGroupId, new ArrayList<>());
+            itemGroupList.add(getItem().getDefaultStack());
+            itemGroupLists.putIfAbsent(itemGroupId, itemGroupList);
         }
+        Boolean createItemGroup = itemGroupCreateFunc.apply(this);
+        if (createItemGroup != null && createItemGroup && getItem() != null)
+            itemGroup = FabricItemGroupBuilder.create(id).icon(getItem()::getDefaultStack).appendItems(stacks -> {
+                // .addAll(...) throws NullPointerException for some reason
+                // stacks.addAll(itemGroupList.get(getId()));
+                for (ItemStack stack : itemGroupLists.getOrDefault(getId(), new ArrayList<>()))
+                    stacks.add(stack);
+            }).build();
         gui = guiFunc.apply(this);
         screen = screenFunc.apply(this);
         if (EnvType.CLIENT.equals(FabricLoader.getInstance().getEnvironmentType()) && getGui() != null
@@ -232,7 +268,7 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
         }
         recipeType = recipeTypeFunc.apply(this);
         recipeSerializer = recipeSerializerFunc.apply(this);
-        return new RegEntry<B, G, S, R>(getId(), getBlock(), getBlockEntityType(), getItem(), getGui(), getScreen(),
+        return new RegEntry<B, G, S, R>(getId(), getBlock(), getBlockEntityType(), getItem(), getItemGroup(), getGui(), getScreen(),
                 getRecipeType(), getRecipeSerializer());
     }
 }

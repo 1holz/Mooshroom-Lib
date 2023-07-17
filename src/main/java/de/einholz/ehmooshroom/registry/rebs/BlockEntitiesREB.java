@@ -29,18 +29,18 @@ public interface BlockEntitiesREB<B extends BlockEntity, G extends ScreenHandler
     abstract RegEntryBuilder<B, G, S, R> withoutBlockEntityStorageProvFunc(Transferable<?, ?> trans);
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityNull() {
-        return withBlockEntityRaw((entry) -> null);
+        return withBlockEntityRaw(entry -> null);
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityCustomBlocksBuild(Factory<B> blockEntityTypeFactory,
             Block... blocks) {
         return withBlockEntityRaw(
-                (entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, blocks).build());
+                entry -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, blocks).build());
     }
 
     default RegEntryBuilder<B, G, S, R> withBlockEntityBuild(Factory<B> blockEntityTypeFactory) {
         return withBlockEntityRaw(
-                (entry) -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, getBlock()).build());
+                entry -> FabricBlockEntityTypeBuilder.create(blockEntityTypeFactory, getBlock()).build());
         // the following will not work since getBlock() will be evaluated to late and
         // return null
         // return withBlockEntityCustomBlocksBuild(blockEntityTypeFactory, getBlock());

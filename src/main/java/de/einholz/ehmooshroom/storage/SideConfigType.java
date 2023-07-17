@@ -32,11 +32,11 @@ public enum SideConfigType {
     FOREIGN_OUT_W('T', true, true, SideConfigAccessor.WEST),
     FOREIGN_OUT_E('T', true, true, SideConfigAccessor.EAST);
 
-    public final static char[] CHARS = new char[]{
-        'T', // 00 AVAILABLE_TRUE
-        'F', // 01 AVAILABLE_FALSE
-        't', // 10 RESTRICTED_TRUE
-        'f'  // 11 RESTRICTED_FALSE
+    public static final char[] CHARS = new char[] {
+            'T', // 00 AVAILABLE_TRUE
+            'F', // 01 AVAILABLE_FALSE
+            't', // 10 RESTRICTED_TRUE
+            'f' // 11 RESTRICTED_FALSE
     };
     public final char DEF;
     public final boolean FOREIGN;
@@ -53,7 +53,8 @@ public enum SideConfigType {
     public static char[] getDefaultArray() {
         final SideConfigType[] values = SideConfigType.values();
         char[] array = new char[values.length];
-        for (int i = 0; i < array.length; i++) array[i] = values[i].getDefaultChar();
+        for (int i = 0; i < array.length; i++)
+            array[i] = values[i].getDefaultChar();
         return array;
     }
 
@@ -68,8 +69,10 @@ public enum SideConfigType {
     public static SideConfigType getFromParams(boolean foreign, boolean output, SideConfigAccessor acc) {
         int dirLen = Direction.values().length;
         SideConfigType[] values = SideConfigType.values();
-        if (SideConfigAccessor.GUI.equals(acc)) return values[output ? 1 : 0];
-        if (SideConfigAccessor.PROCESS.equals(acc)) return values[output ? 3 : 2];
+        if (SideConfigAccessor.GUI.equals(acc))
+            return values[output ? 1 : 0];
+        if (SideConfigAccessor.PROCESS.equals(acc))
+            return values[output ? 3 : 2];
         return values[(foreign ? 2 * dirLen : 0) + (output ? dirLen : 0) + acc.ordinal() + 2];
     }
 
