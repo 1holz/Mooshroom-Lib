@@ -17,7 +17,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -51,7 +50,7 @@ public class SideConfigGui extends ContainerGui {
                 return true;
             }
             return false;
-        }).setLabel(new LiteralText("X"));
+        }).setLabel(new TranslatableText("block.ehmooshroom.cancel_button"));
         return (SideConfigGui) ContainerGui.init(gui);
     }
 
