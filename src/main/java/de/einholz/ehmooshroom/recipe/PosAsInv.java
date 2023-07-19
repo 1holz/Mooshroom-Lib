@@ -14,7 +14,7 @@ public final class PosAsInv implements Inventory {
     }
 
     private void error() {
-        MooshroomLib.LOGGER.smallBug(new UnsupportedOperationException("This inventory represents a BlockPos."));
+        MooshroomLib.LOGGER.warnBug("This inventory represents a BlockPos.");
     }
 
     @Deprecated(since = "0.0.5", forRemoval = false)

@@ -25,7 +25,8 @@ public abstract class ContainerGui extends SyncedGuiDescription {
     private List<Button> buttonIds = new ArrayList<>();
     private ContainerScreen<? extends ContainerGui> screen;
 
-    protected ContainerGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId, PlayerInventory playerInv, PacketByteBuf buf) {
+    protected ContainerGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId,
+            PlayerInventory playerInv, PacketByteBuf buf) {
         super(type, syncId, playerInv);
         POS = buf.readBlockPos();
         // TODO something else needed here?
@@ -39,7 +40,8 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         return gui;
     }
 
-    protected void initWidgets() {}
+    protected void initWidgets() {
+    }
 
     protected void drawDefault() {
         ((WGridPanel) rootPanel).add(createPlayerInventoryPanel(), 0, 7);
@@ -71,22 +73,30 @@ public abstract class ContainerGui extends SyncedGuiDescription {
     @Nullable
     protected ContainerBE getBE() {
         BlockEntity be = world.getBlockEntity(POS);
-        if (be instanceof ContainerBE container) return container;
-        MooshroomLib.LOGGER.smallBug(new IllegalStateException("Attempted to use a ContainerGUI on a " + be.getClass().toString()));
+        if (be instanceof ContainerBE container)
+            return container;
+        MooshroomLib.LOGGER.warnBug("Attempted to use a ContainerGUI on a", be.getClass().toString());
         return null;
     }
 
     @Nullable
     protected SidedStorageMgr getStorageMgr() {
-        SidedStorageMgr mgr = getBE().getStorageMgr();
-        if (mgr != null) return mgr;
-        MooshroomLib.LOGGER.smallBug(new IllegalStateException("Can only retrieve StorageMgr from ContainerBE"));
+        ContainerBE be = getBE();
+        if (be == null) {
+            MooshroomLib.LOGGER.warnBug("BE is null");
+            return null;
+        }
+        SidedStorageMgr mgr = be.getStorageMgr();
+        if (mgr != null)
+            return mgr;
+        MooshroomLib.LOGGER.warnBug("Can only retrieve StorageMgr from a ContainerBE");
         return null;
     }
 
     @Override
     public boolean onButtonClick(PlayerEntity player, int id) {
-        if (id >= getButtonAmount()) return super.onButtonClick(player, id);
+        if (id >= getButtonAmount())
+            return super.onButtonClick(player, id);
         return buttonIds.get(id).execute(player);
     }
 

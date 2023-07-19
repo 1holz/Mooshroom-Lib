@@ -93,8 +93,8 @@ public class Exgredient<T, V> {
 
     public boolean matches(TransferVariant<?> test) {
         if (type == null/* && tag == null */) {
-            MooshroomLib.LOGGER.smallBug(new NullPointerException(
-                    "Attempted to perform match test on Exgredient with null type and tag. This Exgredient will be skiped!"));
+            MooshroomLib.LOGGER.warnBug(
+                    "Attempted to perform match test on Exgredient with null type and tag. This Exgredient will be skiped!");
             return true;
         }
         if (!NbtHelper.matches(test.copyNbt(), nbt, true))

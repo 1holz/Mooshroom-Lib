@@ -29,9 +29,7 @@ public class Bar extends WBar implements AdvTooltip {
     public Bar(Identifier bg, Identifier fg, int color, long min, LongSupplier cur, long max, Direction dir) {
         super(bg, fg, (int) cur.getAsLong(), (int) (max <= min ? min + 1 : max), dir);
         if (max <= min) {
-            MooshroomLib.LOGGER.smallBug(
-                    new IllegalArgumentException("Max value of " + max + " of bar with textures " + fg + " and " + bg
-                            + " has to be larger than the min of " + min + ". Max will be set to " + (min + 1)));
+            MooshroomLib.LOGGER.warnBug(0, "Max value of", max, "of bar with textures", fg,"and", bg, "has to be larger than the min of", min + ".", "Max will be set to", min + 1);
             max = min + 1;
         }
         this.color = color;

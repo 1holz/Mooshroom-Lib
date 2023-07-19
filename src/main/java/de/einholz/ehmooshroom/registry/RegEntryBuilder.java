@@ -74,11 +74,10 @@ public class RegEntryBuilder<B extends BlockEntity, G extends ScreenHandler, S e
     }
 
     public Identifier getId() {
-        if (id == null) {
-            getLogger().smallBug(new NullPointerException("Identifier is null! Probably it wasn't assigned yet"));
-            return getEasyIdFactory().apply("invalid");
-        }
-        return id;
+        if (id != null)
+            return id;
+        getLogger().warnBug("Identifier is null! Probably it was not assigned yet");
+        return getEasyIdFactory().apply("invalid");
     }
 
     // BLOCKS

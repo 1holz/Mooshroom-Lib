@@ -5,7 +5,10 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// TODO redo
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+
 public class LoggerHelper {
     protected Logger logger;
     protected String bugTracker;
@@ -20,76 +23,144 @@ public class LoggerHelper {
     }
 
     public void trace(Object... objs) {
-        logger.trace(concatObj(objs));
+        logger.trace(concatObjToString(objs));
     }
 
     public void debug(Object... objs) {
-        logger.debug(concatObj(objs));
+        logger.debug(concatObjToString(objs));
     }
 
     public void info(Object... objs) {
-        logger.info(concatObj(objs));
+        logger.info(concatObjToString(objs));
     }
 
     public void warn(Object... objs) {
-        logger.warn(concatObj(objs));
+        logger.warn(concatObjToString(objs));
     }
 
     public void error(Object... objs) {
-        logger.error(concatObj(objs));
+        logger.error(concatObjToString(objs));
     }
 
     public void fatal(Object... objs) {
-        logger.fatal(concatObj(objs));
+        logger.fatal(concatObjToString(objs));
     }
 
-    public void smallBug() {
-        warn("at: "+ new Throwable().getStackTrace()[1]);
-        warn("If you see this please report this as a bug at:", bugTracker);
+    public void warnBug(int nestingDepth, boolean trace) {
+        warn("A small bug occured");
+        if (trace)
+            warn("at:", new Throwable().getStackTrace()[1 + nestingDepth]);
+        warn("Please report this bug at:", bugTracker);
     }
 
-    public void smallBug(Object... objs) {
-        smallBug();
-        warn("Post this error here:", objs[0]);
+    public void warnBug() {
+        warnBug(1, true);
+    }
+
+    public void warnBug(int nestingDepth, Object... objs) {
+        warnBug(1 + nestingDepth, true);
+        warn("Post this error there:", objs[0]);
         warn(Arrays.copyOfRange(objs, 1, objs.length));
     }
 
-    public Throwable smallBug(Throwable e, String... strs) {
-        smallBug(e.getLocalizedMessage(), strs);
-        for (StackTraceElement stackTrace : e.getStackTrace()) debug(stackTrace);
-        return e;
+    // ideally would also use Object... but that would cause collisions
+    public void warnBug(String... strs) {
+        warnBug(1, (Object[]) strs);
     }
 
-    public void bigBug() {
-        bigBug(0);
-    }
-
-    public void bigBug(int add) {
+    public void errorBug(int nestingDepth, boolean trace) {
         error("This is a critical bug! This can lead to malfunctions!");
-        error("at: "+ new Throwable().getStackTrace()[1 + add]);
-        error("Please report this as a bug at:", bugTracker);
+        if (trace)
+            error("at:", new Throwable().getStackTrace()[1 + nestingDepth]);
+        error("Please report this bug at:", bugTracker);
     }
 
-    public Throwable bigBug(Throwable e) {
-        bigBug(1);
-        e.printStackTrace();
+    public void errorBug() {
+        errorBug(1, true);
+    }
+
+    public Throwable errorBug(int nestingDepth, String msg, Throwable e) {
+        errorBug(1 + nestingDepth, false);
+        logger.error(msg, e);
         return e;
+    }
+
+    public Throwable errorBug(String msg, Throwable e) {
+        return errorBug(1, msg, e);
+    }
+
+    public Throwable fatalBug(String msg, Throwable e) {
+        fatal("This is a fatal bug! This will lead to a crash!");
+        fatal("Please report this bug at:", bugTracker);
+        if (e instanceof CrashException ce)
+            throw ce;
+        if (msg == null)
+            msg = "No titel available!";
+        CrashReport report = CrashReport.create(e, msg);
+        throw new CrashException(report);
+    }
+
+    public void test(int nestingDepth, boolean suppress, String msg) {
+        if (suppress && !FabricLoader.getInstance().isDevelopmentEnvironment())
+            return;
+        if (!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            warn("This is a message from the developer for testing. This should not be in a release version!");
+            warn("Please report this bug at:", bugTracker);
+        }
+        fatal(msg);
+        info("at:", new Throwable().getStackTrace()[1 + nestingDepth]);
     }
 
     public void test(String msg) {
-        warn("This is a message from the developer for testing. This should not be in a release version");
-        fatal(msg);
-        info("at: "+ new Throwable().getStackTrace()[1]);
-        smallBug();
+        test(1, false, msg);
     }
 
     public void wip(String feature) {
         warn(feature, "is/are in a work in progress state and may not work properly");
     }
 
-    protected static String concatObj(Object... objs) {
+    private static String concatObjToString(Object... objs) {
         String msg = "";
-        for (Object obj : objs) msg = msg + " " + obj;
+        for (Object obj : objs)
+            msg = msg + " " + obj;
         return msg;
+    }
+
+    @Deprecated(since = "0.0.6", forRemoval = true)
+    public void smallBug() {
+        warnBug(1);
+    }
+
+    @Deprecated(since = "0.0.6", forRemoval = true)
+    public void smallBug(Object... objs) {
+        warnBug(1, objs);
+    }
+
+    @Deprecated(since = "0.0.6", forRemoval = true)
+    public Throwable smallBug(Throwable e, String... strs) {
+        warnBug(1, e, strs);
+        /*
+         * smallBug(e.getLocalizedMessage(), strs);
+         * for (StackTraceElement stackTrace : e.getStackTrace())
+         * debug(stackTrace);
+         */
+        return e;
+    }
+
+    @Deprecated(since = "0.0.6", forRemoval = true)
+    public void bigBug() {
+        errorBug(1, true);
+    }
+
+    @Deprecated(since = "0.0.6", forRemoval = true)
+    public void bigBug(int add) {
+        errorBug(1 + add, true);
+    }
+
+    @Deprecated(since = "0.0.6", forRemoval = true)
+    public Throwable bigBug(Throwable e) {
+        bigBug(1);
+        e.printStackTrace();
+        return e;
     }
 }

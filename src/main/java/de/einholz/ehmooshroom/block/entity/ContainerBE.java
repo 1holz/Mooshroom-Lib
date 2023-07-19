@@ -117,8 +117,7 @@ public class ContainerBE extends BlockEntity
             from = (Storage<T>) fromRaw;
             to = (Storage<T>) toRaw;
         } catch (ClassCastException e) {
-            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException(
-                    "Types of storages do not match. Probably due to wrong BlockApiLookup.", e));
+            MooshroomLib.LOGGER.errorBug("Types of storages do not match. Probably due to wrong BlockApiLookup", e);
             return false;
         }
         if (!from.supportsExtraction() || !to.supportsInsertion())
@@ -140,7 +139,7 @@ public class ContainerBE extends BlockEntity
                         continue;
                     long inserted = to.insert(resource, extracted, inTrans);
                     if (inserted != extracted && to.insert(resource, inserted, inTrans) != inserted) {
-                        MooshroomLib.LOGGER.smallBug(new IllegalStateException("Transfer could not be completed."));
+                        MooshroomLib.LOGGER.warnBug("Transfer could not be completed.");
                         inTrans.abort();
                         continue;
                     }

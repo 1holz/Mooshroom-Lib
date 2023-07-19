@@ -69,8 +69,8 @@ public class Ingredient<T> {
     @SuppressWarnings({ "null", "unchecked" })
     public boolean matches(TransferVariant<?> test) {
         if (type == null && tag == null) {
-            MooshroomLib.LOGGER.smallBug(new NullPointerException(
-                    "Attempted to perform match test on Ingredient with null type and tag. This Ingredient will be skiped!"));
+            MooshroomLib.LOGGER.warnBug(
+                    "Attempted to perform match test on Ingredient with null type and tag. This Ingredient will be skiped!");
             return true;
         }
         if (!NbtHelper.matches(test.copyNbt(), nbt, true))

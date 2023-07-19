@@ -28,8 +28,7 @@ public class AdvInv extends SimpleInventory {
 
     public AdvInv mapId(Identifier id, int i) {
         if (i >= size()) {
-            MooshroomLib.LOGGER.smallBug(new IllegalArgumentException(
-                    "Index for " + id.toString() + "is larger than the size of " + size()));
+            MooshroomLib.LOGGER.warnBug("Index for", id.toString(), "is larger than the size of", "" + size());
             return this;
         }
         idToInt.add(i, id);

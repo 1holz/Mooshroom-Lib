@@ -10,6 +10,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import de.einholz.ehmooshroom.MooshroomLib;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
@@ -30,17 +31,20 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
             List<Ingredient<?>> ingredientList = new ArrayList<Ingredient<?>>();
             for (int i = 0; i < jsonInput.size(); i++) {
                 JsonObject jsonIngredient = (JsonObject) jsonInput.get(i);
+                String type = JsonHelper.getString(jsonIngredient, "type", "");
+                Identifier tagId = null;
+                if (jsonIngredient.has("tagId"))
+                    tagId = new Identifier(JsonHelper.getString(jsonIngredient, "tagId"));
+                NbtCompound nbt;
                 try {
-                    ingredientList.add(new Ingredient<>(
-                            new Identifier(
-                                    jsonIngredient.has("type") ? JsonHelper.getString(jsonIngredient, "type") : ""),
-                            jsonIngredient.has("tagId") ? new Identifier(JsonHelper.getString(jsonIngredient, "tagId"))
-                                    : null,
-                            StringNbtReader.parse(JsonHelper.getString(jsonIngredient, "nbt", "{}")),
-                            JsonHelper.getLong(jsonIngredient, "amount", 0)));
+                    nbt = StringNbtReader.parse(JsonHelper.getString(jsonIngredient, "nbt", "{}"));
                 } catch (CommandSyntaxException e) {
-                    MooshroomLib.LOGGER.bigBug(e);
+                    MooshroomLib.LOGGER.errorBug("Something went wrong trying to parse the nbt for the ingredient "
+                            + type + " in the recipe " + id, e);
+                    nbt = new NbtCompound();
                 }
+                long amount = JsonHelper.getLong(jsonIngredient, "amount", 0L);
+                ingredientList.add(new Ingredient<>(new Identifier(type), tagId, nbt, amount));
             }
             ingredients = ingredientList.toArray(new Ingredient[ingredientList.size()]);
         }
@@ -51,17 +55,20 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
             List<Exgredient<?, ?>> exgredientList = new ArrayList<Exgredient<?, ?>>();
             for (int i = 0; i < jsonOutput.size(); i++) {
                 JsonObject jsonExgredient = (JsonObject) jsonOutput.get(i);
+                String type = JsonHelper.getString(jsonExgredient, "type", "");
+                Identifier exgredientId = null;
+                if (jsonExgredient.has("id"))
+                    exgredientId = new Identifier(JsonHelper.getString(jsonExgredient, "id"));
+                NbtCompound nbt;
                 try {
-                    exgredientList.add(new Exgredient<>(
-                            new Identifier(
-                                    jsonExgredient.has("type") ? JsonHelper.getString(jsonExgredient, "type") : ""),
-                            jsonExgredient.has("id") ? new Identifier(JsonHelper.getString(jsonExgredient, "id"))
-                                    : null,
-                            StringNbtReader.parse(JsonHelper.getString(jsonExgredient, "nbt", "{}")),
-                            JsonHelper.getLong(jsonExgredient, "amount", 0)));
+                    nbt = StringNbtReader.parse(JsonHelper.getString(jsonExgredient, "nbt", "{}"));
                 } catch (CommandSyntaxException e) {
-                    MooshroomLib.LOGGER.bigBug(e);
+                    MooshroomLib.LOGGER.errorBug("Something went wrong trying to parse the nbt for the exgredient "
+                            + type + " in the recipe " + id, e);
+                    nbt = new NbtCompound();
                 }
+                long amount = JsonHelper.getLong(jsonExgredient, "amount", 0L);
+                exgredientList.add(new Exgredient<>(new Identifier(type), exgredientId, nbt, amount));
             }
             exgredients = exgredientList.toArray(new Exgredient[exgredientList.size()]);
         }

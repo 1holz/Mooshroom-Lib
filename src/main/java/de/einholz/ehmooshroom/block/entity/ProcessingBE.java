@@ -236,7 +236,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     }
 
     public RecipeType<AdvRecipe> getRecipeType() {
-        MooshroomLib.LOGGER.smallBug(new IllegalStateException(getDisplayName() + " should have its own RecipeType"));
+        MooshroomLib.LOGGER.warnBug(getDisplayName().getString(), "should have its own RecipeType");
         return Reg.DUMMY_RECIPE_TYPE.RECIPE_TYPE;
     }
 
