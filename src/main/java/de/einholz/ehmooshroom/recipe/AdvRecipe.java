@@ -15,7 +15,8 @@ import net.minecraft.world.World;
 public class AdvRecipe implements Recipe<Inventory> {
     private final Identifier typeId;
     private final Identifier id;
-    public final Ingredient<?>[] input; // TODO add catalysts (maybe with own SideConfigAccessor?)
+    // TODO add catalysts (maybe with own SideConfigAccessor?)
+    public final Ingredient<?>[] input;
     public final Exgredient<?, ?>[] output;
     public final float timeModifier;
 

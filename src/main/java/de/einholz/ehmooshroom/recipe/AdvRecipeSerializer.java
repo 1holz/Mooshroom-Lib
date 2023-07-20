@@ -5,13 +5,10 @@ import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import de.einholz.ehmooshroom.MooshroomLib;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.util.Identifier;
@@ -29,23 +26,8 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
         if (json.has("input")) {
             JsonArray jsonInput = JsonHelper.getArray(json, "input");
             List<Ingredient<?>> ingredientList = new ArrayList<Ingredient<?>>();
-            for (int i = 0; i < jsonInput.size(); i++) {
-                JsonObject jsonIngredient = (JsonObject) jsonInput.get(i);
-                String type = JsonHelper.getString(jsonIngredient, "type", "");
-                Identifier tagId = null;
-                if (jsonIngredient.has("tagId"))
-                    tagId = new Identifier(JsonHelper.getString(jsonIngredient, "tagId"));
-                NbtCompound nbt;
-                try {
-                    nbt = StringNbtReader.parse(JsonHelper.getString(jsonIngredient, "nbt", "{}"));
-                } catch (CommandSyntaxException e) {
-                    MooshroomLib.LOGGER.errorBug("Something went wrong trying to parse the nbt for the ingredient "
-                            + type + " in the recipe " + id, e);
-                    nbt = new NbtCompound();
-                }
-                long amount = JsonHelper.getLong(jsonIngredient, "amount", 0L);
-                ingredientList.add(new Ingredient<>(new Identifier(type), tagId, nbt, amount));
-            }
+            for (int i = 0; i < jsonInput.size(); i++)
+                ingredientList.add(Gredient.<Object, Ingredient<Object>>readFromJson(Ingredient::new, jsonInput.get(i)));
             ingredients = ingredientList.toArray(new Ingredient[ingredientList.size()]);
         }
         // OUTPUT
@@ -53,23 +35,8 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
         if (json.has("output")) {
             JsonArray jsonOutput = JsonHelper.getArray(json, "output");
             List<Exgredient<?, ?>> exgredientList = new ArrayList<Exgredient<?, ?>>();
-            for (int i = 0; i < jsonOutput.size(); i++) {
-                JsonObject jsonExgredient = (JsonObject) jsonOutput.get(i);
-                String type = JsonHelper.getString(jsonExgredient, "type", "");
-                Identifier exgredientId = null;
-                if (jsonExgredient.has("id"))
-                    exgredientId = new Identifier(JsonHelper.getString(jsonExgredient, "id"));
-                NbtCompound nbt;
-                try {
-                    nbt = StringNbtReader.parse(JsonHelper.getString(jsonExgredient, "nbt", "{}"));
-                } catch (CommandSyntaxException e) {
-                    MooshroomLib.LOGGER.errorBug("Something went wrong trying to parse the nbt for the exgredient "
-                            + type + " in the recipe " + id, e);
-                    nbt = new NbtCompound();
-                }
-                long amount = JsonHelper.getLong(jsonExgredient, "amount", 0L);
-                exgredientList.add(new Exgredient<>(new Identifier(type), exgredientId, nbt, amount));
-            }
+            for (int i = 0; i < jsonOutput.size(); i++)
+                exgredientList.add(Gredient.<Object, Exgredient<Object, TransferVariant<Object>>>readFromJson(Exgredient::new, jsonOutput.get(i)));
             exgredients = exgredientList.toArray(new Exgredient[exgredientList.size()]);
         }
         // TIME MODIFIER
@@ -96,13 +63,14 @@ public class AdvRecipeSerializer implements RecipeSerializer<AdvRecipe> {
     public AdvRecipe read(Identifier id, PacketByteBuf buf) {
         Ingredient<?>[] ingredients = new Ingredient[buf.readVarInt()];
         for (int i = 0; i < ingredients.length; i++)
-            ingredients[i] = Ingredient.read(buf);
+            ingredients[i] = Gredient.<Object, Ingredient<Object>>read(Ingredient::new, buf);
         Exgredient<?, ?>[] exgredients = new Exgredient[buf.readVarInt()];
         for (int i = 0; i < exgredients.length; i++)
-            exgredients[i] = Exgredient.read(buf);
+            exgredients[i] = Gredient.<Object, Exgredient<Object, TransferVariant<Object>>>read(Exgredient::new, buf);
         return FACTORY.create(id, ingredients, exgredients, buf.readFloat());
     }
 
+    @FunctionalInterface
     private interface Factory {
         AdvRecipe create(Identifier id, Ingredient<?>[] input, Exgredient<?, ?>[] output, float timeModifier);
     }
