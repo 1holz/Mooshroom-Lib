@@ -1,7 +1,6 @@
 package de.einholz.ehmooshroom.block.entity;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -10,6 +9,7 @@ import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.gui.SideConfigGui;
 import de.einholz.ehmooshroom.recipe.AdvRecipe;
 import de.einholz.ehmooshroom.recipe.Exgredient;
+import de.einholz.ehmooshroom.recipe.Gredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
 import de.einholz.ehmooshroom.recipe.RecipeHolder;
@@ -94,7 +94,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     public void start() {
         try (Transaction trans = Transaction.openOuter()) {
             for (int i = 0; i < getRecipe().input.length; i++)
-                if (!consume(trans, i)) {
+                if (!consumeOrGenerate(trans, getRecipe().input[i])) {
                     trans.abort();
                     break;
                 }
@@ -103,34 +103,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             else
                 cancel();
         }
-    }
-
-    @SuppressWarnings({ "null", "unchecked" })
-    protected <T, V extends TransferVariant<T>> boolean consume(Transaction trans, int i) {
-        Ingredient<T> ingredient = (Ingredient<T>) getRecipe().input[i];
-        if (ingredient.getAmount() == 0)
-            return true;
-        long remaining = ingredient.getAmount();
-        List<StorageEntry<T, V>> entries = getStorageMgr()
-                .<T, V>getStorageEntries((Transferable<T, V>) ingredient.getType(), SideConfigType.IN_PROC);
-        for (StorageEntry<T, V> entry : entries) {
-            if (!ingredient.getType().equals(entry.trans))
-                continue;
-            Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
-            while (iter.hasNext()) {
-                StorageView<V> view = iter.next();
-                if (!ingredient.matches(view.getResource()))
-                    continue;
-                remaining -= entry.storage.extract(view.getResource(), remaining, trans);
-                if (remaining == 0)
-                    break;
-            }
-            if (remaining > 0)
-                return false;
-            else
-                setDirty();
-        }
-        return true;
     }
 
     @SuppressWarnings("null")
@@ -149,7 +121,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         // TODO add proper overflow protection
         try (Transaction trans = Transaction.openOuter()) {
             for (int i = 0; i < getRecipe().output.length; i++)
-                if (!generate(trans, i)) {
+                if (!consumeOrGenerate(trans, getRecipe().output[i])) {
                     trans.abort();
                     break;
                 }
@@ -161,30 +133,34 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         cancel();
     }
 
-    // TODO combine with consume?
-    @SuppressWarnings({ "null", "unchecked" })
-    protected <T, V extends TransferVariant<T>> boolean generate(Transaction trans, int i) {
-        Exgredient<T, V> exgredient = (Exgredient<T, V>) getRecipe().output[i];
-        if (exgredient.getAmount() == 0)
+    @SuppressWarnings("unchecked")
+    protected <T, V extends TransferVariant<T>> boolean consumeOrGenerate(Transaction trans, Gredient<T> gredient) {
+        boolean generate = gredient instanceof Ingredient<T>;
+        if (gredient.getAmount() <= 0)
             return true;
-        long remaining = exgredient.getAmount();
-        List<StorageEntry<T, V>> entries = getStorageMgr()
-                .<T, V>getStorageEntries((Transferable<T, V>) exgredient.getType(), SideConfigType.OUT_PROC);
+        long remaining = gredient.getAmount();
+        SideConfigType sct = generate ? SideConfigType.IN_PROC : SideConfigType.OUT_PROC;
+        var entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) gredient.getType(), sct);
         for (StorageEntry<T, V> entry : entries) {
-            if (!exgredient.getType().equals(entry.trans))
+            if (!gredient.getType().equals(entry.trans))
                 continue;
             Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
-                if (!exgredient.matches(view.getResource()))
+                if (!gredient.matches(view.getResource()))
                     continue;
-                remaining -= entry.storage.insert((V) exgredient.getOutputVariant(), remaining, trans);
+                if (generate)
+                    remaining -= entry.storage.insert(((Exgredient<T, V>) gredient).getOutputVariant(), remaining,
+                            trans);
+                else
+                    remaining -= entry.storage.extract(view.getResource(), remaining, trans);
                 if (remaining == 0)
                     break;
             }
             if (remaining > 0)
                 return false;
             else
+                // FIXME necessary?
                 setDirty();
         }
         return true;
