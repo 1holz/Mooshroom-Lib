@@ -2,7 +2,7 @@ package de.einholz.ehmooshroom.recipe;
 
 import javax.annotation.Nullable;
 
-import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import de.einholz.ehmooshroom.storage.Transferable;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
@@ -20,7 +20,7 @@ public class Ingredient<T> implements Gredient<T> {
 
     @SuppressWarnings({ "unchecked", "null" })
     public Ingredient(Identifier typeId, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
-        this.type = TransferablesReg.TRANSFERABLE.get(typeId);
+        this.type = (Transferable<T, ? extends TransferVariant<T>>) TransferableRegistry.TRANSFERABLE.get(typeId);
         this.tag = id != null ? (Identified<T>) type.getTagFactory().create(id) : null;
         this.nbt = nbt == null ? new NbtCompound() : nbt;
         this.amount = amount;

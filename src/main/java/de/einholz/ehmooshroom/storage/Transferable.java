@@ -2,7 +2,7 @@ package de.einholz.ehmooshroom.storage;
 
 import javax.annotation.Nullable;
 
-import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -31,7 +31,7 @@ public class Transferable<T, V extends TransferVariant<T>> {
     }
 
     public Identifier getId() {
-        setId(TransferablesReg.TRANSFERABLE.getId(this));
+        setId(TransferableRegistry.TRANSFERABLE.getId(this));
         return id;
     }
 

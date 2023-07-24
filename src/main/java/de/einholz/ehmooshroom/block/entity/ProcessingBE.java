@@ -13,7 +13,8 @@ import de.einholz.ehmooshroom.recipe.Gredient;
 import de.einholz.ehmooshroom.recipe.Ingredient;
 import de.einholz.ehmooshroom.recipe.PosAsInv;
 import de.einholz.ehmooshroom.recipe.RecipeHolder;
-import de.einholz.ehmooshroom.registry.Reg;
+import de.einholz.ehmooshroom.registry.RecipeTypeRegistry;
+import de.einholz.ehmooshroom.registry.ScreenHandlerRegistry;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.StorageEntry;
 import de.einholz.ehmooshroom.storage.Transferable;
@@ -211,9 +212,10 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public RecipeType<AdvRecipe> getRecipeType() {
         MooshroomLib.LOGGER.warnBug(getDisplayName().getString(), "should have its own RecipeType");
-        return Reg.DUMMY_RECIPE_TYPE.RECIPE_TYPE;
+        return (RecipeType<AdvRecipe>) RecipeTypeRegistry.DUMMY_RECIPE_TYPE;
     }
 
     @Nullable
@@ -315,11 +317,12 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             return ProcessingBE.this.getDisplayName();
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             writeScreenOpeningData((ServerPlayerEntity) player, buf);
-            return ((ExtendedScreenHandlerType<SideConfigGui>) Reg.SIDE_CONFIG.GUI).create(syncId, inv, buf);
+            return ((ExtendedScreenHandlerType<SideConfigGui>) ScreenHandlerRegistry.SIDE_CONFIG).create(syncId, inv, buf);
         }
 
         @Override

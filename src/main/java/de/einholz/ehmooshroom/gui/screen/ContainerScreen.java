@@ -19,7 +19,8 @@ public class ContainerScreen<G extends SyncedGuiDescription> extends CottonInven
     @SuppressWarnings("unchecked")
     public ContainerScreen(G gui, PlayerEntity player, Text title) {
         super(gui, player, title);
-        if (gui instanceof ContainerGui containerGui) containerGui.setScreen((ContainerScreen<? extends ContainerGui>) this);
+        if (gui instanceof ContainerGui containerGui)
+            containerGui.setScreen((ContainerScreen<? extends ContainerGui>) this);
     }
 
     public MinecraftClient getMinecraftClient() {

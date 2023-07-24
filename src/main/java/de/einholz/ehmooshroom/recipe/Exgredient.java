@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.storage.variants.BlockVariant;
 import de.einholz.ehmooshroom.storage.variants.ElectricityVariant;
@@ -37,7 +37,7 @@ public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> 
 
     @SuppressWarnings("unchecked")
     public Exgredient(Identifier type, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
-        this.type = TransferablesReg.TRANSFERABLE.get(type);
+        this.type = (Transferable<T, V>) TransferableRegistry.TRANSFERABLE.get(type);
         this.id = id;
         this.nbt = nbt == null ? new NbtCompound() : nbt;
         this.amount = amount;
@@ -101,29 +101,29 @@ public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> 
     }
 
     static {
-        FACTORIES.putIfAbsent(TransferablesReg.ITEMS, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferableRegistry.ITEMS, new Factories<>((id, amount, nbt) -> {
             ItemStack stack = new ItemStack(Registry.ITEM.get(id), (int) amount);
             stack.setNbt(nbt);
             return stack;
         }, ItemVariant::of));
-        FACTORIES.putIfAbsent(TransferablesReg.FLUIDS, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferableRegistry.FLUIDS, new Factories<>((id, amount, nbt) -> {
             FluidVariant fluid = FluidVariant.of(Registry.FLUID.get(id), nbt);
             return fluid;
         }, fluid -> fluid));
-        FACTORIES.putIfAbsent(TransferablesReg.BLOCKS, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferableRegistry.BLOCKS, new Factories<>((id, amount, nbt) -> {
             return Registry.BLOCK.get(id).getDefaultState();
         }, state -> new BlockVariant(state.getBlock())));
-        FACTORIES.putIfAbsent(TransferablesReg.ENTITIES, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferableRegistry.ENTITIES, new Factories<>((id, amount, nbt) -> {
             // TODO getWorld or return EntityType
             Entity entity = Registry.ENTITY_TYPE.get(id).create(null);
             if (nbt != null)
                 entity.readNbt(nbt);
             return entity;
         }, entity -> new EntityVariant(entity.getType(), entity.writeNbt(new NbtCompound()))));
-        FACTORIES.putIfAbsent(TransferablesReg.ELECTRICITY, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferableRegistry.ELECTRICITY, new Factories<>((id, amount, nbt) -> {
             return ElectricityVariant.INSTANCE;
         }, electricity -> electricity));
-        FACTORIES.putIfAbsent(TransferablesReg.HEAT, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(TransferableRegistry.HEAT, new Factories<>((id, amount, nbt) -> {
             return HeatVariant.INSTANCE;
         }, heat -> heat));
     }

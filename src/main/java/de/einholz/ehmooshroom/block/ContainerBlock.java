@@ -3,7 +3,7 @@ package de.einholz.ehmooshroom.block;
 import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.block.entity.ContainerBE;
-import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -55,7 +55,7 @@ public class ContainerBlock extends BlockWithEntity {
             return;
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof ContainerBE containerBE) {
-            ItemScatterer.spawn(world, pos, containerBE.getStorage(TransferablesReg.ITEMS, null).getAsInv());
+            ItemScatterer.spawn(world, pos, containerBE.getStorage(TransferableRegistry.ITEMS, null).getAsInv());
             // TODO implement comperator output
             // world.updateComparators(pos, this);
         }

@@ -3,7 +3,7 @@ package de.einholz.ehmooshroom.storage.storages;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.einholz.ehmooshroom.registry.TransferablesReg;
+import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.StorageEntry;
@@ -63,7 +63,7 @@ public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Stora
     public Inventory getAsInv() {
         List<ItemStack> stacks = new ArrayList<>();
         for (StorageEntry<T, V> entry : entries) {
-            if (!TransferablesReg.ITEMS.equals(entry.trans))
+            if (!TransferableRegistry.ITEMS.equals(entry.trans))
                 continue;
             try (Transaction trans = Transaction.openOuter()) {
                 var iter = entry.storage.iterator(trans);
