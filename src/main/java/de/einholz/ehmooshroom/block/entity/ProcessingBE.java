@@ -136,11 +136,11 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
 
     @SuppressWarnings("unchecked")
     protected <T, V extends TransferVariant<T>> boolean consumeOrGenerate(Transaction trans, Gredient<T> gredient) {
-        boolean generate = gredient instanceof Ingredient<T>;
+        boolean generate = gredient instanceof Exgredient<?, ?>;
         if (gredient.getAmount() <= 0)
             return true;
         long remaining = gredient.getAmount();
-        SideConfigType sct = generate ? SideConfigType.IN_PROC : SideConfigType.OUT_PROC;
+        SideConfigType sct = generate ? SideConfigType.OUT_PROC : SideConfigType.IN_PROC;
         var entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) gredient.getType(), sct);
         for (StorageEntry<T, V> entry : entries) {
             if (!gredient.getType().equals(entry.trans))
@@ -322,7 +322,8 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             writeScreenOpeningData((ServerPlayerEntity) player, buf);
-            return ((ExtendedScreenHandlerType<SideConfigGui>) ScreenHandlerRegistry.SIDE_CONFIG).create(syncId, inv, buf);
+            return ((ExtendedScreenHandlerType<SideConfigGui>) ScreenHandlerRegistry.SIDE_CONFIG).create(syncId, inv,
+                    buf);
         }
 
         @Override

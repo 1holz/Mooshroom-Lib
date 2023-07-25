@@ -16,7 +16,7 @@ import net.minecraft.util.registry.Registry;
 public class BlockEntityTypeRegistry<T extends BlockEntity>
         extends RegistryBuilder<BlockEntityType<?>> {
     public BlockEntityTypeRegistry<T> register(String name, Factory<T> factory) {
-        return register(name, factory, Registry.BLOCK.get(getId()));
+        return register(name, factory, Registry.BLOCK.get(idFactory().apply(name)));
     }
 
     @SuppressWarnings("unchecked")

@@ -23,7 +23,7 @@ public class ItemRegistry extends RegistryBuilder<Item> {
     private static final Map<Identifier, ItemGroup> ITEM_GROUPS = new HashMap<>();
 
     public ItemRegistry register(String name, Settings settings) {
-        Block block = Registry.BLOCK.get(getId());
+        Block block = Registry.BLOCK.get(idFactory().apply(name));
         return (ItemRegistry) register(name, block, settings);
     }
 
@@ -58,7 +58,6 @@ public class ItemRegistry extends RegistryBuilder<Item> {
                     list.addAll(ITEM_GROUPS_RAW.getOrDefault(getId(), new ArrayList<>(0)));
                 })
                 .build();
-        ITEM_GROUPS_RAW.remove(getId());
         ITEM_GROUPS.put(getId(), group);
         return this;
     }
@@ -77,10 +76,6 @@ public class ItemRegistry extends RegistryBuilder<Item> {
     @Nullable
     public static ItemGroup getItemGroup(Identifier id) {
         return ITEM_GROUPS.get(id);
-    }
-
-    public static void removeItemGroup(Identifier id) {
-        ITEM_GROUPS_RAW.remove(id);
     }
 
     @FunctionalInterface
