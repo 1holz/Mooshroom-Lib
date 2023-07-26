@@ -1,8 +1,6 @@
 package de.einholz.ehmooshroom.gui.gui;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import de.einholz.ehmooshroom.MooshroomLib;
@@ -27,8 +25,6 @@ public class SideConfigGui extends ContainerGui {
     protected WLabel acc;
     protected WListPanel<Identifier, ConfigEntry> configPanel;
     protected List<Identifier> configIds;
-    // FIXME check this class for content that can be removed
-    protected Map<Integer, ConfigButton> configButtons = new HashMap<Integer, ConfigButton>();
     protected Button cancel;
 
     // FIXME buttons and/or labels are misaligned
@@ -45,7 +41,7 @@ public class SideConfigGui extends ContainerGui {
 
     public static SideConfigGui init(SideConfigGui gui) {
         gui.acc = new WLabel(new TranslatableText("block.ehmooshroom.side_config.acc"));
-        gui.configIds = gui.getStorageMgr().getIds();
+        gui.configIds = gui.getStorageMgr().getAvaialableIds();
         // XXX: WHY DOES ConfigEntry::gui.new NOT WORK??? THIS REALLY SHOULD WORK!!!
         gui.configPanel = new WListPanel<>(gui.configIds, () -> gui.new ConfigEntry(), (id, entry) -> entry.build(id));
         gui.cancel = (Button) new Button((player) -> {
@@ -90,9 +86,6 @@ public class SideConfigGui extends ContainerGui {
             for (SideConfigType type : SideConfigType.values()) {
                 ConfigButton button = new ConfigButton(getButtonAmount(), id, type);
                 addButton(button);
-                configButtons.put(getButtonIndex(button), button);
-                if (!getStorageMgr().getEntry(id).available(type))
-                    button.setEnabled(false);
                 final int ACC_NO = button.type.ACC.ordinal();
                 add(button, (ACC_NO > 1 ? 2 * (ACC_NO - 1) : ACC_NO) + 4 + (button.type.FOREIGN ? 1 : 0),
                         button.type.OUTPUT ? 1 : 0);
@@ -108,6 +101,7 @@ public class SideConfigGui extends ContainerGui {
         @SuppressWarnings("unchecked")
         public ConfigButton(int buttonId, Identifier storageId, SideConfigType type) {
             super();
+            setEnabled(getStorageMgr().getEntry(storageId).available(type));
             setExe((player) -> {
                 if (!isEnabled())
                     return false;

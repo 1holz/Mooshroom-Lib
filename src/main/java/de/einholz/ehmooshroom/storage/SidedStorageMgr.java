@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -27,12 +26,17 @@ public class SidedStorageMgr implements NbtSerializable {
         this.dirtyMarker = dirtyMarker;
     }
 
-    public Set<Identifier> getIdSet() {
-        return STORAGES.keySet();
+    public List<Identifier> getIds() {
+        return new ArrayList<>(STORAGES.keySet());
     }
 
-    public List<Identifier> getIds() {
-        return new ArrayList<>(getIdSet());
+    public List<Identifier> getAvaialableIds() {
+        List<Identifier> list = new ArrayList<>();
+        STORAGES.forEach((id, entry) -> {
+            if (entry.available())
+                list.add(id);
+        });
+        return list;
     }
 
     public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Transferable<T, V> trans,

@@ -20,9 +20,9 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class Button extends WButton implements AdvTooltip {
-    public Identifier texture;
-    public WSprite overlay;
-    public int tint = 0xFFFFFFFF;
+    private Identifier texture;
+    private WSprite overlay;
+    private int tint = 0xFFFFFFFF;
     private Function<PlayerEntity, Boolean> exe;
     public List<String> tooltips = new ArrayList<String>();
     public Map<String, Supplier<Object>[]> advancedTooltips = new HashMap<String, Supplier<Object>[]>();

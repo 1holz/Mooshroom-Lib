@@ -1,12 +1,15 @@
 package de.einholz.ehmooshroom.storage;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.minecraft.util.math.Direction;
 
 public enum SideConfigType {
-    IN_GUI('T', false, false, SideConfigAccessor.GUI),
-    OUT_GUI('T', false, true, SideConfigAccessor.GUI),
-    IN_PROC('T', false, false, SideConfigAccessor.PROCESS),
-    OUT_PROC('T', false, true, SideConfigAccessor.PROCESS),
+    IN_GUI('t', false, false, SideConfigAccessor.GUI),
+    OUT_GUI('t', false, true, SideConfigAccessor.GUI),
+    IN_PROC('t', false, false, SideConfigAccessor.PROCESS),
+    OUT_PROC('t', false, true, SideConfigAccessor.PROCESS),
     SELF_IN_D('F', false, false, SideConfigAccessor.DOWN),
     SELF_IN_U('F', false, false, SideConfigAccessor.UP),
     SELF_IN_N('F', false, false, SideConfigAccessor.NORTH),
@@ -35,10 +38,10 @@ public enum SideConfigType {
     public static final char[] CHARS = new char[] {
             'T', // 00 AVAILABLE_TRUE
             'F', // 01 AVAILABLE_FALSE
-            't', // 10 RESTRICTED_TRUE
-            'f' // 11 RESTRICTED_FALSE
+            't', // 10 UNAVIALABLE_TRUE
+            'f' // 11 UNAVIALABLE_FALSE
     };
-    public final char DEF;
+    private final char DEF;
     public final boolean FOREIGN;
     public final boolean OUTPUT;
     public final SideConfigAccessor ACC;
@@ -74,6 +77,13 @@ public enum SideConfigType {
         if (SideConfigAccessor.PROCESS.equals(acc))
             return values[output ? 3 : 2];
         return values[(foreign ? 2 * dirLen : 0) + (output ? dirLen : 0) + acc.ordinal() + 2];
+    }
+
+    public static SideConfigType[] valuesWithout(SideConfigType... withouts) {
+        List<SideConfigType> values = Arrays.asList(values());
+        for (SideConfigType without : withouts)
+            values.remove(without);
+        return values.toArray(new SideConfigType[0]);
     }
 
     public static enum SideConfigAccessor {

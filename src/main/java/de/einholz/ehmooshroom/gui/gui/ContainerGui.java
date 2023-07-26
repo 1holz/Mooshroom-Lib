@@ -55,10 +55,6 @@ public abstract class ContainerGui extends SyncedGuiDescription {
         return buttonIds.size();
     }
 
-    protected int getButtonIndex(Button button) {
-        return buttonIds.indexOf(button);
-    }
-
     protected int addButton(Button button) {
         int index = getButtonAmount();
         button.setOnClick(() -> {
