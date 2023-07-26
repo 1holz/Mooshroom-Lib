@@ -58,7 +58,7 @@ public class SideConfigGui extends ContainerGui {
     @Override
     protected void initWidgets() {
         super.initWidgets();
-        configPanel.setSize(9, 5);
+        configPanel.setSize(10, 5);
         // TODO uncomment configPanel.setScrollingHorizontally(TriState.FALSE);
         cancel.tooltips.add("tooltip.ehmooshroom.cancel_button");
         addButton(cancel);
@@ -66,10 +66,10 @@ public class SideConfigGui extends ContainerGui {
 
     @Override
     protected void drawDefault() {
-        super.drawDefault();
+        ((WGridPanel) rootPanel).add(createPlayerInventoryPanel(), 1, 7);
         ((WGridPanel) rootPanel).add(acc, 2, 1, 7, 1);
-        ((WGridPanel) rootPanel).add(configPanel, 0, 2, 9, 5);
-        ((WGridPanel) rootPanel).add(cancel, 9, 5, 1, 1);
+        ((WGridPanel) rootPanel).add(configPanel, 0, 2, 10, 5);
+        ((WGridPanel) rootPanel).add(cancel, 10, 5, 1, 1);
     }
 
     protected class ConfigEntry extends WGridPanel {
