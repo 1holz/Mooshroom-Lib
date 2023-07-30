@@ -40,6 +40,16 @@
     },
     "custom": {
         "loom:injected_interfaces": {},
+        "mc-publish": {
+            "loaders": [
+                "fabric"
+            ],
+            "dependencies": [
+                "libgui(embedded)"
+            ],
+            "modrinth": "",
+            "curseforge": ""
+        },
         "modmenu": {
             "links": {
                 "modmenu.discord": "https://discord.gg/VUpY7a7pqF"
