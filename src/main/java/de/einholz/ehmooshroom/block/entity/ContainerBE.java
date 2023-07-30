@@ -9,12 +9,14 @@ import java.util.function.ToLongFunction;
 import javax.annotation.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.gui.gui.ContainerGui;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import de.einholz.ehmooshroom.storage.StorageProv;
 import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.storage.storages.AdvCombinedStorage;
+import de.einholz.ehmooshroom.storage.storages.BarStorage;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
@@ -24,7 +26,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -36,6 +37,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -47,6 +49,7 @@ public class ContainerBE extends BlockEntity
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer;
     private final Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
+    private ScreenHandler screenHandler;
 
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
             ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
@@ -58,21 +61,21 @@ public class ContainerBE extends BlockEntity
         return storageMgr;
     }
 
-    // XXX make ticker static in general?
     public static void tick(World world, BlockPos pos, BlockState state, BlockEntity be) {
         if (be instanceof ContainerBE containerBE)
             containerBE.tick(world, pos, state);
     }
 
-    public void tick(World world, BlockPos pos, BlockState state) {
+    protected void tick(World world, BlockPos pos, BlockState state) {
         resetDitry();
         transfer();
         if (isDirty())
             markDirty();
+        updateBalances();
     }
 
     @SuppressWarnings("null")
-    public void transfer() {
+    protected void transfer() {
         if (world.isClient)
             return;
         resetTransfer();
@@ -100,8 +103,16 @@ public class ContainerBE extends BlockEntity
                     setDirty();
             }
         }
-        // TODO is there a way to only sync if the gui is opened?
-        world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
+        if (screenHandler == null || screenHandler instanceof ContainerGui gui && !gui.isOpen()) {
+            screenHandler = null;
+            return;
+        }
+        // these seem to be unnecessary now
+        // screenHandler.enableSyncing();
+        // screenHandler.sendContentUpdates();
+        // screenHandler.updateToClient();
+        // world.updateListeners(pos, world.getBlockState(pos),
+        // world.getBlockState(pos), Block.NOTIFY_LISTENERS);
     }
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
@@ -194,6 +205,12 @@ public class ContainerBE extends BlockEntity
         dirty = false;
     }
 
+    protected void updateBalances() {
+        for (Identifier id : getStorageMgr().getIds())
+            if (getStorageMgr().getEntry(id).storage instanceof BarStorage storage)
+                storage.updateBal();
+    }
+
     @Override
     public <T, V extends TransferVariant<T>> AdvCombinedStorage<T, V, Storage<V>> getStorage(Transferable<T, V> trans,
             @Nullable Direction dir) {
@@ -236,7 +253,8 @@ public class ContainerBE extends BlockEntity
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         writeScreenOpeningData((ServerPlayerEntity) player, buf);
-        return clientHandlerFactory.create(syncId, inv, buf);
+        screenHandler = clientHandlerFactory.create(syncId, inv, buf);
+        return screenHandler;
     }
 
     @Override

@@ -19,7 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class Button extends WButton implements AdvTooltip {
+public class Button extends WButton implements DynTooltip {
     private Identifier texture;
     private WSprite overlay;
     private int tint = 0xFFFFFFFF;
@@ -104,13 +104,13 @@ public class Button extends WButton implements AdvTooltip {
     }
 
     @Override
-    public Map<String, Supplier<Object>[]> getAdvancedTooltips() {
+    public Map<String, Supplier<Object>[]> getDynTooltips() {
         return advancedTooltips;
     }
 
     @Override
     public void addTooltip(TooltipBuilder info) {
-        AdvTooltip.super.addTooltip(info);
+        DynTooltip.super.addTooltip(info);
     }
 
     @Override

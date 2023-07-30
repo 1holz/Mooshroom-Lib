@@ -24,6 +24,7 @@ public abstract class ContainerGui extends SyncedGuiDescription {
     public final BlockPos POS;
     private List<Button> buttonIds = new ArrayList<>();
     private ContainerScreen<? extends ContainerGui> screen;
+    private boolean isOpen = true;
 
     protected ContainerGui(ScreenHandlerType<? extends SyncedGuiDescription> type, int syncId,
             PlayerInventory playerInv, PacketByteBuf buf) {
@@ -100,6 +101,16 @@ public abstract class ContainerGui extends SyncedGuiDescription {
     public boolean canUse(PlayerEntity entity) {
         // TODO something else needed here?
         return true; // blockInventory != null ? blockInventory.canPlayerUse(entity) : true;
+    }
+
+    @Override
+    public void close(PlayerEntity player) {
+        super.close(player);
+        isOpen = false;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 
     public ContainerScreen<? extends ContainerGui> getScreen() {

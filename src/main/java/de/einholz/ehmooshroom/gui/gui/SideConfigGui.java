@@ -44,7 +44,7 @@ public class SideConfigGui extends ContainerGui {
         gui.configIds = gui.getStorageMgr().getAvaialableIds();
         // XXX: WHY DOES ConfigEntry::gui.new NOT WORK??? THIS REALLY SHOULD WORK!!!
         gui.configPanel = new WListPanel<>(gui.configIds, () -> gui.new ConfigEntry(), (id, entry) -> entry.build(id));
-        gui.cancel = (Button) new Button((player) -> {
+        gui.cancel = (Button) new Button(player -> {
             if (player.world.getBlockEntity(gui.POS) instanceof NamedScreenHandlerFactory screenFactory) {
                 if (!player.world.isClient)
                     player.openHandledScreen(screenFactory);
@@ -59,7 +59,6 @@ public class SideConfigGui extends ContainerGui {
     protected void initWidgets() {
         super.initWidgets();
         configPanel.setSize(10, 5);
-        // TODO uncomment configPanel.setScrollingHorizontally(TriState.FALSE);
         cancel.tooltips.add("tooltip.ehmooshroom.cancel_button");
         addButton(cancel);
     }
@@ -102,7 +101,7 @@ public class SideConfigGui extends ContainerGui {
         public ConfigButton(int buttonId, Identifier storageId, SideConfigType type) {
             super();
             setEnabled(getStorageMgr().getEntry(storageId).available(type));
-            setExe((player) -> {
+            setExe(player -> {
                 if (!isEnabled())
                     return false;
                 getStorageMgr().getEntry(storageId).change(type);
@@ -114,27 +113,20 @@ public class SideConfigGui extends ContainerGui {
             setSize(8, 8);
             if (!isEnabled())
                 return;
-            Supplier<?>[] suppliers = {
-                    () -> {
-                        return type.name().toLowerCase();
-                    }, () -> {
-                        return type.ACC.toString();
-                    }, () -> {
-                        return String.valueOf(getStorageMgr().getEntry(storageId).allows(type));
-                    }, () -> {
-                        return String.valueOf(buttonId);
-                    }
+            Supplier<Object>[] suppliers = new Supplier[] {
+                    type.name()::toLowerCase,
+                    type.ACC::toString,
+                    () -> String.valueOf(getStorageMgr().getEntry(storageId).allows(type)),
+                    () -> String.valueOf(buttonId)
             };
-            advancedTooltips.put("tooltip.ehmooshroom.config_button", (Supplier<Object>[]) suppliers);
+            advancedTooltips.put("tooltip.ehmooshroom.config_button", suppliers);
         }
 
         @Override
         public void draw(MatrixStack matrices, int x, int y, int mouseX, int mouseY) {
+            super.draw(matrices, x, y, mouseX, mouseY);
             if (isEnabled())
                 withTint(getStorageMgr().getEntry(storageId).allows(type) ? 0xFFFFFF00 : 0xFFFF0000);
-            else
-                advancedTooltips.remove("tooltip.ehmooshroom.config_button");
-            super.draw(matrices, x, y, mouseX, mouseY);
         }
 
         @Override

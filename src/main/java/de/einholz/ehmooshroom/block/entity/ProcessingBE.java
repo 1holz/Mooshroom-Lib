@@ -58,7 +58,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     }
 
     @Override
-    public void tick(World world, BlockPos pos, BlockState state) {
+    protected void tick(World world, BlockPos pos, BlockState state) {
         resetDitry();
         if (recipe == null && recipeId != null) {
             recipe = (AdvRecipe) world.getRecipeManager().get(recipeId).orElse(null);
@@ -82,9 +82,10 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         operate();
         if (isDirty())
             markDirty();
+        updateBalances();
     }
 
-    public boolean checkForRecipe() {
+    protected boolean checkForRecipe() {
         Optional<AdvRecipe> optional = world.getRecipeManager().getFirstMatch(getRecipeType(), new PosAsInv(pos),
                 world);
         recipe = optional.orElse(null);
@@ -92,7 +93,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     }
 
     @SuppressWarnings("null")
-    public void start() {
+    protected void start() {
         try (Transaction trans = Transaction.openOuter()) {
             for (int i = 0; i < getRecipe().input.length; i++)
                 if (!consumeOrGenerate(trans, getRecipe().input[i])) {
@@ -107,18 +108,18 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     }
 
     @SuppressWarnings("null")
-    public boolean process() {
+    protected boolean process() {
         boolean canProcess = isProcessing;
         if (canProcess)
             setProgress(getProgress() + getRecipe().timeModifier * getSpeed());
         return canProcess;
     }
 
-    public void task() {
+    protected void task() {
     }
 
     @SuppressWarnings("null")
-    public void complete() {
+    protected void complete() {
         // TODO add proper overflow protection
         try (Transaction trans = Transaction.openOuter()) {
             for (int i = 0; i < getRecipe().output.length; i++)
@@ -161,22 +162,22 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             if (remaining > 0)
                 return false;
             else
-                // FIXME necessary?
+                // FIXME necessary? probably yes
                 setDirty();
         }
         return true;
     }
 
-    public void cancel() {
+    protected void cancel() {
         setProgress(PROGRESS_MIN);
         isProcessing = false;
         recipe = null;
     }
 
-    public void idle() {
+    protected void idle() {
     }
 
-    public void operate() {
+    protected void operate() {
     }
 
     // FIXME make less nested

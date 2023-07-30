@@ -8,6 +8,7 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 import de.einholz.ehmooshroom.MooshroomLib;
+import de.einholz.ehmooshroom.gui.gui.UnitFormatter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.TooltipBuilder;
 import io.github.cottonmc.cotton.gui.widget.WBar;
@@ -18,24 +19,29 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class Bar extends WBar implements AdvTooltip {
-    private final int color;
+public class Bar extends WBar implements DynTooltip {
     private final long max;
     private final LongSupplier cur;
     private final long min;
     private final List<String> tooltips = new ArrayList<String>();
     private final Map<String, Supplier<Object>[]> advancedTooltips = new LinkedHashMap<String, Supplier<Object>[]>();
+    private final String unit;
 
-    public Bar(Identifier bg, Identifier fg, int color, long min, LongSupplier cur, long max, Direction dir) {
+    public Bar(Identifier bg, Identifier fg, long min, LongSupplier cur, long max, Direction dir, String unit) {
         super(bg, fg, (int) cur.getAsLong(), (int) (max <= min ? min + 1 : max), dir);
         if (max <= min) {
-            MooshroomLib.LOGGER.warnBug(0, "Max value of", max, "of bar with textures", fg,"and", bg, "has to be larger than the min of", min + ".", "Max will be set to", min + 1);
+            MooshroomLib.LOGGER.warnBug(0, "Max value of", max, "of bar with textures", fg, "and", bg,
+                    "has to be larger than the min of", min + ".", "Max will be set to", min + 1);
             max = min + 1;
         }
-        this.color = color;
         this.max = max;
         this.cur = cur;
         this.min = min;
+        this.unit = unit;
+    }
+
+    public Bar(Identifier bg, Identifier fg, long min, LongSupplier cur, long max, Direction dir) {
+        this(bg, fg, min, cur, max, dir, "");
     }
 
     @Deprecated(since = "0.0.5", forRemoval = false)
@@ -53,12 +59,11 @@ public class Bar extends WBar implements AdvTooltip {
 
     @SuppressWarnings("unchecked")
     public void addDefaultTooltip(String label) {
-        Supplier<?>[] suppliers = {
-                () -> String.valueOf(min),
-                () -> String.valueOf(cur.getAsLong()),
-                () -> String.valueOf(max),
-        };
-        advancedTooltips.put(label, (Supplier<Object>[]) suppliers);
+        advancedTooltips.put(label, new Supplier[] {
+                () -> UnitFormatter.formatLong(min, unit),
+                () -> UnitFormatter.formatLong(cur.getAsLong(), unit),
+                () -> UnitFormatter.formatLong(max, unit),
+        });
     }
 
     @Override
@@ -77,37 +82,37 @@ public class Bar extends WBar implements AdvTooltip {
                 int leftInUp = x;
                 int topInUp = y + getHeight() - barSize;
                 if (bar != null)
-                    ScreenDrawing.texturedRect(matrices, leftInUp, topInUp, getWidth(), barSize, bar.image(), 0F,
-                            (float) (1 - percent), 1F, 1F, 0xFFFFFFFF);
+                    ScreenDrawing.texturedRect(matrices, leftInUp, topInUp, getWidth(), barSize, bar.image(), 0f,
+                            1f - (float) percent, 1f, 1f, 0xFFFFFFFF);
                 else
                     ScreenDrawing.coloredRect(matrices, leftInUp, topInUp, getWidth(), barSize,
-                            ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                            ScreenDrawing.colorAtOpacity(0xFFFFFF, 0.5f));
                 break;
             case RIGHT:
                 if (bar != null)
-                    ScreenDrawing.texturedRect(matrices, x, y, barSize, getHeight(), bar.image(), 0F, 0F,
-                            (float) percent, 1F, 0xFFFFFFFF);
+                    ScreenDrawing.texturedRect(matrices, x, y, barSize, getHeight(), bar.image(), 0f, 0f,
+                            (float) percent, 1f, 0xFFFFFFFF);
                 else
                     ScreenDrawing.coloredRect(matrices, x, y, barSize, getHeight(),
-                            ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                            ScreenDrawing.colorAtOpacity(0xFFFFFF, 0.5f));
                 break;
             case DOWN:
                 if (bar != null)
-                    ScreenDrawing.texturedRect(matrices, x, y, getWidth(), barSize, bar.image(), 0F, 0F, 1F,
+                    ScreenDrawing.texturedRect(matrices, x, y, getWidth(), barSize, bar.image(), 0f, 0f, 1f,
                             (float) percent, 0xFFFFFFFF);
                 else
                     ScreenDrawing.coloredRect(matrices, x, y, getWidth(), barSize,
-                            ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                            ScreenDrawing.colorAtOpacity(0xFFFFFF, 0.5f));
                 break;
             case LEFT:
                 int leftInLeft = x + getWidth() - barSize;
                 int topInLeft = y;
                 if (bar != null)
                     ScreenDrawing.texturedRect(matrices, leftInLeft, topInLeft, barSize, getHeight(), bar.image(),
-                            (float) (1 - percent), 0F, 1F, 1F, 0xFFFFFFFF);
+                            (float) (1 - percent), 0f, 1f, 1f, 0xFFFFFFFF);
                 else
                     ScreenDrawing.coloredRect(matrices, leftInLeft, topInLeft, barSize, getHeight(),
-                            ScreenDrawing.colorAtOpacity(getColor(), 0.5f));
+                            ScreenDrawing.colorAtOpacity(0xFFFFFF, 0.5f));
                 break;
         }
     }
@@ -118,16 +123,12 @@ public class Bar extends WBar implements AdvTooltip {
     }
 
     @Override
-    public Map<String, Supplier<Object>[]> getAdvancedTooltips() {
+    public Map<String, Supplier<Object>[]> getDynTooltips() {
         return advancedTooltips;
     }
 
     @Override
     public void addTooltip(TooltipBuilder info) {
-        AdvTooltip.super.addTooltip(info);
-    }
-
-    protected int getColor() {
-        return color;
+        DynTooltip.super.addTooltip(info);
     }
 }
