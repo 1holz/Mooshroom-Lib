@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.storages.AdvCombinedStorage;
@@ -86,17 +86,17 @@ public class SidedStorageMgr implements NbtSerializable {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         NbtCompound sidedStorageMgrNbt = new NbtCompound();
         for (Entry<Identifier, StorageEntry<?, ? extends TransferVariant<?>>> entry : STORAGES.entrySet()) {
-            NbtCompound entryNbt = entry.getValue().writeNbt(new NbtCompound());
+            NbtCompound entryNbt = new NbtCompound();
+            entry.getValue().writeNbt(entryNbt);
             if (entryNbt.isEmpty())
                 continue;
             sidedStorageMgrNbt.put(entry.getKey().toString(), entryNbt);
         }
         if (!sidedStorageMgrNbt.isEmpty())
             nbt.put("SidedStorageMgr", sidedStorageMgrNbt);
-        return nbt;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.storage.variants;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;

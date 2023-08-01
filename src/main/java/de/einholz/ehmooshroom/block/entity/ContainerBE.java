@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.ToLongFunction;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.gui.ContainerGui;
@@ -19,9 +19,8 @@ import de.einholz.ehmooshroom.storage.storages.AdvCombinedStorage;
 import de.einholz.ehmooshroom.storage.storages.BarStorage;
 import de.einholz.ehmooshroom.util.NbtSerializable;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType.ExtendedFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
@@ -32,7 +31,10 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -43,8 +45,8 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class ContainerBE extends BlockEntity
-        implements BlockEntityClientSerializable, ExtendedScreenHandlerFactory, StorageProv, NbtSerializable {
-    protected final ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory;
+        implements ExtendedScreenHandlerFactory, StorageProv, NbtSerializable {
+    protected final ExtendedFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr(this);
     private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer;
     private final Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
@@ -52,7 +54,7 @@ public class ContainerBE extends BlockEntity
     private ScreenHandler screenHandler;
 
     public ContainerBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
-            ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+            ExtendedFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state);
         this.clientHandlerFactory = clientHandlerFactory;
     }
@@ -135,7 +137,7 @@ public class ContainerBE extends BlockEntity
             return false;
         boolean dirty = false;
         try (Transaction trans = Transaction.openOuter()) {
-            Iterator<StorageView<T>> it = from.iterator(trans);
+            Iterator<? extends StorageView<T>> it = from.iterator(trans);
             while (it.hasNext()) {
                 StorageView<T> view = it.next();
                 if (view.isResourceBlank())
@@ -220,10 +222,9 @@ public class ContainerBE extends BlockEntity
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         getStorageMgr().writeNbt(nbt);
-        return nbt;
     }
 
     @Override
@@ -232,16 +233,15 @@ public class ContainerBE extends BlockEntity
         getStorageMgr().readNbt(nbt);
     }
 
-    // TODO check what is necessary
+    @Nullable
     @Override
-    public void fromClientTag(NbtCompound nbt) {
-        readNbt(nbt);
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
-    // TODO check what is necessary
     @Override
-    public NbtCompound toClientTag(NbtCompound nbt) {
-        return writeNbt(nbt);
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
     }
 
     @Override

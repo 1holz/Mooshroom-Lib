@@ -80,12 +80,12 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
     }
 
     @Override
-    public Iterator<StorageView<ItemVariant>> iterator(TransactionContext transaction) {
+    public Iterator<? extends StorageView<ItemVariant>> iterator(TransactionContext transaction) {
         return storage.iterator(transaction);
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         NbtList list = new NbtList();
         for (int i = 0; i < getInv().size(); i++) {
             ItemStack stack = getInv().getStack(i);
@@ -96,7 +96,6 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
             list.add(slotNbt);
         }
         if (!list.isEmpty()) nbt.put("Inv", list);
-        return nbt;
     }
 
     @Override

@@ -107,9 +107,8 @@ public abstract class BarStorage<T extends SingletonVariant> extends SnapshotPar
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         nbt.putLong("Cur", getAmount());
-        return nbt;
     }
 
     @Override

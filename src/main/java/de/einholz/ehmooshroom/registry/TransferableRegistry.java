@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.registry;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.storage.BlockApiLookups;

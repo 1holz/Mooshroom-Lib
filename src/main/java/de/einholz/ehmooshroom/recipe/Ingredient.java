@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.recipe;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import de.einholz.ehmooshroom.storage.Transferable;

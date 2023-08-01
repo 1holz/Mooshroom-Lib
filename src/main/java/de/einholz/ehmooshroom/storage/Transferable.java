@@ -1,6 +1,6 @@
 package de.einholz.ehmooshroom.storage;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;

@@ -3,9 +3,7 @@ package de.einholz.ehmooshroom.util;
 import net.minecraft.nbt.NbtCompound;
 
 public interface NbtSerializable {
-    default NbtCompound writeNbt(NbtCompound nbt) {
-        return nbt;
-    }
+    abstract void writeNbt(NbtCompound nbt);
 
-    default void readNbt(NbtCompound nbt) {}
+    abstract void readNbt(NbtCompound nbt);
 }

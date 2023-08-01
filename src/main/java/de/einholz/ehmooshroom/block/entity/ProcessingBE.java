@@ -3,7 +3,7 @@ package de.einholz.ehmooshroom.block.entity;
 import java.util.Iterator;
 import java.util.Optional;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.gui.SideConfigGui;
@@ -20,12 +20,12 @@ import de.einholz.ehmooshroom.storage.StorageEntry;
 import de.einholz.ehmooshroom.storage.Transferable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry.ExtendedClientHandlerFactory;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType.ExtendedFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -53,7 +53,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     private double efficiency = 1;
 
     public ProcessingBE(BlockEntityType<?> type, BlockPos pos, BlockState state,
-            ExtendedClientHandlerFactory<? extends ScreenHandler> clientHandlerFactory) {
+            ExtendedFactory<? extends ScreenHandler> clientHandlerFactory) {
         super(type, pos, state, clientHandlerFactory);
     }
 
@@ -146,7 +146,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         for (StorageEntry<T, V> entry : entries) {
             if (!gredient.getType().equals(entry.trans))
                 continue;
-            Iterator<StorageView<V>> iter = entry.storage.iterator(trans);
+            Iterator<? extends StorageView<V>> iter = entry.storage.iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
                 if (!gredient.matches(view.getResource()))
@@ -190,7 +190,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                         SideConfigType.IN_PROC)) {
                     if (!ingredient.getType().equals(entry.trans))
                         continue;
-                    Iterator<StorageView<TransferVariant<Object>>> iter = entry.storage.iterator(trans);
+                    Iterator<? extends StorageView<TransferVariant<Object>>> iter = entry.storage.iterator(trans);
                     while (iter.hasNext()) {
                         StorageView<TransferVariant<Object>> view = iter.next();
                         if (view.isResourceBlank())
@@ -272,9 +272,9 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         return false;
     }
 
-    @SuppressWarnings("null")
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
+        super.writeNbt(nbt);
         String recipeStr = "";
         if (getRecipe() != null)
             recipeStr = getRecipe().getId().toString();
@@ -283,7 +283,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         nbt.putString("Recipe", recipeStr);
         nbt.putString("ActivationState", getActivationState().name());
         nbt.putDouble("Progress", getProgress());
-        return super.writeNbt(nbt);
     }
 
     @Override

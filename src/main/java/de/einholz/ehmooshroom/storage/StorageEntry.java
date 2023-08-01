@@ -75,14 +75,14 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         if (storage instanceof NbtSerializable seri) {
-            NbtCompound storageNbt = seri.writeNbt(new NbtCompound());
+            NbtCompound storageNbt = new NbtCompound();
+            seri.writeNbt(storageNbt);
             if (!storageNbt.isEmpty())
                 nbt.put("Storage", storageNbt);
         }
         nbt.putString("Config", String.valueOf(config));
-        return nbt;
     }
 
     @Override

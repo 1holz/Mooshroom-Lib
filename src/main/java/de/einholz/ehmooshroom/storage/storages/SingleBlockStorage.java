@@ -36,9 +36,8 @@ public class SingleBlockStorage extends SingleVariantStorage<BlockVariant> imple
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public void writeNbt(NbtCompound nbt) {
         nbt.put("Block", getResource().toNbt());
-        return nbt;
     }
 
     @Override

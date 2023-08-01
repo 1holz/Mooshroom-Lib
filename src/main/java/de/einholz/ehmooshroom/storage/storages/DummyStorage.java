@@ -7,6 +7,7 @@ import de.einholz.ehmooshroom.util.NbtSerializable;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.nbt.NbtCompound;
 
 public class DummyStorage<T> implements Storage<T>, NbtSerializable {
     @Override
@@ -32,5 +33,13 @@ public class DummyStorage<T> implements Storage<T>, NbtSerializable {
     @Override
     public Iterator<StorageView<T>> iterator(TransactionContext transaction) {
         return Collections.emptyIterator();
+    }
+
+    @Override
+    public void writeNbt(NbtCompound nbt) {
+    }
+
+    @Override
+    public void readNbt(NbtCompound nbt) {
     }
 }
