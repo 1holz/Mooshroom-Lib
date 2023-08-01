@@ -92,7 +92,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         return optional.isPresent();
     }
 
-    @SuppressWarnings("null")
     protected void start() {
         try (Transaction trans = Transaction.openOuter()) {
             for (int i = 0; i < getRecipe().input.length; i++)
@@ -107,7 +106,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         }
     }
 
-    @SuppressWarnings("null")
     protected boolean process() {
         boolean canProcess = isProcessing;
         if (canProcess)
@@ -118,7 +116,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
     protected void task() {
     }
 
-    @SuppressWarnings("null")
     protected void complete() {
         // TODO add proper overflow protection
         try (Transaction trans = Transaction.openOuter()) {

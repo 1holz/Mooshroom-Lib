@@ -4,24 +4,20 @@ import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 
 public class Transferable<T, V extends TransferVariant<T>> {
     private Identifier id;
-    private final Class<V> variantType;
-    @Nullable
-    private final TagFactory<T> tagFactory;
+    private final Registry<T> registry;
     @Nullable
     private final BlockApiLookup<? extends Storage<V>, Direction> lookup;
 
-    public Transferable(final Class<V> variantType, final @Nullable TagFactory<T> tagFactory,
-            final @Nullable BlockApiLookup<? extends Storage<V>, Direction> lookup) {
-        this.variantType = variantType;
-        this.tagFactory = tagFactory;
+    public Transferable(Registry<T> registry, @Nullable BlockApiLookup<? extends Storage<V>, Direction> lookup) {
+        this.registry = registry;
         this.lookup = lookup;
     }
 
@@ -35,13 +31,8 @@ public class Transferable<T, V extends TransferVariant<T>> {
         return id;
     }
 
-    public Class<V> getVariantType() {
-        return variantType;
-    }
-
-    @Nullable
-    public TagFactory<T> getTagFactory() {
-        return tagFactory;
+    public Registry<T> getRegistry() {
+        return registry;
     }
 
     @Nullable

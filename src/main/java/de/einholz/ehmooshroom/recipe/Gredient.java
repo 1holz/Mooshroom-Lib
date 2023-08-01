@@ -44,7 +44,6 @@ public interface Gredient<T> {
         return factory.build(type, id, nbt, amount);
     }
 
-    @SuppressWarnings("null")
     default void write(PacketByteBuf buf) {
         buf.writeIdentifier(getType().getId());
         if (getId() == null)
@@ -70,7 +69,7 @@ public interface Gredient<T> {
         return factory.build(type, id, nbt, amount);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     default boolean matches(TransferVariant<?> test) {
         if (getType() == null) {
             MooshroomLib.LOGGER.warnBug(
@@ -78,8 +77,12 @@ public interface Gredient<T> {
                             + " id. This is likely due to a malformated recipe json file. This Exgredient will be skipped!");
             return false;
         }
-        if (!getType().getVariantType().isAssignableFrom(test.getClass()))
+        // XXX is there a better way to do this?
+        try {
+            T t = (T) test.getObject();
+        } catch (ClassCastException e) {
             return false;
+        }
         if (getId() == null) {
             if (test instanceof SingletonVariant)
                 return true;

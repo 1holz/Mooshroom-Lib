@@ -12,7 +12,6 @@ import de.einholz.ehmooshroom.storage.variants.HeatVariant;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
-import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -41,27 +40,27 @@ public class TransferableRegistry<T, U extends TransferVariant<T>> extends Regis
             .ofRegistry(TRANSFERABLE_ID);
 
     public static final Transferable<Item, ItemVariant> ITEMS = new TransferableRegistry<Item, ItemVariant>()
-            .register("items", ItemVariant.class, TagFactory.ITEM, ItemStorage.SIDED)
+            .register("items", Registry.ITEM, ItemStorage.SIDED)
             .get();
     public static final Transferable<Fluid, FluidVariant> FLUIDS = new TransferableRegistry<Fluid, FluidVariant>()
-            .register("fluids", FluidVariant.class, TagFactory.FLUID, FluidStorage.SIDED)
+            .register("fluids", Registry.FLUID, FluidStorage.SIDED)
             .get();
     public static final Transferable<Block, BlockVariant> BLOCKS = new TransferableRegistry<Block, BlockVariant>()
-            .register("blocks", BlockVariant.class, TagFactory.BLOCK, BlockApiLookups.BLOCKS)
+            .register("blocks", Registry.BLOCK, BlockApiLookups.BLOCKS)
             .get();
     public static final Transferable<EntityType<?>, EntityVariant> ENTITIES = new TransferableRegistry<EntityType<?>, EntityVariant>()
-            .register("entities", EntityVariant.class, TagFactory.ENTITY_TYPE, BlockApiLookups.ENTITIES)
+            .register("entities", Registry.ENTITY_TYPE, BlockApiLookups.ENTITIES)
             .get();
     public static final Transferable<Void, ElectricityVariant> ELECTRICITY = new TransferableRegistry<Void, ElectricityVariant>()
-            .register("electricity", ElectricityVariant.class, null, BlockApiLookups.ELECTRICITY)
+            .register("electricity", null, BlockApiLookups.ELECTRICITY)
             .get();
     public static final Transferable<Void, HeatVariant> HEAT = new TransferableRegistry<Void, HeatVariant>()
-            .register("heat", HeatVariant.class, null, BlockApiLookups.HEAT)
+            .register("heat", null, BlockApiLookups.HEAT)
             .get();
 
-    public TransferableRegistry<T, U> register(String name, Class<U> variantType, @Nullable TagFactory<T> tagFactory,
+    public TransferableRegistry<T, U> register(String name, Registry<T> registry,
             @Nullable BlockApiLookup<? extends Storage<U>, Direction> lookup) {
-        return (TransferableRegistry<T, U>) register(name, new Transferable<>(variantType, tagFactory, lookup));
+        return (TransferableRegistry<T, U>) register(name, new Transferable<>(registry, lookup));
     }
 
     protected TransferableRegistry() {

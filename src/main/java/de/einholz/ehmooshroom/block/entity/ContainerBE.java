@@ -76,7 +76,6 @@ public class ContainerBE extends BlockEntity
         updateBalances();
     }
 
-    @SuppressWarnings("null")
     protected void transfer() {
         if (world.isClient)
             return;
