@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.block.entity;
 
 import java.util.Iterator;
@@ -17,7 +33,6 @@ import de.einholz.ehmooshroom.registry.RecipeTypeRegistry;
 import de.einholz.ehmooshroom.registry.ScreenHandlerRegistry;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.StorageEntry;
-import de.einholz.ehmooshroom.storage.Transferable;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -139,20 +154,20 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             return true;
         long remaining = gredient.getAmount();
         SideConfigType sct = generate ? SideConfigType.OUT_PROC : SideConfigType.IN_PROC;
-        var entries = getStorageMgr().<T, V>getStorageEntries((Transferable<T, V>) gredient.getType(), sct);
+        var entries = getStorageMgr().<T, V>getStorageEntries(gredient.getTypeId(), sct);
         for (StorageEntry<T, V> entry : entries) {
-            if (!gredient.getType().equals(entry.trans))
+            if (!gredient.getTypeId().equals(entry.getTransferable().getId()))
                 continue;
-            Iterator<? extends StorageView<V>> iter = entry.storage.iterator(trans);
+            Iterator<? extends StorageView<V>> iter = entry.getStorage().iterator(trans);
             while (iter.hasNext()) {
                 StorageView<V> view = iter.next();
                 if (!gredient.matches(view.getResource()))
                     continue;
                 if (generate)
-                    remaining -= entry.storage.insert(((Exgredient<T, V>) gredient).getOutputVariant(), remaining,
+                    remaining -= entry.getStorage().insert(((Exgredient<T, V>) gredient).getOutputVariant(), remaining,
                             trans);
                 else
-                    remaining -= entry.storage.extract(view.getResource(), remaining, trans);
+                    remaining -= entry.getStorage().extract(view.getResource(), remaining, trans);
                 if (remaining == 0)
                     break;
             }
@@ -185,9 +200,9 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                 long remaining = ingredient.getAmount();
                 for (StorageEntry<Object, TransferVariant<Object>> entry : getStorageMgr().getStorageEntries(null,
                         SideConfigType.IN_PROC)) {
-                    if (!ingredient.getType().equals(entry.trans))
+                    if (!ingredient.getTypeId().equals(entry.getTransferable().getId()))
                         continue;
-                    Iterator<? extends StorageView<TransferVariant<Object>>> iter = entry.storage.iterator(trans);
+                    Iterator<? extends StorageView<TransferVariant<Object>>> iter = entry.getStorage().iterator(trans);
                     while (iter.hasNext()) {
                         StorageView<TransferVariant<Object>> view = iter.next();
                         if (view.isResourceBlank())
@@ -199,7 +214,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                         if (remaining <= 0)
                             break;
                     }
-                    // remaining -= entry.storage.simulateExtract(null, remaining, trans);
+                    // remaining -= entry.getStorage().simulateExtract(null, remaining, trans);
                     if (remaining <= 0)
                         break;
                 }

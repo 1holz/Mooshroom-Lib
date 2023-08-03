@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.storage;
 
 import java.util.ArrayList;
@@ -55,21 +71,28 @@ public class SidedStorageMgr implements NbtSerializable {
     }
 
     public <T, V extends TransferVariant<T>, S extends Storage<V>> AdvCombinedStorage<T, V, S> getCombinedStorage(
-            @Nullable Transferable<T, V> trans, SideConfigAccessor acc, @Nullable SideConfigType... configTypes) {
-        return new AdvCombinedStorage<T, V, S>(acc, getStorageEntries(trans, configTypes));
+            @Nullable Identifier typeId, SideConfigAccessor acc, @Nullable SideConfigType... configTypes) {
+        return new AdvCombinedStorage<T, V, S>(acc, getStorageEntries(typeId, configTypes));
     }
 
-    // XXX private? to hacky?
-    /*
-     * If trans or configTypes are null they will accept all
-     * Transferables/SideConfigTypes
+    /**
+     * @param <T>         Type of the {@link TransferVariant}
+     * @param <V>         {@link TransferVariant}
+     * @param trans       the {@link Transferable} the {@link StorageEntry}s have to
+     *                    match. {@code null} will accept a {@link StorageEntry} no
+     *                    matter the {@link Transferable}
+     * @param configTypes the {@link SideConfigType}s the {@link StorageEntry}s have
+     *                    to match. {@code null} will accept a {@link StorageEntry}
+     *                    no matter the {@link SideConfigType}
+     * @return a {@link List} of all {@link StorageEntry}s matching the parameters
      */
+    // XXX private? to hacky?
     @SuppressWarnings("unchecked")
     public <T, V extends TransferVariant<T>> List<StorageEntry<T, V>> getStorageEntries(
-            @Nullable Transferable<T, V> trans, @Nullable SideConfigType... configTypes) {
+            @Nullable Identifier typeId, @Nullable SideConfigType... configTypes) {
         List<StorageEntry<T, V>> list = new ArrayList<>();
         for (var storageEntry : STORAGES.values()) {
-            if (trans != null && !trans.equals(storageEntry.trans))
+            if (typeId != null && !typeId.equals(storageEntry.getTransferable().getId()))
                 continue;
             if (configTypes == null) {
                 list.add((StorageEntry<T, V>) storageEntry);

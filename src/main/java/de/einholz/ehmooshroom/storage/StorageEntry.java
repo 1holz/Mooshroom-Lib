@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.MooshroomLib;
@@ -9,9 +25,9 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 
 public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSerializable {
-    public final Storage<U> storage;
+    private final Storage<U> storage;
     private final char[] config;
-    public final Transferable<T, U> trans;
+    private final Transferable<T, U> trans;
     private final BlockEntity dirtyMarker;
 
     public StorageEntry(Storage<U> storage, char[] config, Transferable<T, U> trans, BlockEntity dirtyMarker) {
@@ -54,9 +70,11 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
     }
 
     /**
-     * @param available
-     * @param types     if types == null this will default to
-     *                  SideConfigType.values()
+     * Sets the availability for the given {@link SideConfigType}s
+     *
+     * @param available the availabiltity it is set to
+     * @param types     if {@code types == null} this will default to
+     *                  {@code SideConfigType.values()}
      */
     public void setAvailability(boolean available, SideConfigType... types) {
         if (types == null)
@@ -71,12 +89,12 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
     public boolean allows(SideConfigType type) {
         if (Character.toUpperCase(config[type.ordinal()]) != 'T')
             return false;
-        return type.OUTPUT ? storage.supportsExtraction() : storage.supportsInsertion();
+        return type.OUTPUT ? getStorage().supportsExtraction() : getStorage().supportsInsertion();
     }
 
     @Override
     public void writeNbt(NbtCompound nbt) {
-        if (storage instanceof NbtSerializable seri) {
+        if (getStorage() instanceof NbtSerializable seri) {
             NbtCompound storageNbt = new NbtCompound();
             seri.writeNbt(storageNbt);
             if (!storageNbt.isEmpty())
@@ -87,17 +105,26 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        if (storage instanceof NbtSerializable seri && nbt.contains("Storage", NbtType.COMPOUND))
+        if (getStorage() instanceof NbtSerializable seri && nbt.contains("Storage", NbtType.COMPOUND))
             seri.readNbt(nbt.getCompound("Storage"));
         if (nbt.contains("Config", NbtType.STRING)) {
             String str = nbt.getString("Config");
             if (str.length() < config.length) {
-                MooshroomLib.LOGGER.warnBug("Config string for " + trans.getId() + " has a lenght of " + str.length()
-                        + " but should have " + config.length);
+                MooshroomLib.LOGGER
+                        .warnBug("Config string for " + getTransferable().getId() + " has a lenght of " + str.length()
+                                + " but should have " + config.length);
                 return;
             }
             for (int i = 0; i < config.length; i++)
                 config[i] = str.charAt(i);
         }
+    }
+
+    public Storage<U> getStorage() {
+        return storage;
+    }
+
+    public Transferable<T, U> getTransferable() {
+        return trans;
     }
 }

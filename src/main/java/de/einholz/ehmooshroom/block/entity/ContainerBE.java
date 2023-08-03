@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.block.entity;
 
 import java.util.HashMap;
@@ -48,8 +64,8 @@ public class ContainerBE extends BlockEntity
         implements ExtendedScreenHandlerFactory, StorageProv, NbtSerializable {
     protected final ExtendedFactory<? extends ScreenHandler> clientHandlerFactory;
     private SidedStorageMgr storageMgr = new SidedStorageMgr(this);
-    private Map<Transferable<?, ? extends TransferVariant<?>>, Long> transfer;
-    private final Map<Transferable<?, ? extends TransferVariant<?>>, Long> maxTransfer = new HashMap<>();
+    private Map<Identifier, Long> transfer;
+    private final Map<Identifier, Long> maxTransfer = new HashMap<>();
     private boolean dirty = false;
     private ScreenHandler screenHandler;
 
@@ -85,22 +101,24 @@ public class ContainerBE extends BlockEntity
             Direction targetDir = dir.getOpposite();
             // self output / push
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
-                if (!entry.trans.isTransferable())
+                if (!entry.getTransferable().isTransferable())
                     continue;
-                Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
+                Storage<?> targetStorage = entry.getTransferable().getLookup().find(world, targetPos, targetDir);
                 if (targetStorage == null)
                     continue;
-                if (transfer(entry.trans, entry.storage, targetStorage, getTransfer(), reduceTransfer()))
+                if (transfer(entry.getTransferable().getId(), entry.getStorage(), targetStorage, getTransfer(),
+                        reduceTransfer()))
                     setDirty();
             }
             // self input / pull
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
-                if (!entry.trans.isTransferable())
+                if (!entry.getTransferable().isTransferable())
                     continue;
-                Storage<?> targetStorage = entry.trans.getLookup().find(world, targetPos, targetDir);
+                Storage<?> targetStorage = entry.getTransferable().getLookup().find(world, targetPos, targetDir);
                 if (targetStorage == null)
                     continue;
-                if (transfer(entry.trans, targetStorage, entry.storage, getTransfer(), reduceTransfer()))
+                if (transfer(entry.getTransferable().getId(), targetStorage, entry.getStorage(), getTransfer(),
+                        reduceTransfer()))
                     setDirty();
             }
         }
@@ -118,13 +136,10 @@ public class ContainerBE extends BlockEntity
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
     @SuppressWarnings("unchecked")
-    public static <T> Boolean transfer(final Transferable<T, ? extends TransferVariant<T>> transferable,
-            final Storage<?> fromRaw, final Storage<?> toRaw,
-            final ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> transGetter,
-            final BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> transReducer) {
-        // FIXME fix bug with StorageEntries appearing double in fromRaw
-        final Storage<T> from;
-        final Storage<T> to;
+    public static <T> Boolean transfer(Identifier typeId, Storage<?> fromRaw, Storage<?> toRaw,
+            ToLongFunction<Identifier> transGetter, BiConsumer<Identifier, Long> transReducer) {
+        Storage<T> from;
+        Storage<T> to;
         try {
             from = (Storage<T>) fromRaw;
             to = (Storage<T>) toRaw;
@@ -142,7 +157,7 @@ public class ContainerBE extends BlockEntity
                 if (view.isResourceBlank())
                     continue;
                 T resource = view.getResource();
-                long remainingTransfer = transGetter.applyAsLong(transferable);
+                long remainingTransfer = transGetter.applyAsLong(typeId);
                 if (remainingTransfer == 0)
                     continue;
                 try (Transaction inTrans = trans.openNested()) {
@@ -155,7 +170,7 @@ public class ContainerBE extends BlockEntity
                         inTrans.abort();
                         continue;
                     }
-                    transReducer.accept(transferable, inserted);
+                    transReducer.accept(typeId, inserted);
                     dirty = true;
                     inTrans.commit();
                 }
@@ -165,25 +180,25 @@ public class ContainerBE extends BlockEntity
         return dirty;
     }
 
-    public ContainerBE putMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans, long l) {
+    public ContainerBE putMaxTransfer(Identifier trans, long l) {
         maxTransfer.put(trans, l);
         return this;
     }
 
-    public ContainerBE removeMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans) {
+    public ContainerBE removeMaxTransfer(Identifier trans) {
         maxTransfer.remove(trans);
         return this;
     }
 
-    public long getMaxTransfer(Transferable<?, ? extends TransferVariant<?>> trans) {
+    public long getMaxTransfer(Identifier trans) {
         return maxTransfer.getOrDefault(trans, 0L);
     }
 
-    public ToLongFunction<Transferable<?, ? extends TransferVariant<?>>> getTransfer() {
+    public ToLongFunction<Identifier> getTransfer() {
         return (trans) -> transfer.getOrDefault(trans, 0L);
     }
 
-    public BiConsumer<Transferable<?, ? extends TransferVariant<?>>, Long> reduceTransfer() {
+    public BiConsumer<Identifier, Long> reduceTransfer() {
         return (trans, reduction) -> {
             if (transfer.containsKey(trans))
                 transfer.put(trans, getTransfer().applyAsLong(trans) - reduction);
@@ -208,7 +223,7 @@ public class ContainerBE extends BlockEntity
 
     protected void updateBalances() {
         for (Identifier id : getStorageMgr().getIds())
-            if (getStorageMgr().getEntry(id).storage instanceof BarStorage storage)
+            if (getStorageMgr().getEntry(id).getStorage() instanceof BarStorage storage)
                 storage.updateBal();
     }
 
@@ -216,7 +231,7 @@ public class ContainerBE extends BlockEntity
     public <T, V extends TransferVariant<T>> AdvCombinedStorage<T, V, Storage<V>> getStorage(Transferable<T, V> trans,
             @Nullable Direction dir) {
         SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
-        return getStorageMgr().getCombinedStorage(trans, acc, SideConfigType.getFromParams(true, false, acc),
+        return getStorageMgr().getCombinedStorage(trans.getId(), acc, SideConfigType.getFromParams(true, false, acc),
                 SideConfigType.getFromParams(true, true, acc));
     }
 

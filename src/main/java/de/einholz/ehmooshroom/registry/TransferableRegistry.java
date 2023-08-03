@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.registry;
 
 import org.jetbrains.annotations.Nullable;
@@ -40,27 +56,30 @@ public class TransferableRegistry<T, U extends TransferVariant<T>> extends Regis
             .ofRegistry(TRANSFERABLE_ID);
 
     public static final Transferable<Item, ItemVariant> ITEMS = new TransferableRegistry<Item, ItemVariant>()
-            .register("items", Registry.ITEM, ItemStorage.SIDED)
+            .register(Registry.ITEM_KEY, ItemStorage.SIDED)
             .get();
     public static final Transferable<Fluid, FluidVariant> FLUIDS = new TransferableRegistry<Fluid, FluidVariant>()
-            .register("fluids", Registry.FLUID, FluidStorage.SIDED)
+            .register(Registry.FLUID_KEY, FluidStorage.SIDED)
             .get();
     public static final Transferable<Block, BlockVariant> BLOCKS = new TransferableRegistry<Block, BlockVariant>()
-            .register("blocks", Registry.BLOCK, BlockApiLookups.BLOCKS)
+            .register(Registry.BLOCK_KEY, BlockApiLookups.BLOCKS)
             .get();
     public static final Transferable<EntityType<?>, EntityVariant> ENTITIES = new TransferableRegistry<EntityType<?>, EntityVariant>()
-            .register("entities", Registry.ENTITY_TYPE, BlockApiLookups.ENTITIES)
+            .register(Registry.ENTITY_TYPE_KEY, BlockApiLookups.ENTITIES)
             .get();
     public static final Transferable<Void, ElectricityVariant> ELECTRICITY = new TransferableRegistry<Void, ElectricityVariant>()
-            .register("electricity", null, BlockApiLookups.ELECTRICITY)
+            .register(Transferable.ELECTRICITY_ID, BlockApiLookups.ELECTRICITY)
             .get();
     public static final Transferable<Void, HeatVariant> HEAT = new TransferableRegistry<Void, HeatVariant>()
-            .register("heat", null, BlockApiLookups.HEAT)
+            .register(Transferable.HEAT_ID, BlockApiLookups.HEAT)
             .get();
 
-    public TransferableRegistry<T, U> register(String name, Registry<T> registry,
-            @Nullable BlockApiLookup<? extends Storage<U>, Direction> lookup) {
-        return (TransferableRegistry<T, U>) register(name, new Transferable<>(registry, lookup));
+    public TransferableRegistry<T, U> register(RegistryKey<? extends Registry<T>> key, @Nullable BlockApiLookup<? extends Storage<U>, Direction> lookup) {
+        return (TransferableRegistry<T, U>) register(key.getValue(), new Transferable<>((RegistryKey<Registry<T>>) key, lookup));
+    }
+
+    public TransferableRegistry<T, U> register(Identifier id, @Nullable BlockApiLookup<? extends Storage<U>, Direction> lookup) {
+        return (TransferableRegistry<T, U>) register(id, new Transferable<>(id, lookup));
     }
 
     protected TransferableRegistry() {

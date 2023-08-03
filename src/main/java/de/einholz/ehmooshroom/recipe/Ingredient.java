@@ -1,54 +1,60 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.recipe;
 
 import java.util.Iterator;
 
 import org.jetbrains.annotations.Nullable;
 
-import de.einholz.ehmooshroom.registry.TransferableRegistry;
-import de.einholz.ehmooshroom.storage.Transferable;
-import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 
 // XXX anotate constructor with only server?
 public class Ingredient<T> implements Gredient<T> {
-    private final Transferable<T, ? extends TransferVariant<T>> type;
+    // private final Transferable<T, ? extends TransferVariant<T>> type;
+    private final Identifier typeId;
+    private final boolean isSingleton;
     @Nullable
     private final TagKey<T> tag;
-    @Nullable
     private final NbtCompound nbt;
     private final long amount;
 
-    @SuppressWarnings("unchecked")
     public Ingredient(Identifier typeId, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
-        this.type = (Transferable<T, ? extends TransferVariant<T>>) TransferableRegistry.TRANSFERABLE.get(typeId);
-        tag = id == null || type.getRegistry() == null ? null : TagKey.of(type.getRegistry().getKey(), id);
-        this.nbt = nbt == null ? new NbtCompound() : nbt;
+        this.typeId = typeId;
+        this.isSingleton = !Registry.REGISTRIES.containsId(typeId);
+        if (isSingleton) {
+            this.tag = null;
+            this.nbt = new NbtCompound();
+        } else {
+            this.tag = (TagKey<T>) TagKey.of(Registry.REGISTRIES.get(typeId).getKey(), id);
+            this.nbt = nbt == null ? new NbtCompound() : nbt;
+        }
         this.amount = amount;
-    }
-
-    public Ingredient(Identifier type, @Nullable NbtCompound nbt, long amount) {
-        this(type, null, nbt, amount);
-    }
-
-    public Ingredient(Identifier type, @Nullable Identifier tagId, long amount) {
-        this(type, tagId, null, amount);
-    }
-
-    public Ingredient(Identifier type, long amount) {
-        this(type, null, null, amount);
     }
 
     @Override
     public boolean contains(T obj) {
         if (tag == null)
             return false;
-        if (type.getRegistry() == null)
-            return true;
-        // TODO is it possible to use RegistryKey in Transferable?
-        Iterator<RegistryEntry<T>> iter = type.getRegistry().iterateEntries(tag).iterator();
+        Iterator<RegistryEntry<T>> iter = ((Registry<T>) Registry.REGISTRIES.get(typeId)).iterateEntries(tag)
+                .iterator();
         while (iter.hasNext())
             if (obj.equals(iter.next().value()))
                 return true;
@@ -56,8 +62,13 @@ public class Ingredient<T> implements Gredient<T> {
     }
 
     @Override
-    public Transferable<T, ? extends TransferVariant<T>> getType() {
-        return type;
+    public Identifier getTypeId() {
+        return typeId;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return isSingleton;
     }
 
     @Nullable
@@ -68,7 +79,6 @@ public class Ingredient<T> implements Gredient<T> {
         return tag.id();
     }
 
-    @Nullable
     @Override
     public NbtCompound getNbt() {
         return nbt;

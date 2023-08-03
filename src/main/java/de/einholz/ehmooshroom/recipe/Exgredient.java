@@ -1,4 +1,20 @@
-package de.einholz.ehmooshroom.recipe;
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ package de.einholz.ehmooshroom.recipe;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +22,6 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
 
-import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.storage.variants.BlockVariant;
 import de.einholz.ehmooshroom.storage.variants.ElectricityVariant;
@@ -20,41 +35,39 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 
 // XXX: anotate constructor with only server?
 public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> {
-    public static final Map<Transferable<?, ? extends TransferVariant<?>>, Factories<?, ?>> FACTORIES = new HashMap<>();
-    private final Transferable<T, V> type;
-    @Nullable
-    private final T output;
-    @Nullable
-    private final V outputVariant;
+    public static final Map<Identifier, Factories<?, ?>> FACTORIES = new HashMap<>();
+    private final Identifier typeId;
+    private final boolean isSingleton;
     @Nullable
     private final Identifier id;
-    @Nullable
     private final NbtCompound nbt;
     private final long amount;
+    private final T output;
+    private final V outputVariant;
 
     @SuppressWarnings("unchecked")
-    public Exgredient(Identifier type, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
-        this.type = (Transferable<T, V>) TransferableRegistry.TRANSFERABLE.get(type);
-        this.id = id;
-        this.nbt = nbt == null ? new NbtCompound() : nbt;
+    public Exgredient(Identifier typeId, @Nullable Identifier id, @Nullable NbtCompound nbt, long amount) {
+        this.typeId = typeId;
+        this.isSingleton = Registry.REGISTRIES.containsId(typeId);
+        if (isSingleton) {
+            this.id = null;
+            this.nbt = new NbtCompound();
+        } else {
+            this.id = id;
+            this.nbt = nbt == null ? new NbtCompound() : nbt;
+        }
         this.amount = amount;
-        output = (T) FACTORIES.get(this.type).outputFactory().build(id, amount, nbt);
-        outputVariant = ((Function<T, V>) FACTORIES.get(this.type).variantFactory()).apply(output);
+        output = (T) FACTORIES.get(this.typeId).outputFactory().build(id, amount, nbt);
+        outputVariant = ((Function<T, V>) FACTORIES.get(this.typeId).variantFactory()).apply(output);
     }
 
-    public Exgredient(Identifier type, @Nullable Identifier id, long amount) {
-        this(type, id, null, amount);
-    }
-
-    public Exgredient(Identifier type, @Nullable NbtCompound nbt, long amount) {
-        this(type, null, nbt, amount);
-    }
-
-    public Exgredient(Identifier type, long amount) {
-        this(type, null, null, amount);
+    public Exgredient(RegistryKey<? extends Registry<T>> typeReg, @Nullable Identifier id, @Nullable NbtCompound nbt,
+            long amount) {
+        this(typeReg.getValue(), id, nbt, amount);
     }
 
     public T getOutput() {
@@ -71,8 +84,13 @@ public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> 
     }
 
     @Override
-    public Transferable<T, ? extends TransferVariant<T>> getType() {
-        return type;
+    public Identifier getTypeId() {
+        return typeId;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return isSingleton;
     }
 
     @Nullable
@@ -81,7 +99,6 @@ public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> 
         return id;
     }
 
-    @Nullable
     @Override
     public NbtCompound getNbt() {
         return nbt;
@@ -101,29 +118,29 @@ public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> 
     }
 
     static {
-        FACTORIES.putIfAbsent(TransferableRegistry.ITEMS, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(Registry.ITEM_KEY.getValue(), new Factories<>((id, amount, nbt) -> {
             ItemStack stack = new ItemStack(Registry.ITEM.get(id), (int) amount);
             stack.setNbt(nbt);
             return stack;
         }, ItemVariant::of));
-        FACTORIES.putIfAbsent(TransferableRegistry.FLUIDS, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(Registry.FLUID_KEY.getValue(), new Factories<>((id, amount, nbt) -> {
             FluidVariant fluid = FluidVariant.of(Registry.FLUID.get(id), nbt);
             return fluid;
         }, fluid -> fluid));
-        FACTORIES.putIfAbsent(TransferableRegistry.BLOCKS, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(Registry.BLOCK_KEY.getValue(), new Factories<>((id, amount, nbt) -> {
             return Registry.BLOCK.get(id).getDefaultState();
         }, state -> new BlockVariant(state.getBlock())));
-        FACTORIES.putIfAbsent(TransferableRegistry.ENTITIES, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(Registry.ENTITY_TYPE_KEY.getValue(), new Factories<>((id, amount, nbt) -> {
             // TODO getWorld or return EntityType
             Entity entity = Registry.ENTITY_TYPE.get(id).create(null);
             if (nbt != null)
                 entity.readNbt(nbt);
             return entity;
         }, entity -> new EntityVariant(entity.getType(), entity.writeNbt(new NbtCompound()))));
-        FACTORIES.putIfAbsent(TransferableRegistry.ELECTRICITY, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(Transferable.ELECTRICITY_ID, new Factories<>((id, amount, nbt) -> {
             return ElectricityVariant.INSTANCE;
         }, electricity -> electricity));
-        FACTORIES.putIfAbsent(TransferableRegistry.HEAT, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(Transferable.HEAT_ID, new Factories<>((id, amount, nbt) -> {
             return HeatVariant.INSTANCE;
         }, heat -> heat));
     }

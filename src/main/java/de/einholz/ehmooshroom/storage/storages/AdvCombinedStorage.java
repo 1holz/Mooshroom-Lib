@@ -1,9 +1,24 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.storage.storages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.einholz.ehmooshroom.registry.TransferableRegistry;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.StorageEntry;
@@ -16,6 +31,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.registry.Registry;
 
 public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Storage<V>> extends CombinedStorage<V, S> {
     private final List<StorageEntry<T, V>> entries;
@@ -43,7 +59,7 @@ public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Stora
             return false;
         for (StorageEntry<T, V> entry : entries)
             if (entry.allows(SideConfigType.getFromParams(true, false, acc)))
-                return entry.storage.supportsInsertion();
+                return entry.getStorage().supportsInsertion();
         return false;
     }
 
@@ -53,20 +69,20 @@ public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Stora
             return false;
         for (StorageEntry<T, V> entry : entries)
             if (entry.allows(SideConfigType.getFromParams(true, true, acc)))
-                return entry.storage.supportsExtraction();
+                return entry.getStorage().supportsExtraction();
         return false;
     }
 
     /**
-     * @return An immutable, merged representation of all Inventories
+     * @return An immutable, merged representation of all {@link Inventory}s
      */
     public Inventory getAsInv() {
         List<ItemStack> stacks = new ArrayList<>();
         for (StorageEntry<T, V> entry : entries) {
-            if (!TransferableRegistry.ITEMS.equals(entry.trans))
+            if (!Registry.ITEM_KEY.getValue().equals(entry.getTransferable().getId()))
                 continue;
             try (Transaction trans = Transaction.openOuter()) {
-                var iter = entry.storage.iterator(trans);
+                var iter = entry.getStorage().iterator(trans);
                 while (iter.hasNext()) {
                     StorageView<V> view = iter.next();
                     if (view.getResource() instanceof ItemVariant variant)
@@ -88,7 +104,7 @@ public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Stora
             List<StorageEntry<T, V>> list) {
         List<S> newList = new ArrayList<>();
         for (StorageEntry<T, V> entry : list)
-            newList.add((S) entry.storage);
+            newList.add((S) entry.getStorage());
         return newList;
     }
 }
