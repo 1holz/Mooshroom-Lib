@@ -4,12 +4,12 @@
     "id": "ehmooshroom",
     "version": "${version}",
     "icon": "assets/ehmooshroom/icon.png",
-    "description": "This is a libary for my minecraft mods.",
+    "description": "This is a library for my minecraft mods",
     "authors": [
         "Einholz"
     ],
     "contact": {
-        "homepage": "Lorem ipsum",
+        "homepage": "https://github.com/Albert-Einholz/Mooshroom-Lib",
         "sources": "https://github.com/Albert-Einholz/Mooshroom-Lib",
         "issues": "https://github.com/Albert-Einholz/Mooshroom-Lib/issues"
     },
@@ -35,8 +35,11 @@
         "minecraft": "~1.18",
         "java": ">=17"
     },
-    "suggests": {
+    "recommends": {
         "nochatreports": "*"
+    },
+    "suggests": {
+        "modmenu": "*"
     },
     "custom": {
         "loom:injected_interfaces": {},
@@ -54,7 +57,9 @@
             "links": {
                 "modmenu.discord": "https://discord.gg/VUpY7a7pqF"
             },
-            "badges": [],
+            "badges": [
+                "library"
+            ],
             "parent": {}
         }
     }
