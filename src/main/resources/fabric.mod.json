@@ -35,10 +35,9 @@
         "minecraft": "~1.18",
         "java": ">=17"
     },
-    "recommends": {
-        "nochatreports": "*"
-    },
+    "recommends": {},
     "suggests": {
+        "nochatreports": "*",
         "modmenu": "*"
     },
     "custom": {
@@ -59,8 +58,7 @@
             },
             "badges": [
                 "library"
-            ],
-            "parent": {}
+            ]
         }
     }
 }
