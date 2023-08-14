@@ -41,6 +41,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -103,9 +104,8 @@ public class ContainerBE extends BlockEntity
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
                 // if (!entry.getTransferable().isTransferable())
                 // continue;
-                Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos, targetDir);
-                if (targetStorage == null)
-                    continue;
+                Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos,
+                        targetDir);
                 if (transfer(entry.getTransferId(), entry.getStorage(), targetStorage, getTransfer(),
                         reduceTransfer()))
                     setDirty();
@@ -114,9 +114,8 @@ public class ContainerBE extends BlockEntity
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
                 // if (!entry.getTransferable().isTransferable())
                 // continue;
-                Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos, targetDir);
-                if (targetStorage == null)
-                    continue;
+                Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos,
+                        targetDir);
                 if (transfer(entry.getTransferId(), targetStorage, entry.getStorage(), getTransfer(),
                         reduceTransfer()))
                     setDirty();
@@ -130,8 +129,7 @@ public class ContainerBE extends BlockEntity
         // screenHandler.enableSyncing();
         // screenHandler.sendContentUpdates();
         // screenHandler.updateToClient();
-        // world.updateListeners(pos, world.getBlockState(pos),
-        // world.getBlockState(pos), Block.NOTIFY_LISTENERS);
+        world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
     }
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)

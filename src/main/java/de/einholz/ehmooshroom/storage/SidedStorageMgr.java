@@ -55,8 +55,8 @@ public class SidedStorageMgr implements NbtSerializable {
         return list;
     }
 
-    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Storage<V> storage) {
-        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), id, dirtyMarker));
+    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Identifier transId, Storage<V> storage) {
+        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), transId, dirtyMarker));
         return this;
     }
 
