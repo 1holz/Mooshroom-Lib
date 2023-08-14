@@ -156,7 +156,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
         SideConfigType sct = generate ? SideConfigType.OUT_PROC : SideConfigType.IN_PROC;
         var entries = getStorageMgr().<T, V>getStorageEntries(gredient.getTypeId(), sct);
         for (StorageEntry<T, V> entry : entries) {
-            if (!gredient.getTypeId().equals(entry.getTransferable().getId()))
+            if (!gredient.getTypeId().equals(entry.getTransferId()))
                 continue;
             Iterator<? extends StorageView<V>> iter = entry.getStorage().iterator(trans);
             while (iter.hasNext()) {
@@ -200,7 +200,7 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
                 long remaining = ingredient.getAmount();
                 for (StorageEntry<Object, TransferVariant<Object>> entry : getStorageMgr().getStorageEntries(null,
                         SideConfigType.IN_PROC)) {
-                    if (!ingredient.getTypeId().equals(entry.getTransferable().getId()))
+                    if (!ingredient.getTypeId().equals(entry.getTransferId()))
                         continue;
                     Iterator<? extends StorageView<TransferVariant<Object>>> iter = entry.getStorage().iterator(trans);
                     while (iter.hasNext()) {

@@ -79,7 +79,7 @@ public class AdvCombinedStorage<T, V extends TransferVariant<T>, S extends Stora
     public Inventory getAsInv() {
         List<ItemStack> stacks = new ArrayList<>();
         for (StorageEntry<T, V> entry : entries) {
-            if (!Registry.ITEM_KEY.getValue().equals(entry.getTransferable().getId()))
+            if (!Registry.ITEM_KEY.getValue().equals(entry.getTransferId()))
                 continue;
             try (Transaction trans = Transaction.openOuter()) {
                 var iter = entry.getStorage().iterator(trans);

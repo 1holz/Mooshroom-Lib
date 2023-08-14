@@ -26,11 +26,11 @@ import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.gui.gui.ContainerGui;
+import de.einholz.ehmooshroom.storage.BlockApiLookups;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
 import de.einholz.ehmooshroom.storage.SidedStorageMgr;
 import de.einholz.ehmooshroom.storage.StorageProv;
-import de.einholz.ehmooshroom.storage.Transferable;
 import de.einholz.ehmooshroom.storage.storages.AdvCombinedStorage;
 import de.einholz.ehmooshroom.storage.storages.BarStorage;
 import de.einholz.ehmooshroom.util.NbtSerializable;
@@ -101,23 +101,23 @@ public class ContainerBE extends BlockEntity
             Direction targetDir = dir.getOpposite();
             // self output / push
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, true, dir))) {
-                if (!entry.getTransferable().isTransferable())
-                    continue;
-                Storage<?> targetStorage = entry.getTransferable().getLookup().find(world, targetPos, targetDir);
+                // if (!entry.getTransferable().isTransferable())
+                // continue;
+                Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos, targetDir);
                 if (targetStorage == null)
                     continue;
-                if (transfer(entry.getTransferable().getId(), entry.getStorage(), targetStorage, getTransfer(),
+                if (transfer(entry.getTransferId(), entry.getStorage(), targetStorage, getTransfer(),
                         reduceTransfer()))
                     setDirty();
             }
             // self input / pull
             for (var entry : getStorageMgr().getStorageEntries(null, SideConfigType.getFromParams(false, false, dir))) {
-                if (!entry.getTransferable().isTransferable())
-                    continue;
-                Storage<?> targetStorage = entry.getTransferable().getLookup().find(world, targetPos, targetDir);
+                // if (!entry.getTransferable().isTransferable())
+                // continue;
+                Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos, targetDir);
                 if (targetStorage == null)
                     continue;
-                if (transfer(entry.getTransferable().getId(), targetStorage, entry.getStorage(), getTransfer(),
+                if (transfer(entry.getTransferId(), targetStorage, entry.getStorage(), getTransfer(),
                         reduceTransfer()))
                     setDirty();
             }
@@ -228,10 +228,10 @@ public class ContainerBE extends BlockEntity
     }
 
     @Override
-    public <T, V extends TransferVariant<T>> AdvCombinedStorage<T, V, Storage<V>> getStorage(Transferable<T, V> trans,
-            @Nullable Direction dir) {
+    public AdvCombinedStorage<Object, TransferVariant<Object>, Storage<TransferVariant<Object>>> getStorage(
+            Identifier id, @Nullable Direction dir) {
         SideConfigAccessor acc = SideConfigAccessor.getFromDir(dir);
-        return getStorageMgr().getCombinedStorage(trans.getId(), acc, SideConfigType.getFromParams(true, false, acc),
+        return getStorageMgr().getCombinedStorage(id, acc, SideConfigType.getFromParams(true, false, acc),
                 SideConfigType.getFromParams(true, true, acc));
     }
 

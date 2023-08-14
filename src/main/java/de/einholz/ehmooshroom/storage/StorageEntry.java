@@ -18,19 +18,22 @@ package de.einholz.ehmooshroom.storage;
 
 import de.einholz.ehmooshroom.MooshroomLib;
 import de.einholz.ehmooshroom.util.NbtSerializable;
+import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.util.NbtType;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSerializable {
     private final Storage<U> storage;
     private final char[] config;
-    private final Transferable<T, U> trans;
+    private final Identifier transId;
     private final BlockEntity dirtyMarker;
 
-    public StorageEntry(Storage<U> storage, char[] config, Transferable<T, U> trans, BlockEntity dirtyMarker) {
+    public StorageEntry(Storage<U> storage, char[] config, Identifier transId, BlockEntity dirtyMarker) {
         this.storage = storage;
         SideConfigType[] values = SideConfigType.values();
         if (config.length != values.length) {
@@ -44,7 +47,7 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
             this.config = newConfig;
         } else
             this.config = config;
-        this.trans = trans;
+        this.transId = transId;
         this.dirtyMarker = dirtyMarker;
     }
 
@@ -111,7 +114,7 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
             String str = nbt.getString("Config");
             if (str.length() < config.length) {
                 MooshroomLib.LOGGER
-                        .warnBug("Config string for " + getTransferable().getId() + " has a lenght of " + str.length()
+                        .warnBug("Config string for " + transId + " has a lenght of " + str.length()
                                 + " but should have " + config.length);
                 return;
             }
@@ -124,7 +127,11 @@ public class StorageEntry<T, U extends TransferVariant<T>> implements NbtSeriali
         return storage;
     }
 
-    public Transferable<T, U> getTransferable() {
-        return trans;
+    public Identifier getTransferId() {
+        return transId;
+    }
+
+    public BlockApiLookup<? extends Storage<? extends TransferVariant<?>>, Direction> getLookup() {
+        return BlockApiLookups.getOrMake(transId);
     }
 }

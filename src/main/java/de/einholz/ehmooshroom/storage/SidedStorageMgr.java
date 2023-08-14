@@ -55,9 +55,8 @@ public class SidedStorageMgr implements NbtSerializable {
         return list;
     }
 
-    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Transferable<T, V> trans,
-            Storage<V> storage) {
-        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), trans, dirtyMarker));
+    public <T, V extends TransferVariant<T>> SidedStorageMgr withStorage(Identifier id, Storage<V> storage) {
+        STORAGES.put(id, new StorageEntry<T, V>(storage, SideConfigType.getDefaultArray(), id, dirtyMarker));
         return this;
     }
 
@@ -91,17 +90,17 @@ public class SidedStorageMgr implements NbtSerializable {
     public <T, V extends TransferVariant<T>> List<StorageEntry<T, V>> getStorageEntries(
             @Nullable Identifier typeId, @Nullable SideConfigType... configTypes) {
         List<StorageEntry<T, V>> list = new ArrayList<>();
-        for (var storageEntry : STORAGES.values()) {
-            if (typeId != null && !typeId.equals(storageEntry.getTransferable().getId()))
+        for (var entry : STORAGES.values()) {
+            if (typeId != null && !typeId.equals(entry.getTransferId()))
                 continue;
             if (configTypes == null) {
-                list.add((StorageEntry<T, V>) storageEntry);
+                list.add((StorageEntry<T, V>) entry);
                 continue;
             }
             for (SideConfigType configType : configTypes) {
-                if (!storageEntry.allows(configType))
+                if (!entry.allows(configType))
                     continue;
-                list.add((StorageEntry<T, V>) storageEntry);
+                list.add((StorageEntry<T, V>) entry);
                 break;
             }
         }

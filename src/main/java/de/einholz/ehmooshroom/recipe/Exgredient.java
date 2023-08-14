@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- package de.einholz.ehmooshroom.recipe;
+package de.einholz.ehmooshroom.recipe;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
 
-import de.einholz.ehmooshroom.storage.Transferable;
+import de.einholz.ehmooshroom.storage.BlockApiLookups;
 import de.einholz.ehmooshroom.storage.variants.BlockVariant;
 import de.einholz.ehmooshroom.storage.variants.ElectricityVariant;
 import de.einholz.ehmooshroom.storage.variants.EntityVariant;
@@ -137,10 +137,10 @@ public class Exgredient<T, V extends TransferVariant<T>> implements Gredient<T> 
                 entity.readNbt(nbt);
             return entity;
         }, entity -> new EntityVariant(entity.getType(), entity.writeNbt(new NbtCompound()))));
-        FACTORIES.putIfAbsent(Transferable.ELECTRICITY_ID, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(BlockApiLookups.ELECTRICITY_ID, new Factories<>((id, amount, nbt) -> {
             return ElectricityVariant.INSTANCE;
         }, electricity -> electricity));
-        FACTORIES.putIfAbsent(Transferable.HEAT_ID, new Factories<>((id, amount, nbt) -> {
+        FACTORIES.putIfAbsent(BlockApiLookups.HEAT_ID, new Factories<>((id, amount, nbt) -> {
             return HeatVariant.INSTANCE;
         }, heat -> heat));
     }
