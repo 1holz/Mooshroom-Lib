@@ -25,7 +25,6 @@ import java.util.function.ToLongFunction;
 import org.jetbrains.annotations.Nullable;
 
 import de.einholz.ehmooshroom.MooshroomLib;
-import de.einholz.ehmooshroom.gui.gui.ContainerGui;
 import de.einholz.ehmooshroom.storage.BlockApiLookups;
 import de.einholz.ehmooshroom.storage.SideConfigType;
 import de.einholz.ehmooshroom.storage.SideConfigType.SideConfigAccessor;
@@ -106,6 +105,8 @@ public class ContainerBE extends BlockEntity
                 // continue;
                 Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos,
                         targetDir);
+                if (targetStorage == null)
+                    continue;
                 if (transfer(entry.getTransferId(), entry.getStorage(), targetStorage, getTransfer(),
                         reduceTransfer()))
                     setDirty();
@@ -116,13 +117,15 @@ public class ContainerBE extends BlockEntity
                 // continue;
                 Storage<?> targetStorage = BlockApiLookups.getOrMake(entry.getTransferId()).find(world, targetPos,
                         targetDir);
+                if (targetStorage == null)
+                    continue;
                 if (transfer(entry.getTransferId(), targetStorage, entry.getStorage(), getTransfer(),
                         reduceTransfer()))
                     setDirty();
             }
         }
         world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
-        if (screenHandler == null) {//} || screenHandler instanceof ContainerGui gui && !gui.isOpen()) {
+        if (screenHandler == null) {// } || screenHandler instanceof ContainerGui gui && !gui.isOpen()) {
             screenHandler = null;
             return;
         }

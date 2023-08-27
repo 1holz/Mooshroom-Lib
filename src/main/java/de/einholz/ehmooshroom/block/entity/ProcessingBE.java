@@ -80,8 +80,6 @@ public class ProcessingBE extends ContainerBE implements RecipeHolder {
             recipeId = null;
         }
         isProcessing = progress > PROGRESS_MIN && isActivated();
-        // powerBalance = getMachineCapacitorComp().getCurrentEnergy() - lastPower;
-        // lastPower = getMachineCapacitorComp().getCurrentEnergy();
         transfer();
         if (!isProcessing && isActivated())
             isProcessing = checkForRecipe();
