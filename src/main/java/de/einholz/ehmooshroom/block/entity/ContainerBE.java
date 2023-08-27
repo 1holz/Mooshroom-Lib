@@ -127,9 +127,9 @@ public class ContainerBE extends BlockEntity
             return;
         }
         // these seem to be unnecessary now
-        screenHandler.enableSyncing();
-        screenHandler.sendContentUpdates();
-        screenHandler.updateToClient();
+        // screenHandler.enableSyncing();
+        // screenHandler.sendContentUpdates();
+        // screenHandler.updateToClient();
     }
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
