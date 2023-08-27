@@ -121,15 +121,15 @@ public class ContainerBE extends BlockEntity
                     setDirty();
             }
         }
-        if (screenHandler == null || screenHandler instanceof ContainerGui gui && !gui.isOpen()) {
+        world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
+        if (screenHandler == null) {//} || screenHandler instanceof ContainerGui gui && !gui.isOpen()) {
             screenHandler = null;
             return;
         }
         // these seem to be unnecessary now
-        // screenHandler.enableSyncing();
-        // screenHandler.sendContentUpdates();
-        // screenHandler.updateToClient();
-        world.updateListeners(pos, world.getBlockState(pos), world.getBlockState(pos), Block.NOTIFY_LISTENERS);
+        screenHandler.enableSyncing();
+        screenHandler.sendContentUpdates();
+        screenHandler.updateToClient();
     }
 
     // TODO merge with ProcessingBE consume(…) and generate(…) (atleast partially)
