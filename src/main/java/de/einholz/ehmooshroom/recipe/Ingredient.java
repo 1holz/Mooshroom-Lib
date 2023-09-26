@@ -28,7 +28,6 @@ import net.minecraft.util.registry.RegistryEntry;
 
 // XXX anotate constructor with only server?
 public class Ingredient<T> implements Gredient<T> {
-    // private final Transferable<T, ? extends TransferVariant<T>> type;
     private final Identifier typeId;
     private final boolean isSingleton;
     @Nullable

@@ -1,12 +1,12 @@
 /*
  * Copyright 2023 Einholz
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,8 +24,10 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
-public class MooshroomLib implements ModInitializer, ClientModInitializer {
+public class MooshroomLib implements ModInitializer, ClientModInitializer, DataGeneratorEntrypoint {
     public static final Helper HELPER = new Helper("ehmooshroom");
     public static final LoggerHelper LOGGER = new LoggerHelper(HELPER.MOD_ID,
             "https://github.com/Albert-Einholz/Mooshroom-Lib/issues");
@@ -39,5 +41,9 @@ public class MooshroomLib implements ModInitializer, ClientModInitializer {
     @Environment(EnvType.CLIENT)
     @Override
     public void onInitializeClient() {
+    }
+
+    @Override
+    public void onInitializeDataGenerator(FabricDataGenerator generator) {
     }
 }

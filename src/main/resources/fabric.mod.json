@@ -22,8 +22,8 @@
         "client": [
             "de.einholz.ehmooshroom.MooshroomLib"
         ],
-        "cardinal-components": [
-            "de.einholz.ehmooshroom.container.component.Registry"
+        "fabric-datagen": [
+            "de.einholz.ehmooshroom.MooshroomLib"
         ]
     },
     "mixins": [
