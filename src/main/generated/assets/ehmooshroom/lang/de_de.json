@@ -1,0 +1,11 @@
+{
+  "block.ehmooshroom.cancel_button": "X",
+  "block.ehmooshroom.side_config.acc": " |G|P|↓   |↑  |N   |S  |W   |O  |",
+  "block.ehmooshroom.side_config.fluid": "Flüssigkeiten",
+  "block.ehmooshroom.side_config.item": "Gegenstände",
+  "block.ehmooshroom.side_config.power": "Strom",
+  "chat.ehmooshroom.wip": "An diesem Feature wird noch gearbeitet",
+  "tooltip.ehmooshroom.activation_button": "%s",
+  "tooltip.ehmooshroom.cancel_button": "Zurück zum Hauptfenster",
+  "tooltip.ehmooshroom.config_button": "%s mit Zugriff von %s ist %s (%s)"
+}

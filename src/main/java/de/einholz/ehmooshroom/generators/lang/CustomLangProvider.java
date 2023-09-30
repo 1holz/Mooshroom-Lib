@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.einholz.ehmooshroom.generators;
+package de.einholz.ehmooshroom.generators.lang;
 
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
@@ -31,7 +31,7 @@ public abstract class CustomLangProvider extends FabricLanguageProvider {
         this.code = code;
     }
 
-    protected Path getPath() {
+    protected Path getPath() throws NoSuchElementException {
         String path = "assets/" + dataGenerator.getModId() + "/lang/" + code + ".json";
         try {
             return dataGenerator.getModContainer().findPath(path).orElseThrow();
@@ -39,5 +39,9 @@ public abstract class CustomLangProvider extends FabricLanguageProvider {
             MooshroomLib.LOGGER.errorBug(path + " could not be found", e);
             throw e;
         }
+    }
+
+    protected void add(TranslationBuilder builder, String type, String path, String translation) {
+        builder.add(type + "." + dataGenerator.getModId() + "." + path, translation);
     }
 }

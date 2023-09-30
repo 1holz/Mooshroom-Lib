@@ -16,6 +16,8 @@
 
 package de.einholz.ehmooshroom;
 
+import de.einholz.ehmooshroom.generators.lang.EnglishLangProvider;
+import de.einholz.ehmooshroom.generators.lang.GermanLangProvider;
 import de.einholz.ehmooshroom.registry.RecipeTypeRegistry;
 import de.einholz.ehmooshroom.registry.ScreenHandlerRegistry;
 import de.einholz.ehmooshroom.util.Helper;
@@ -45,5 +47,16 @@ public class MooshroomLib implements ModInitializer, ClientModInitializer, DataG
 
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
+        // use this for future versions:
+        // Pack pack = generator.createPack();
+        generator.addProvider(new GermanLangProvider(generator, "de_at"));
+        generator.addProvider(new GermanLangProvider(generator, "de_ch"));
+        generator.addProvider(new GermanLangProvider(generator, "de_de"));
+        generator.addProvider(new EnglishLangProvider(generator, "en_au"));
+        generator.addProvider(new EnglishLangProvider(generator, "en_ca"));
+        generator.addProvider(new EnglishLangProvider(generator, "en_gb"));
+        generator.addProvider(new EnglishLangProvider(generator, "en_nz"));
+        generator.addProvider(new EnglishLangProvider(generator, "en_pt"));
+        generator.addProvider(new EnglishLangProvider(generator, "en_us"));
     }
 }
