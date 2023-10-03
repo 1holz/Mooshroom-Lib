@@ -30,7 +30,6 @@ public class GermanLangProvider extends CustomLangProvider {
         add(builder, "block", "side_config.fluid", "Flüssigkeiten");
         add(builder, "block", "side_config.power", "Strom");
         add(builder, "chat", "wip", "An diesem Feature wird noch gearbeitet");
-        add(builder, "tooltip", "activation_button", "%s");
         add(builder, "tooltip", "cancel_button", "Zurück zum Hauptfenster");
         add(builder, "tooltip", "config_button", "%s mit Zugriff von %s ist %s (%s)");
         // try {

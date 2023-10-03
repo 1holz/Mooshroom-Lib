@@ -49,6 +49,7 @@ public class MooshroomLib implements ModInitializer, ClientModInitializer, DataG
     public void onInitializeDataGenerator(FabricDataGenerator generator) {
         // use this for future versions:
         // Pack pack = generator.createPack();
+        // LANG
         generator.addProvider(new GermanLangProvider(generator, "de_at"));
         generator.addProvider(new GermanLangProvider(generator, "de_ch"));
         generator.addProvider(new GermanLangProvider(generator, "de_de"));

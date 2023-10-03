@@ -30,7 +30,6 @@ public class EnglishLangProvider extends CustomLangProvider {
         add(builder, "block", "side_config.fluid", "Fluids");
         add(builder, "block", "side_config.power", "Power");
         add(builder, "chat", "wip", "This feature is in a work in progress state");
-        add(builder, "tooltip", "activation_button", "%s");
         add(builder, "tooltip", "cancel_button", "Return to main screen");
         add(builder, "tooltip", "config_button", "%s with access from %s is %s (%s)");
         // try {
