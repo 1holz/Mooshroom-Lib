@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Einholz
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.einholz.ehmooshroom.registry;
 
 import java.util.ArrayList;
@@ -27,12 +43,16 @@ public class ItemRegistry extends RegistryBuilder<Item> {
         return (ItemRegistry) register(name, block, settings);
     }
 
+    public ItemRegistry register(String name, Block block) {
+        return (ItemRegistry) register(name, new BlockItem(block, defaultSettings()));
+    }
+
     public ItemRegistry register(String name, Block block, Settings settings) {
         return (ItemRegistry) register(name, new BlockItem(block, settings));
     }
 
     public ItemRegistry register(String name, ItemFactory<Item> factory) {
-        return (ItemRegistry) register(name, factory.create(new Settings()));
+        return (ItemRegistry) register(name, factory.create(defaultSettings()));
     }
 
     public ItemRegistry register(String name, ItemFactory<Item> factory, Settings settings) {
@@ -76,6 +96,10 @@ public class ItemRegistry extends RegistryBuilder<Item> {
     @Nullable
     public static ItemGroup getItemGroup(Identifier id) {
         return ITEM_GROUPS.get(id);
+    }
+
+    protected Settings defaultSettings() {
+        return new Settings();
     }
 
     @FunctionalInterface

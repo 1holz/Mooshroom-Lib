@@ -45,14 +45,16 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
     @Override
     protected ItemStack[] createSnapshot() {
         ItemStack[] stacks = new ItemStack[getInv().size()];
-        for (int i = 0; i < stacks.length; i++) stacks[i] = getInv().getStack(i);
+        for (int i = 0; i < stacks.length; i++)
+            stacks[i] = getInv().getStack(i);
         return stacks;
     }
 
     @Override
     protected void readSnapshot(ItemStack[] snapshot) {
         getInv().clear();
-        for (int i = 0; i < snapshot.length; i++) getInv().setStack(i, snapshot[i]);
+        for (int i = 0; i < snapshot.length; i++)
+            getInv().setStack(i, snapshot[i]);
         storage = InventoryStorage.of(inv, null);
     }
 
@@ -69,13 +71,15 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
 
     @Override
     public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        if (!supportsInsertion()) return 0;
+        if (!supportsInsertion())
+            return 0;
         return storage.insert(resource, maxAmount, transaction);
     }
 
     @Override
     public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        if (!supportsExtraction()) return 0;
+        if (!supportsExtraction())
+            return 0;
         return storage.extract(resource, maxAmount, transaction);
     }
 
@@ -89,13 +93,15 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
         NbtList list = new NbtList();
         for (int i = 0; i < getInv().size(); i++) {
             ItemStack stack = getInv().getStack(i);
-            if (stack.isEmpty()) continue;
+            if (stack.isEmpty())
+                continue;
             NbtCompound slotNbt = new NbtCompound();
             slotNbt.putInt("Index", i);
             slotNbt.put("Stack", stack.writeNbt(new NbtCompound()));
             list.add(slotNbt);
         }
-        if (!list.isEmpty()) nbt.put("Inv", list);
+        if (!list.isEmpty())
+            nbt.put("Inv", list);
     }
 
     @Override
@@ -106,10 +112,12 @@ public class AdvItemStorage extends SnapshotParticipant<ItemStack[]> implements 
             for (NbtElement slotNbtElement : list) {
                 if (slotNbtElement instanceof NbtCompound slotNbt) {
                     var stack = ItemStack.fromNbt(slotNbt.getCompound("Stack"));
-                    if (stack.isEmpty()) continue;
+                    if (stack.isEmpty())
+                        continue;
                     getInv().setStack(slotNbt.getInt("Index"), stack);
                 } else
-                    MooshroomLib.LOGGER.warn(new JsonIOException("NbtElement for AdvItemStorage has to be a NbtCompound"));
+                    MooshroomLib.LOGGER
+                            .warnRaw(new JsonIOException("NbtElement for AdvItemStorage has to be a NbtCompound"));
             }
         storage = InventoryStorage.of(inv, null);
     }

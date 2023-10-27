@@ -36,7 +36,7 @@ public interface Gredient<T> {
             JsonElement jsonElement) {
         JsonObject json = (JsonObject) jsonElement;
         if (!JsonHelper.hasString(json, "typeId"))
-            MooshroomLib.LOGGER.error("Gredient is missing typeId!");
+            MooshroomLib.LOGGER.errorRaw("Gredient is missing typeId!");
         Identifier typeId = new Identifier(JsonHelper.getString(json, "typeId"));
         Identifier id = null;
         if (json.has("id"))
