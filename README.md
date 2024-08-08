@@ -1,5 +1,7 @@
 # Mooshroom Lib
 
+_Consider this project discontinued_
+
 [![Gradle](https://github.com/Albert-Einholz/Mooshroom-Lib/actions/workflows/gradle.yml/badge.svg)](https://github.com/Albert-Einholz/Mooshroom-Lib/actions/workflows/gradle.yml)
 
 This is a library for my minecraft mods.
